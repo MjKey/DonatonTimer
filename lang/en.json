@@ -43,5 +43,8 @@
     "chengelog":"Changelog",
     "ps":"Made especially for donathons",
     "okpon":"Okay, got it!",
-    "support":"Support the author"
+    "support":"Support the author",
+    "port_settings": "Port Settings",
+    "port": "Port",
+    "err_port":"Enter the correct port values"
 }
