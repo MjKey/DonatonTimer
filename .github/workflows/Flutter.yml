@@ -3,7 +3,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Dart
+name: Flutter Build
 
 on:
   push:
@@ -22,3 +22,7 @@ jobs:
         with:
           channel: stable
       - run: flutter build windows
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Lastest
+          path: build/windows/x64/runner/Release/
