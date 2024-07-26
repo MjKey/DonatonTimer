@@ -1,0 +1,21 @@
+name: Flutter Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  main:
+    runs-on: windows-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+      - name: Build Windows bundle
+        uses: AcmeSoftwareLLC/flutter-build@v1
+        with:
+          platform: windows
+          build-name: 2.0.0
+          pub-get: true
+          gen-icons: false
