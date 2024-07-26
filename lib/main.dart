@@ -207,6 +207,8 @@ class _MainScreenState extends State<MainScreen> {
   SocketService? _socketService;
   String _localIpAddress = '';
   final AudioPlayer _audioPlayer = AudioPlayer();
+  int _httpPort = 8080;
+  int _wsPort = 4040;
   
 
   @override
@@ -258,7 +260,7 @@ class _MainScreenState extends State<MainScreen> {
               width: 200.0, 
               height: 200.0, 
               child: QrImageView(
-                data: 'http://$_localIpAddress:8080/dashboard',
+                data: 'http://$_localIpAddress:$_httpPort/dashboard',
                 version: QrVersions.auto,
                 size: 200.0, 
               ),
@@ -429,6 +431,8 @@ class _MainScreenState extends State<MainScreen> {
     LogManager.log(Level.INFO, 'Загрузка настроек');
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
+      _httpPort = prefs.getInt('httpPort') ?? 8080;
+      _wsPort = prefs.getInt('wsPort') ?? 4040;
       _timerDuration = prefs.getInt('timer_duration') ?? 0;
       _minutesPer100Rubles = prefs.getDouble('minutes_per_100_rubles') ?? 10.0;
       String? token = prefs.getString('donation_alerts_token');
@@ -457,6 +461,97 @@ class _MainScreenState extends State<MainScreen> {
     } else {
       LogManager.log(Level.WARNING, 'Токен не найден');
     }
+  }
+
+  void _updatePorts(int httpPort, int wsPort) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('httpPort', httpPort);
+    await prefs.setInt('wsPort', wsPort);
+
+    setState(() {
+      _httpPort = httpPort;
+      _wsPort = wsPort;
+    });
+
+    _restartServers();
+  }
+
+  void _restartServers() {
+    _webSocketServer.close();
+    _server.close();
+    _startWebSocketServer();
+    _startWebServer();
+  }
+
+  void _showPortSettingsDialog() {
+    TextEditingController httpPortController = TextEditingController(text: _httpPort.toString());
+    TextEditingController wsPortController = TextEditingController(text: _wsPort.toString());
+    String? errorMessage;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: Text(context.read<LocalizationProvider>().translate('port_settings')),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: httpPortController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'HTTP ${context.read<LocalizationProvider>().translate('port')}',
+                      errorText: errorMessage,
+                    ),
+                  ),
+                  TextField(
+                    controller: wsPortController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'WebSocket ${context.read<LocalizationProvider>().translate('port')}',
+                      errorText: errorMessage,
+                    ),
+                  ),
+                  if (errorMessage != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        errorMessage!,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(context.read<LocalizationProvider>().translate('cancel')),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    int? httpPort = int.tryParse(httpPortController.text);
+                    int? wsPort = int.tryParse(wsPortController.text);
+                    if (httpPort != null && wsPort != null && httpPort > 0 && wsPort > 0) {
+                      _updatePorts(httpPort, wsPort);
+                      Navigator.of(context).pop();
+                    } else {
+                      setState(() {
+                        errorMessage = context.read<LocalizationProvider>().translate('err_port');
+                      });
+                    }
+                  },
+                  child: Text(context.read<LocalizationProvider>().translate('save')),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   void _handleDonation(dynamic data) {
@@ -745,6 +840,7 @@ void _loadStatistics() async {
   }
 }
 
+
   void _resetSettings() async {
   LogManager.log(Level.INFO, 'Ресет настроек');
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -767,7 +863,7 @@ void _loadStatistics() async {
   void _startWebServer() async {
     LogManager.log(Level.INFO, 'Запуск страницы для OBS');
     var handler = const Pipeline().addHandler(_webHandler);
-    _server = await io.serve(handler, '0.0.0.0', 8080);
+    _server = await io.serve(handler, '0.0.0.0', _httpPort);
   }
 
   Future<Response> _webHandler(Request request) async {
@@ -800,7 +896,7 @@ void _loadStatistics() async {
 <body>
     <div id="timer">00:00:00</div>
     <script>
-      const socket = new WebSocket('ws://$_localIpAddress:4040'); 
+      const socket = new WebSocket('ws://$_localIpAddress:$_wsPort'); 
       socket.onmessage = function(event) {
         const data = JSON.parse(event.data);
         if (data.action === 'update_timer') {
@@ -908,11 +1004,11 @@ void _loadStatistics() async {
         </div>
     </section>
     <footer>
-    <center><p>Dev. MjKey</p><a href="http://$_localIpAddress:8080/mini">Мини-версия</a></center>
+    <center><p>Dev. MjKey</p><a href="http://$_localIpAddress:$_httpPort/mini">Мини-версия</a></center>
     </footer>
 
     <script>
-        const socket = new WebSocket('ws://$_localIpAddress:4040');
+        const socket = new WebSocket('ws://$_localIpAddress:$_wsPort');
         let isRunning = false;
 
         socket.onmessage = function(event) {
@@ -1047,7 +1143,7 @@ void _loadStatistics() async {
     </section>
 
     <script>
-        const socket = new WebSocket('ws://$_localIpAddress:4040');
+        const socket = new WebSocket('ws://$_localIpAddress:$_wsPort');
         let isRunning = false;
 
         socket.onmessage = function(event) {
@@ -1099,7 +1195,7 @@ void _loadStatistics() async {
   }
 
   void _startWebSocketServer() async {
-    _webSocketServer = await HttpServer.bind('0.0.0.0', 4040);
+    _webSocketServer = await HttpServer.bind('0.0.0.0', _wsPort);
     _webSocketServer.listen((HttpRequest request) {
       if (request.uri.path == '/') {
         WebSocketTransformer.upgrade(request).then((WebSocket socket) {
@@ -1148,7 +1244,7 @@ void _loadStatistics() async {
 
   void _copyLinkToClipboard() {
     LogManager.log(Level.INFO, 'Скопирована ссылка');
-    Clipboard.setData(const ClipboardData(text: 'http://localhost:8080/timer'));
+    Clipboard.setData(ClipboardData(text: 'http://localhost:$_httpPort/timer'));
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.read<LocalizationProvider>().translate('OBScopy'))));
   }
 
@@ -1256,11 +1352,15 @@ void _loadStatistics() async {
                 case 'clear_statistics':
                   _clearStatistics();
                   break;
+                case 'port_settings':
+                  _showPortSettingsDialog();
+                  break;
               }
             },
             itemBuilder: (BuildContext context) {
               return [
                 PopupMenuItem(value: 'settings', child: Text(context.read<LocalizationProvider>().translate('settings'))),
+                PopupMenuItem(value: 'port_settings', child: Text(context.read<LocalizationProvider>().translate('port_settings'))),
                 PopupMenuItem(value: 'reset', child: Text(context.read<LocalizationProvider>().translate('clear_settings'))),
                 PopupMenuItem(value: 'change_timer', child: Text(context.read<LocalizationProvider>().translate('edit'))),
                 PopupMenuItem(value: 'copy_link', child: Text(context.read<LocalizationProvider>().translate('copyOBS'))),
@@ -1331,7 +1431,7 @@ void _loadStatistics() async {
                 Expanded(
                   child: Column(
                     children: [
-                      Text(context.read<LocalizationProvider>().translate('LDon'), style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text(context.read<LocalizationProvider>().translate('LDon'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       Expanded(
                         child: ListView.builder(
                           itemCount: _recentDonations.length,
@@ -1356,7 +1456,7 @@ void _loadStatistics() async {
                 Expanded(
                   child: Column(
                     children: [
-                      Text(context.read<LocalizationProvider>().translate('TDon'), style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text(context.read<LocalizationProvider>().translate('TDon'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       Expanded(
                         child: ListView.builder(
                           itemCount: _topDonators.length,
