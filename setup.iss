@@ -1,6 +1,6 @@
 [Setup]
 AppName=Донатон Таймер
-AppVersion=1.0
+AppVersion=2.0.1
 DefaultDirName={pf}\DTimer
 DefaultGroupName=Донатон
 OutputBaseFilename=DTimer Setup
