@@ -11,7 +11,7 @@ Read this in other languages: [English](https://github.com/MjKey/DonatonTimer/bl
 
 - ### Интерфейс программы под Windows
 
-  ![Интерфейс](https://github.com/MjKey/DonatonTimer/blob/main/img/main.jpg?raw=true)
+  ![Интерфейс](https://github.com/MjKey/DonatonTimer/blob/main/img/main.gif?raw=true)
 
   - Есть тёмная тема
   - Удобное управление
