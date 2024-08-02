@@ -1,5 +1,6 @@
-# Таймер для донатона
-
+# Таймер для донатона 
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/MjKey/DonatonTimer/total) ![GitHub Release](https://img.shields.io/github/v/release/MjKey/DonatonTimer)
+ ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/MjKey/DonatonTimer/Flutter.yml) ![GitHub Repo stars](https://img.shields.io/github/stars/MjKey/DonatonTimer)  
 **Донатон Таймер** — это приложение для управления таймером, которое интегрируется с донатами DonationAlerts, позволяя отслеживать и управлять временем в зависимости от поступивших донатов. 
 Также присутствует **оверлей таймера** для OBS, чтобы ваши зрители видели таймер!
 >> Это моя первая разработка приложения на Flutter, до этого писал только на Python, думаю, получилось неплохо, пользуйтесь! 😺
