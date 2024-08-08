@@ -7,6 +7,8 @@
 >> 
 >> Будет полезно тем, кто хочет себе удобный и функциональный таймер для донатона!
 
+### Инструкция ✬ [RU](https://github.com/MjKey/DonatonTimer/wiki/Настройка-и-использование-%5BRU%5D) | [EN](https://github.com/MjKey/DonatonTimer/wiki/Setting-and-using-%5BEN%5D) (⸝⸝ᵕᴗᵕ⸝⸝)
+
 Read this in other languages: [English](https://github.com/MjKey/DonatonTimer/blob/main/README-EN.md)
 
 ## 🎯 Ключевые возможности
