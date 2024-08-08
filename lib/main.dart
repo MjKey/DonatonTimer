@@ -236,11 +236,13 @@ class _MainScreenState extends State<MainScreen> {
       final info = NetworkInfo();
       final ipAddress = await info.getWifiIP();
       setState(() {
-        _localIpAddress = ipAddress ?? '';
+        _localIpAddress = ipAddress ?? 'localhost';
+        LogManager.log(Level.INFO, 'WebSocket Local IP: $_localIpAddress');
       });
     } catch (e) {
       setState(() {
-        _localIpAddress = '';
+        _localIpAddress = 'localhost';
+        LogManager.log(Level.INFO, 'WebSocket Local IP: $_localIpAddress');
       });
     }
   }
