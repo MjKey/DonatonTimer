@@ -1,4 +1,4 @@
-// ignore_for_file: depend_on_referenced_packages, library_private_types_in_public_api, use_build_context_synchronously
+// ignore_for_file: depend_on_referenced_packages, library_private_types_in_public_api, use_build_context_synchronously, deprecated_member_use
 
 import 'dart:io';
 import 'dart:async';
@@ -24,6 +24,9 @@ import 'package:network_info_plus/network_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:webview_windows/webview_windows.dart';
+import 'package:translator/translator.dart';
+import 'style_screen.dart';
 
 class LocalizationProvider with ChangeNotifier {
   Map<String, String> _localizedStrings = {};
@@ -59,6 +62,30 @@ class LocalizationProvider with ChangeNotifier {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('language', languageCode);
   }
+}
+
+class TimerStyle {
+  final String name;
+  final String img;
+  final String css;
+
+  TimerStyle(this.name, this.img, this.css);
+
+  factory TimerStyle.fromJson(Map<String, dynamic> json) {
+    return TimerStyle(
+      json['name'] as String,
+      json['img'] as String,
+      json['css'] as String,
+    );
+  }
+}
+
+Future<List<TimerStyle>> _loadStyles() async {
+  final String response = await rootBundle.loadString('assets/styles.json');
+  final data = await json.decode(response);
+  return (data['styles'] as List)
+      .map((style) => TimerStyle.fromJson(style))
+      .toList();
 }
 
 class ThemeProvider with ChangeNotifier {
@@ -144,7 +171,7 @@ void main() async {
   LogManager.log(Level.INFO, 'Запуск..');
   await windowManager.ensureInitialized();
   if (Platform.isWindows) {
-    WindowManager.instance.setMinimumSize(const Size(700, 600));
+    WindowManager.instance.setMinimumSize(const Size(700, 725));
     WindowManager.instance.setMaximumSize(const Size(700, 1080));
     LogManager.log(Level.INFO, 'Размеры окна заданы');
   }
@@ -213,6 +240,23 @@ class _MainScreenState extends State<MainScreen> {
   int _httpPort = 8080;
   int _wsPort = 4040;
 
+  final String changelog = '''
+  ★ Добавлен выбор стилей для таймера
+  ★ Добавлен генератр стилей (CSS) для таймера
+  ☆ Фикс получения локального IP [issues/1]
+  ☆ Немножко поправлен код
+  
+  Задумки (в планах на будущее):
+  ✦ Добавить поддержку:
+  ✧ Donate.Stream
+  ✧ Donatty
+  ✧ Donatepay
+  ✧ StreamElements (Вряд ли)
+  ''';
+  String translatedChangelog = '';
+
+  final version = "2.0.3";
+
   @override
   void initState() {
     super.initState();
@@ -222,6 +266,16 @@ class _MainScreenState extends State<MainScreen> {
     _startWebServer();
     _startWebSocketServer();
     _getLocalIpAddress();
+    _translateChangelog();
+  }
+
+  void _translateChangelog() async {
+    final translator = GoogleTranslator();
+    final translated =
+        await translator.translate(changelog, from: 'ru', to: 'en');
+    setState(() {
+      translatedChangelog = translated.text;
+    });
   }
 
   void _incrementCounter() {
@@ -292,8 +346,9 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  void _showAuthorInfo() {
+  void _showAuthorInfo() async {
     LogManager.log(Level.INFO, 'Отображение информации об авторе');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -340,7 +395,7 @@ class _MainScreenState extends State<MainScreen> {
                   style: theme.textTheme.bodyLarge,
                   children: <TextSpan>[
                     TextSpan(
-                      text: '2.0.2',
+                      text: version,
                       style: GoogleFonts.lato(
                           textStyle: const TextStyle(
                         color: Color.fromARGB(255, 243, 33, 226),
@@ -371,11 +426,15 @@ class _MainScreenState extends State<MainScreen> {
                   )),
                 ),
               ),
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text('• Сделал покарсивше чутка'),
-                  Text('• Испавил QR код в тёмной версии')
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    prefs.getString('language') == 'ru'
+                        ? changelog
+                        : translatedChangelog,
+                    textAlign: TextAlign.left,
+                  ),
                 ],
               ),
               const SizedBox(height: 20),
@@ -878,6 +937,135 @@ class _MainScreenState extends State<MainScreen> {
     await _socketService?.dispose();
 
     await _initSocketService();
+  }
+
+  void _openTextStyleGenerator() {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => const StyleGeneratorScreen(),
+    ));
+  }
+
+  void _showYouTubeHelpDialog() {
+    final WebviewController controller = WebviewController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(context.read<LocalizationProvider>().translate('help')),
+          content: SizedBox(
+            width: 600,
+            height: 400,
+            child: FutureBuilder<void>(
+              future: controller.initialize(),
+              builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  controller.loadUrl('https://mjkey.ru/yt.html');
+                  return Webview(controller);
+                } else {
+                  return const Center(child: CircularProgressIndicator());
+                }
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              child:
+                  Text(context.read<LocalizationProvider>().translate('close')),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    ).then((_) {
+      controller.dispose();
+    });
+  }
+
+  void _showTimerStylesDialog() async {
+    List<TimerStyle> styles = await _loadStyles();
+    final localizationProvider =
+        Provider.of<LocalizationProvider>(context, listen: false);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final theme = Theme.of(context);
+        return AlertDialog(
+          title: Text(localizationProvider.translate('timer_styles_title')),
+          content: SingleChildScrollView(
+            child: Column(
+              children: styles.map((style) {
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Column(
+                      children: [
+                        Image.memory(base64Decode(style.img.split(',')[1]),
+                            height: 50),
+                      ],
+                    ),
+                    const SizedBox(width: 10),
+                    Column(
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            Clipboard.setData(ClipboardData(text: style.css));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(localizationProvider
+                                      .translate('css_copied'))),
+                            );
+                          },
+                          child:
+                              Text(localizationProvider.translate('copy_css')),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+              }).toList(),
+            ),
+          ),
+          actions: [
+            RichText(
+              text: TextSpan(
+                text:
+                    '${context.read<LocalizationProvider>().translate('style_create')} ',
+                style: theme.textTheme.bodySmall,
+                children: <TextSpan>[
+                  TextSpan(
+                    text: context
+                        .read<LocalizationProvider>()
+                        .translate('style_cr_link'),
+                    style: const TextStyle(
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
+                    ),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () async {
+                        _openTextStyleGenerator();
+                      },
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.help_outline),
+              onPressed: _showYouTubeHelpDialog,
+            ),
+            TextButton(
+              child: Text(localizationProvider.translate('close')),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _saveStatistics() async {
@@ -1390,8 +1578,8 @@ class _MainScreenState extends State<MainScreen> {
         //       GestureDetector(
         //         onTap: _incrementCounter,
         //         child: Image.asset(
-        //           'assets/pepe.gif',  // Укажи ссылку на свою гифку
-        //           height: 50,  // Настроить размер
+        //           'assets/pepe.gif',
+        //           height: 50,
         //         ),),
         //       ],
         //   ),
@@ -1440,6 +1628,12 @@ class _MainScreenState extends State<MainScreen> {
                 case 'port_settings':
                   _showPortSettingsDialog();
                   break;
+                case 'timer_styles':
+                  _showTimerStylesDialog();
+                  break;
+                case 'gen_timer_styles':
+                  _openTextStyleGenerator();
+                  break;
               }
             },
             itemBuilder: (BuildContext context) {
@@ -1479,6 +1673,16 @@ class _MainScreenState extends State<MainScreen> {
                     child: Text(context
                         .read<LocalizationProvider>()
                         .translate('clear_stat'))),
+                PopupMenuItem(
+                    value: 'timer_styles',
+                    child: Text(context
+                        .read<LocalizationProvider>()
+                        .translate('m_styles'))),
+                PopupMenuItem(
+                    value: 'gen_timer_styles',
+                    child: Text(context
+                        .read<LocalizationProvider>()
+                        .translate('m_g_styles'))),
               ];
             },
           ),

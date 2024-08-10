@@ -1,3 +1,5 @@
+// ignore_for_file: library_prefixes
+
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:logging/logging.dart';
 
@@ -25,7 +27,6 @@ class SocketService {
     });
 
     socket.on('connect_error', (error) {
-      print('Connection error: $error');
       _logger.severe('Ошибка подключения socket: $error');
     });
 
@@ -49,7 +50,7 @@ class SocketService {
   Future<void> connect() async {
     _logger.info('Подключение к socket');
     socket.connect();
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
     if (socket.connected) {
       _logger.info('Socket успешно подключен');
     } else {
@@ -61,7 +62,7 @@ class SocketService {
     _logger.info('Закрытие socket соединения');
     socket.disconnect();
     socket.dispose();
-    await Future.delayed(Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 500));
     _logger.info('Socket соединение закрыто');
   }
 }
