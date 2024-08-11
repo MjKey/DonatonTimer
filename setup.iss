@@ -3,7 +3,7 @@ AppName=Донатон Таймер
 AppVersion=2.0.3
 DefaultDirName={pf}\DTimer
 DefaultGroupName=Донатон
-OutputBaseFilename=DTimer Setup
+OutputBaseFilename=DTimer-Setup
 Compression=lzma
 SolidCompression=yes
 SetupIconFile=Донатон Таймер.ico
@@ -17,12 +17,12 @@ Name: "en"; MessagesFile: "compiler:Default.isl"
 Source: "build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{group}\Донатон Таймер"; Filename: "{app}\donat_timer.exe";
+Name: "{group}\Донатон Таймер"; Filename: "{app}\DonathonTimer.exe";
 Name: "{group}\Удалить Донатон Таймер"; Filename: "{app}\unins000.exe";
-Name: "{userdesktop}\Донатон Таймер"; Filename: "{app}\donat_timer.exe"
+Name: "{userdesktop}\Донатон Таймер"; Filename: "{app}\DonathonTimer.exe"
 
 [Run]
-Filename: "{app}\donat_timer.exe"; Description: "Запустить Таймер Донатона"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\DonathonTimer.exe"; Description: "Запустить Таймер Донатона"; Flags: nowait postinstall skipifsilent
 
 [Code]
 var
