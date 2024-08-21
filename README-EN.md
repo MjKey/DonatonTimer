@@ -1,70 +1,78 @@
-# Timer for Donathon
+**Donaton Timer** is an app for managing a timer that integrates with DonationAlerts donations, letting you track and manage time based on incoming donations.  
+There's also a **timer overlay** for OBS, so your viewers can see the timer!
+>> This is my first Flutter app; before this, I only worked with Python. I think it turned out pretty well, so feel free to use it! 😺
+>> 
+>> It's perfect for anyone looking for a handy and functional timer for donation streams!
 
-**Donathon Timer** is a timer management application that integrates with DonationAlerts donations, allowing you to track and manage time based on received donations.
->> This is my first Flutter application, previously I only wrote in Python, I think it turned out pretty well, enjoy! 😺
->>
->> Useful for those who want a convenient and functional timer for donathon!
+## 📋 Wiki Instructions ✬ [RU](https://github.com/MjKey/DonatonTimer/wiki/Настройка-и-использование-%5BRU%5D) | [EN](https://github.com/MjKey/DonatonTimer/wiki/Setting-and-using-%5BEN%5D) (⸝⸝ᵕᴗᵕ⸝⸝)
+
+## 🍌 Supported Services:
+|     Service     | Status |  Comment     |
+|:---------------:|:------:|:------------:|
+| DonationAlerts  |    ✅   |   Works      |
+| Donate.Stream   |    ❌   |   Coming Soon|
+| DonatePay       |    ❌   |   Coming Soon|
+| Donatty         |    ❌   |   Coming Soon|
+| StreamElements  |    ❌   |   Coming Soon|
 
 ## 🎯 Key Features
 
-- ### Windows Program Interface
+- ### Windows App Interface
 
-  ![Interface](https://github.com/MjKey/DonatonTimer/blob/main/img/main.jpg?raw=true)
+  ![Interface](https://github.com/MjKey/DonatonTimer/blob/main/img/main.gif?raw=true)
 
-  - Dark theme available
-  - Convenient controls
-  - PIP mode
+  - Dark theme
+  - Easy to use
+  - Peppy design
 
 - **Web Interface for Timer Management:**
-  - Start/Stop timer
-  - Change timer time
+  - Start/Stop the timer
+  - Change the timer duration
 
-- **Timer Management from Phone:**
-  - Access to the web interface from mobile devices
-  - Convenient timer management in the mobile version
+- **Control the Timer from Your Phone:**
+  - Access the web interface from mobile devices
+  - Manage the timer easily on mobile
 
 - **Donation Integration:**
-  - Display of recent donations
-  - Display of top donors
-  - Automatic time addition from donations
-  - Setting - how many minutes to add for 100 rubles.
+  - Display recent donations
+  - Show top donors
+  - Auto-add time based on donations
+  - Configure how many minutes to add per 100 rubles
 
 - **Mini Version for OBS Dock Panel:**
-  - Simplified interface for use in OBS dock panel
+  - Simplified interface for OBS dock panel use
 
-## 🛠️ Installation and Launch
+## 🛠️ Installation and Setup
 
-### Installing Releases
+### Release Installation
 
 1. **Download the installer:**
-   - Go to the [Releases](https://github.com/MjKey/DonatonTimer/releases) section and download the latest version of `DTimer-Setup.exe`.
+   - Go to the [Releases](https://github.com/MjKey/DonatonTimer/releases) section and download the latest `DTimer-Setup.exe`.
 
 2. **Run the installer:**
-   - Double-click the downloaded `DTimer-Setup.exe` file and follow the on-screen instructions to install the application.
+   - Double-click the downloaded `DTimer-Setup.exe` file and follow the on-screen instructions to install the app.
   
-### Installing Artifacts
+### Artifact Installation
 
 1. **Download the latest artifact:**
-   - Go to the [Actions](https://github.com/MjKey/DonatonTimer/actions) section, choose the latest successful build (with a check mark)
-   - At the bottom, there will be Artifacts -> Lastest - download, unzip to any folder.
+   - Go to the [Actions](https://github.com/MjKey/DonatonTimer/actions) section, select the latest successful build (with a checkmark)
+   - Download the Artifacts -> Latest, extract it to any folder.
 
-2. **Run the timer:**
-   - Double-click the `donat_timer.exe` file.
-   - Profit!
+2. **Run the timer**
 
 ## 🚀 Usage
 
-- **Interface and more:**
-  - `http://localhost:8080/timer` for insertion into the "Browser" source - the timer will be displayed in OBS.
-  - Go to `http://localhost:8080/dashboard` for the web control panel in the browser.
-  - `http://localhost:8080/mini` for embedding in the OBS dock panel*
- 
-  *For this, in OBS Studio -> Docks (D) -> Custom Browser Docks (C)
+- **Interface and More:**
+  - `http://localhost:8080/timer` for embedding in a "Browser" source — the timer will appear in OBS.
+  - Go to `http://localhost:8080/dashboard` for the web management panel in your browser.
+  - `http://localhost:8080/mini` for embedding in OBS dock panel*
+
+  *For this, in OBS Studio -> Dock Panels (D) -> Custom Browser Dock Panels (C)
   ![Dock Panel Setup](https://github.com/MjKey/DonatonTimer/blob/main/img/dockpanel.jpg?raw=true)
 
 ## 💬 Questions and Support
 
-If you have questions or encounter issues, feel free to open an issue on [GitHub](https://github.com/MjKey/DonatonTimer/issues).
+If you have any questions or run into issues, don’t hesitate to open an issue on [GitHub](https://github.com/MjKey/DonatonTimer/issues).
 
 ## 📝 License
 
@@ -72,7 +80,7 @@ This project is licensed under the MIT License — see [LICENSE](LICENSE) for de
 
 ---
 
-### Building from Source
+### Building from Source Code
 
 1. **Clone the repository:**
 
@@ -97,11 +105,11 @@ This project is licensed under the MIT License — see [LICENSE](LICENSE) for de
    ```bash
    flutter build windows
    ```
-   
+
    **Or run for Windows**
 
    ```bash
    flutter run -d windows
    ```
 
-   # Countdown for Donathon
+   # Countdown for the donation stream
