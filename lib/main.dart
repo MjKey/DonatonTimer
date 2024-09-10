@@ -239,7 +239,7 @@ class _MainScreenState extends State<MainScreen> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   int _httpPort = 8080;
   int _wsPort = 4040;
-  List<int> _processedDonations = [];
+  List<int> _processedDonations = []; /* Может поможет */
 
   final String changelog = '''
   ★ Добавлен выбор стилей для таймера
