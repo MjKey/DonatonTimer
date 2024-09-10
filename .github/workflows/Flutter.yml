@@ -4,6 +4,7 @@ on:
     branches: 
       - "main"
       - "3-bug-не-работает"
+      - "Fix-Doubling-DA"
     paths-ignore:
         - '**/README.md'
         - '**/README-EN.md'
