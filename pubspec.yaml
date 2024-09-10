@@ -16,7 +16,7 @@ dependencies:
   http: ^1.2.2
   logging: ^1.2.0
   shared_preferences: ^2.3.1
-  socket_io_client: ^2.0.3+1
+  socket_io_client: ^1.0.2
   web_socket_channel: ^3.0.1
   cupertino_icons: ^1.0.8
   shelf: ^1.4.1
