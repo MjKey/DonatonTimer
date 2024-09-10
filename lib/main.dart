@@ -242,17 +242,8 @@ class _MainScreenState extends State<MainScreen> {
   List<int> _processedDonations = []; /* Может поможет */
 
   final String changelog = '''
-  ★ Добавлен выбор стилей для таймера
-  ★ Добавлен генератр стилей (CSS) для таймера
-  ☆ Фикс получения локального IP [issues/1]
-  ☆ Немножко поправлен код
-  
-  Задумки (в планах на будущее):
-  ✦ Добавить поддержку:
-  ✧ Donate.Stream
-  ✧ Donatty
-  ✧ Donatepay
-  ✧ StreamElements (Вряд ли)
+  ☆ Фикс [issues/3]
+  ☆ Фикс задвоение (тест)
   ''';
   String translatedChangelog = '';
 
