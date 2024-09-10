@@ -653,9 +653,9 @@ class _MainScreenState extends State<MainScreen> {
     var show = donationData['is_shown'] ?? 'NOT DATA';
     var bsys = donationData['billing_system'] ?? 'NOT DATA';
     var bsyt = donationData['billing_system_type'] ?? 'NOT DATA';
-    if ((donationData['currency'] == 'RUB' and int(donationData['is_shown']) == 0) or 
-    (int(donationData['is_shown']) == 0 and 
-    (donationData['billing_system'] != 'TWITCH' or donationData['billing_system_type'] != 'REWARDS'))) {
+    if ((donationData['currency'] == 'RUB' && int.parse(donationData['is_shown']) == 0) || 
+    (int.parse(donationData['is_shown']) == 0 && 
+    (donationData['billing_system'] != 'TWITCH' || donationData['billing_system_type'] != 'REWARDS'))) {
       double amountMain = donationData['amount_main'].toDouble();
       String username = donationData['username'] ??
           context.read<LocalizationProvider>().translate('Anon');
