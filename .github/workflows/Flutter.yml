@@ -1,7 +1,7 @@
 name: Flutter Build
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "3-bug-не-работает" ]
     paths-ignore:
         - '**/README.md'
         - '**/README-EN.md'
