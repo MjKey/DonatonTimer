@@ -239,6 +239,7 @@ class _MainScreenState extends State<MainScreen> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   int _httpPort = 8080;
   int _wsPort = 4040;
+  List<int> _processedDonations = [];
 
   final String changelog = '''
   ★ Добавлен выбор стилей для таймера
@@ -653,6 +654,10 @@ class _MainScreenState extends State<MainScreen> {
   void _handleDonation(dynamic data) {
     LogManager.log(Level.INFO, 'Получено пожертвование: $data');
     var donationData = json.decode(data);
+    if (_processedDonations.contains(donationData['id'])) {
+      LogManager.log(Level.WARNING, 'Донат с ID ${donationData['id']} уже обработан');
+      return;
+    }
     var curr = donationData['currency'] ?? 'NOT DATA';
     var show = donationData['is_shown'] ?? 'NOT DATA';
     var bsys = donationData['billing_system'] ?? 'NOT DATA';
@@ -666,7 +671,7 @@ class _MainScreenState extends State<MainScreen> {
           context.read<LocalizationProvider>().translate('Anon');
       int minutesAdded = ((amountMain * _minutesPer100Rubles) / 100).round();
       LogManager.log(Level.INFO, 'Добавляется: $minutesAdded минут');
-
+      _processedDonations.add(donationData['id']);
       setState(() {
         _timerDuration += minutesAdded * 60;
         _recentDonations.insert(0, DonationRecord(username, minutesAdded));
