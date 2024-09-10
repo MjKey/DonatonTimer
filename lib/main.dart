@@ -239,7 +239,7 @@ class _MainScreenState extends State<MainScreen> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   int _httpPort = 8080;
   int _wsPort = 4040;
-  List<int> _processedDonations = []; /* Может поможет */
+  List<int> _processedDonations = []; /* Может поможет (тест) */
 
   final String changelog = '''
   ☆ Фикс [issues/3]
