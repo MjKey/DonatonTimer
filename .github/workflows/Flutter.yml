@@ -1,7 +1,11 @@
 name: Flutter Build
 on:
   push:
-    branches: [ "Fix-Doubling-DA" ]
+    branches: 
+      - "main"
+      - "3-bug-не-работает"
+      - "Fix-Doubling-DA"
+      - "Sound-Update"
     paths-ignore:
         - '**/README.md'
         - '**/README-EN.md'
