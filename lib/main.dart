@@ -239,7 +239,11 @@ class _MainScreenState extends State<MainScreen> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   int _httpPort = 8080;
   int _wsPort = 4040;
-  List<int> _processedDonations = []; /* Может поможет (тест) */
+  List<int> _processedDonations = [];
+  List<File> _soundFiles = [];
+  bool _isSoundNotificationEnabled = false;
+  bool _isRandomSoundEnabled = false;
+  AudioPlayer _audioPlayer = AudioPlayer();
 
   final String changelog = '''
   ☆ Фикс [issues/3]
@@ -673,10 +677,10 @@ class _MainScreenState extends State<MainScreen> {
         _topDonators = Map.fromEntries(_topDonators.entries.toList()
           ..sort((e1, e2) => e2.value.compareTo(e1.value)));
       });
-
       _broadcastWebSocketMessage(
           json.encode({'action': 'update_timer', 'duration': _timerDuration}));
       _saveStatistics();
+      _playSound();
       _broadcastWebSocketMessage(json.encode({
         'action': 'update_donations',
         'recentDonations': _recentDonations
@@ -815,6 +819,7 @@ class _MainScreenState extends State<MainScreen> {
     _saveTimerDuration();
     _broadcastWebSocketMessage(
         json.encode({'action': 'update_timer', 'duration': _timerDuration}));
+    _playSound();
   }
 
   String _formatDuration(int seconds) {
@@ -886,6 +891,34 @@ class _MainScreenState extends State<MainScreen> {
                   newWidgetUrl = value;
                 },
                 obscureText: true,
+              ),
+              Divider(
+                color: Colors.grey,
+                thickness: 2,
+                indent: 20,
+                endIndent: 20,
+              ),
+              SwitchListTile(
+                title: Text(context.read<LocalizationProvider>().translate('sound_notification')),
+                value: _isSoundNotificationEnabled,
+                onChanged: (value) {
+                  setState(() {
+                    _isSoundNotificationEnabled = value;
+                  });
+                },
+              ),
+              SwitchListTile(
+                title: Text(context.read<LocalizationProvider>().translate('random_sound')),
+                value: _isRandomSoundEnabled,
+                onChanged: (value) {
+                  setState(() {
+                    _isRandomSoundEnabled = value;
+                  });
+                },
+              ),
+              ElevatedButton(
+                onPressed: _updateSoundFolder,
+                child: Text(context.read<LocalizationProvider>().translate('update_sound_folder')),
               ),
             ],
           ),
@@ -1527,6 +1560,26 @@ class _MainScreenState extends State<MainScreen> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(
             context.read<LocalizationProvider>().translate('stat_clear'))));
+  }
+
+  void _updateSoundFolder() async {
+    final directory = Directory('sound'); // Папка со звуками
+    _soundFiles = directory
+        .listSync()
+        .where((file) => file.path.endsWith('.mp3'))
+        .map((file) => File(file.path))
+        .toList();
+    LogManager.log(Level.INFO, 'Папка со звуками обновлена');
+  }
+
+  void _playSound() {
+    if (_isSoundNotificationEnabled && _soundFiles.isNotEmpty) {
+      final file = _isRandomSoundEnabled
+          ? (_soundFiles..shuffle()).first
+          : _soundFiles.first;
+      _audioPlayer.play(file.path, isLocal: true);
+      LogManager.log(Level.INFO, 'Воспроизведение звука: ${file.path}');
+    }
   }
 
   @override
