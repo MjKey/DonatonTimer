@@ -26,7 +26,7 @@ dependencies:
   url_launcher: ^6.3.0
   qr_flutter: ^4.1.0
   network_info_plus: ^6.0.0
-  audioplayers: ^6.0.0
+  audioplayers: ^6.1.0
   google_fonts: ^6.2.1
   desktop_webview_window: ^0.2.3
   webview_windows: ^0.4.0
