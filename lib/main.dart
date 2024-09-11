@@ -240,7 +240,7 @@ class _MainScreenState extends State<MainScreen> {
   int _httpPort = 8080;
   int _wsPort = 4040;
   List<int> _processedDonations = [];
-  List<File> _soundFiles = [];
+  List<File> _soundFiles = []; // Файлы
   bool _isSoundNotificationEnabled = false;
   bool _isRandomSoundEnabled = false;
   AudioPlayer _audioPlayer = AudioPlayer();
