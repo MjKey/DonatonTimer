@@ -1,4 +1,4 @@
-// ignore_for_file: depend_on_referenced_packages, library_private_types_in_public_api, use_build_context_synchronously, deprecated_member_use
+// ignore_for_file: depend_on_referenced_packages, library_private_types_in_public_api, use_build_context_synchronously, deprecated_member_use, prefer_final_fields
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
@@ -888,120 +888,115 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void _showSettingsDialog() {
-    LogManager.log(Level.INFO, 'Диалог настроек');
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        String newWidgetUrl = '';
-        return AlertDialog(
-          title:
-              Text(context.read<LocalizationProvider>().translate('settings')),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                _tokenPreview.isNotEmpty
-                    ? '${context.read<LocalizationProvider>().translate('token')}: $_tokenPreview'
-                    : context
-                        .read<LocalizationProvider>()
-                        .translate('not_token'),
-                style: TextStyle(
-                  color: _tokenPreview.isNotEmpty ? Colors.green : Colors.red,
+  LogManager.log(Level.INFO, 'Диалог настроек');
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) {
+          String newWidgetUrl = ''; // Определяем переменную внутри StatefulBuilder
+
+          return AlertDialog(
+            title: Text(context.read<LocalizationProvider>().translate('settings')),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _tokenPreview.isNotEmpty
+                      ? '${context.read<LocalizationProvider>().translate('token')}: $_tokenPreview'
+                      : context.read<LocalizationProvider>().translate('not_token'),
+                  style: TextStyle(
+                    color: _tokenPreview.isNotEmpty ? Colors.green : Colors.red,
+                  ),
                 ),
-              ),
-              TextField(
-                decoration: InputDecoration(
-                    labelText: context
-                        .read<LocalizationProvider>()
-                        .translate('min100')),
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  _minutesPer100Rubles =
-                      double.tryParse(value) ?? _minutesPer100Rubles;
+                TextField(
+                  decoration: InputDecoration(
+                      labelText: context.read<LocalizationProvider>().translate('min100')),
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    _minutesPer100Rubles = double.tryParse(value) ?? _minutesPer100Rubles;
+                  },
+                  controller: TextEditingController(
+                      text: _minutesPer100Rubles.toString()),
+                ),
+                TextField(
+                  decoration: InputDecoration(
+                      labelText: context.read<LocalizationProvider>().translate('linkDA')),
+                  onChanged: (value) {
+                    newWidgetUrl = value;
+                  },
+                  obscureText: true,
+                ),
+                const Divider(
+                  color: Colors.grey,
+                  thickness: 2,
+                  indent: 5,
+                  endIndent: 5,
+                ),
+                SwitchListTile(
+                  title: Text(context.read<LocalizationProvider>().translate('sound_notification')),
+                  value: _isSoundEnabled,
+                  onChanged: (bool value) {
+                    setState(() {
+                      _isSoundEnabled = value;
+                    });
+                    _saveSettings();
+                  },
+                ),
+                SwitchListTile(
+                  title: Text(context.read<LocalizationProvider>().translate('random_sound')),
+                  value: _isRandomSoundEnabled,
+                  onChanged: (bool value) {
+                    setState(() {
+                      _isRandomSoundEnabled = value;
+                      _loadSoundFiles();
+                    });
+                    _saveSettings();
+                  },
+                ),
+                ElevatedButton(
+                  onPressed: _refreshSoundFolder,
+                  child: Text(context.read<LocalizationProvider>().translate('refresh_sounds')),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                child: Text(context.read<LocalizationProvider>().translate('cancel')),
+                onPressed: () {
+                  Navigator.of(context).pop();
                 },
-                controller: TextEditingController(
-                    text: _minutesPer100Rubles.toString()),
               ),
-              TextField(
-                decoration: InputDecoration(
-                    labelText: context
-                        .read<LocalizationProvider>()
-                        .translate('linkDA')),
-                onChanged: (value) {
-                  newWidgetUrl = value;
-                },
-                obscureText: true,
-              ),
-              const Divider(
-                color: Colors.grey,
-                thickness: 2,
-                indent: 5,
-                endIndent: 5,
-              ),
-               SwitchListTile(
-              title: Text(context.read<LocalizationProvider>().translate('sound_notification')),
-              value: _isSoundEnabled,
-              onChanged: (bool value) {
-                setState(() {
-                  _isSoundEnabled = value;
-                });
-                _saveSettings();
-              },
-            ),
-            SwitchListTile(
-              title: Text(context.read<LocalizationProvider>().translate('random_sound')),
-              value: _isRandomSoundEnabled,
-              onChanged: (bool value) {
-                setState(() {
-                  _isRandomSoundEnabled = value;
-                  _loadSoundFiles();
-                });
-                _saveSettings();
-              },
-            ),
-            ElevatedButton(
-              onPressed: _refreshSoundFolder,
-              child: Text(context.read<LocalizationProvider>().translate('refresh_sounds')),
-            ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              child: Text(
-                  context.read<LocalizationProvider>().translate('cancel')),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child:
-                  Text(context.read<LocalizationProvider>().translate('save')),
-              onPressed: () async {
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                await prefs.setDouble(
-                    'minutes_per_100_rubles', _minutesPer100Rubles);
-                if (newWidgetUrl.isNotEmpty) {
-                  Uri uri = Uri.parse(newWidgetUrl);
-                  String? token = uri.queryParameters['token'];
-                  if (token != null) {
-                    await prefs.setString('donation_alerts_token', token);
-                    String? socketUrl = await _extractSocketUrl(newWidgetUrl);
-                    if (socketUrl != null) {
-                      _socketUrl = socketUrl;
-                      await prefs.setString('socket_url', socketUrl);
+              TextButton(
+                child: Text(context.read<LocalizationProvider>().translate('save')),
+                onPressed: () async {
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  await prefs.setDouble('minutes_per_100_rubles', _minutesPer100Rubles);
+                  if (newWidgetUrl.isNotEmpty) {
+                    Uri uri = Uri.parse(newWidgetUrl);
+                    String? token = uri.queryParameters['token'];
+                    if (token != null) {
+                      await prefs.setString('donation_alerts_token', token);
+                      String? socketUrl = await _extractSocketUrl(newWidgetUrl);
+                      if (socketUrl != null) {
+                        _socketUrl = socketUrl;
+                        await prefs.setString('socket_url', socketUrl);
+                      }
+                      await _reinitSocketService();
                     }
-                    await _reinitSocketService();
                   }
-                }
-                _saveSettings();
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
+                  _saveSettings();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+
 
   Future<void> _reinitSocketService() async {
     LogManager.log(Level.INFO, 'Переинициализация SocketService');
@@ -1603,16 +1598,6 @@ class _MainScreenState extends State<MainScreen> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(
             context.read<LocalizationProvider>().translate('stat_clear'))));
-  }
-
-  void _updateSoundFolder() async {
-    final directory = Directory('sound'); // Папка со звуками
-    _soundFiles = directory
-        .listSync()
-        .where((file) => file.path.endsWith('.mp3'))
-        .map((file) => File(file.path))
-        .toList();
-    LogManager.log(Level.INFO, 'Папка со звуками обновлена');
   }
 
   void _playSound() async {
