@@ -1,5 +1,4 @@
 // ignore_for_file: depend_on_referenced_packages, library_private_types_in_public_api, use_build_context_synchronously, deprecated_member_use
-
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
@@ -239,19 +238,15 @@ class _MainScreenState extends State<MainScreen> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   int _httpPort = 8080;
   int _wsPort = 4040;
+  List<int> _processedDonations = [];
+  List<File> _soundFiles = []; // Файлы
+  bool _isSoundNotificationEnabled = false;
+  bool _isRandomSoundEnabled = false;
+  AudioPlayer _audioPlayer = AudioPlayer();
 
   final String changelog = '''
-  ★ Добавлен выбор стилей для таймера
-  ★ Добавлен генератр стилей (CSS) для таймера
-  ☆ Фикс получения локального IP [issues/1]
-  ☆ Немножко поправлен код
-  
-  Задумки (в планах на будущее):
-  ✦ Добавить поддержку:
-  ✧ Donate.Stream
-  ✧ Donatty
-  ✧ Donatepay
-  ✧ StreamElements (Вряд ли)
+  ☆ Фикс [issues/3]
+  ☆ Фикс задвоение (тест)
   ''';
   String translatedChangelog = '';
 
@@ -653,20 +648,24 @@ class _MainScreenState extends State<MainScreen> {
   void _handleDonation(dynamic data) {
     LogManager.log(Level.INFO, 'Получено пожертвование: $data');
     var donationData = json.decode(data);
+    if (_processedDonations.contains(donationData['id'])) {
+      LogManager.log(Level.WARNING, 'Донат с ID ${donationData['id']} уже обработан');
+      return;
+    }
     var curr = donationData['currency'] ?? 'NOT DATA';
     var show = donationData['is_shown'] ?? 'NOT DATA';
     var bsys = donationData['billing_system'] ?? 'NOT DATA';
     var bsyt = donationData['billing_system_type'] ?? 'NOT DATA';
-    if (donationData['currency'] == 'RUB' ||
-        donationData['is_shown'] == 0 ||
-        donationData['billing_system'] != 'TWITCH' ||
-        donationData['billing_system_type'] != 'REWARDS') {
+    if ((donationData['currency'] == 'RUB' && int.parse(donationData['is_shown'] ?? '1') == 0) || 
+    (int.parse(donationData['is_shown'] ?? '1') == 0 && 
+    (donationData['billing_system'] != 'TWITCH' && donationData['billing_system'] != 'YOUTUBE') && 
+    (donationData['billing_system_type'] != 'REWARDS' && donationData['billing_system_type'] != 'SUBSCRIPTION'))) {
       double amountMain = donationData['amount_main'].toDouble();
       String username = donationData['username'] ??
           context.read<LocalizationProvider>().translate('Anon');
       int minutesAdded = ((amountMain * _minutesPer100Rubles) / 100).round();
       LogManager.log(Level.INFO, 'Добавляется: $minutesAdded минут');
-
+      _processedDonations.add(donationData['id']);
       setState(() {
         _timerDuration += minutesAdded * 60;
         _recentDonations.insert(0, DonationRecord(username, minutesAdded));
@@ -677,10 +676,10 @@ class _MainScreenState extends State<MainScreen> {
         _topDonators = Map.fromEntries(_topDonators.entries.toList()
           ..sort((e1, e2) => e2.value.compareTo(e1.value)));
       });
-
       _broadcastWebSocketMessage(
           json.encode({'action': 'update_timer', 'duration': _timerDuration}));
       _saveStatistics();
+      _playSound();
       _broadcastWebSocketMessage(json.encode({
         'action': 'update_donations',
         'recentDonations': _recentDonations
@@ -819,6 +818,7 @@ class _MainScreenState extends State<MainScreen> {
     _saveTimerDuration();
     _broadcastWebSocketMessage(
         json.encode({'action': 'update_timer', 'duration': _timerDuration}));
+    _playSound();
   }
 
   String _formatDuration(int seconds) {
@@ -890,6 +890,34 @@ class _MainScreenState extends State<MainScreen> {
                   newWidgetUrl = value;
                 },
                 obscureText: true,
+              ),
+              Divider(
+                color: Colors.grey,
+                thickness: 2,
+                indent: 20,
+                endIndent: 20,
+              ),
+              SwitchListTile(
+                title: Text(context.read<LocalizationProvider>().translate('sound_notification')),
+                value: _isSoundNotificationEnabled,
+                onChanged: (value) {
+                  setState(() {
+                    _isSoundNotificationEnabled = value;
+                  });
+                },
+              ),
+              SwitchListTile(
+                title: Text(context.read<LocalizationProvider>().translate('random_sound')),
+                value: _isRandomSoundEnabled,
+                onChanged: (value) {
+                  setState(() {
+                    _isRandomSoundEnabled = value;
+                  });
+                },
+              ),
+              ElevatedButton(
+                onPressed: _updateSoundFolder,
+                child: Text(context.read<LocalizationProvider>().translate('update_sound_folder')),
               ),
             ],
           ),
@@ -1531,6 +1559,26 @@ class _MainScreenState extends State<MainScreen> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(
             context.read<LocalizationProvider>().translate('stat_clear'))));
+  }
+
+  void _updateSoundFolder() async {
+    final directory = Directory('sound'); // Папка со звуками
+    _soundFiles = directory
+        .listSync()
+        .where((file) => file.path.endsWith('.mp3'))
+        .map((file) => File(file.path))
+        .toList();
+    LogManager.log(Level.INFO, 'Папка со звуками обновлена');
+  }
+
+  void _playSound() {
+    if (_isSoundNotificationEnabled && _soundFiles.isNotEmpty) {
+      final file = _isRandomSoundEnabled
+          ? (_soundFiles..shuffle()).first
+          : _soundFiles.first;
+      _audioPlayer.play(file.path, isLocal: true);
+      LogManager.log(Level.INFO, 'Воспроизведение звука: ${file.path}');
+    }
   }
 
   @override

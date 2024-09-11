@@ -16,7 +16,7 @@ dependencies:
   http: ^1.2.2
   logging: ^1.2.0
   shared_preferences: ^2.3.1
-  socket_io_client: ^2.0.3+1
+  socket_io_client: ^1.0.2
   web_socket_channel: ^3.0.1
   cupertino_icons: ^1.0.8
   shelf: ^1.4.1
@@ -26,7 +26,7 @@ dependencies:
   url_launcher: ^6.3.0
   qr_flutter: ^4.1.0
   network_info_plus: ^6.0.0
-  audioplayers: ^6.0.0
+  audioplayers: ^6.1.0
   google_fonts: ^6.2.1
   desktop_webview_window: ^0.2.3
   webview_windows: ^0.4.0
@@ -35,7 +35,6 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
   flutter_lints: ^4.0.0
 
 flutter:

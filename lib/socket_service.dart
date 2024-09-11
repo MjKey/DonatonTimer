@@ -18,6 +18,7 @@ class SocketService {
     _logger.info('Инициализация socket соединения');
     socket = IO.io(socketUrl, <String, dynamic>{
       'transports': ['websocket'],
+      'forceNew': true,
     });
 
     socket.on('connect', (_) {
