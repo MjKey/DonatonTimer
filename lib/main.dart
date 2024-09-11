@@ -235,7 +235,7 @@ class _MainScreenState extends State<MainScreen> {
   String _socketUrl = 'https://socket5.donationalerts.ru';
   SocketService? _socketService;
   String _localIpAddress = '';
-  final AudioPlayer  = AudioPlayer();
+  final AudioPlayer _audioPlayer = AudioPlayer();
   int _httpPort = 8080;
   int _wsPort = 4040;
   List<int> _processedDonations = [];
@@ -273,7 +273,7 @@ class _MainScreenState extends State<MainScreen> {
 
   void _incrementCounter() {
     setState(() {
-      .play(AssetSource('pepe.mp3'));
+      _audioPlayer.play(AssetSource('pepe.mp3'));
       _showAuthorInfo();
     });
   }
@@ -1574,7 +1574,7 @@ class _MainScreenState extends State<MainScreen> {
       final file = _isRandomSoundEnabled
           ? (_soundFiles..shuffle()).first
           : _soundFiles.first;
-      .play(file.path, isLocal: true);
+      _audioPlayer.play(file.path as Source);
       LogManager.log(Level.INFO, 'Воспроизведение звука: ${file.path}');
     }
   }
