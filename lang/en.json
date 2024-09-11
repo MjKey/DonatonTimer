@@ -75,5 +75,9 @@
     "pick": "Pick",
     "width_block": "Width block",
     "height_block": "Height block",
-    "custom_font": "Font Path [C://gachi/myfon.ttf] (leave empty to use Google Fonts)"
+    "custom_font": "Font Path [C://gachi/myfon.ttf] (leave empty to use Google Fonts)",
+    "sound_updated": "Sounds from the Sound folder loaded",
+    "sound_notification": "Sound notification",
+    "random_sound": "Random sound",
+    "refresh_sounds": "Refresh sounds"
 }
