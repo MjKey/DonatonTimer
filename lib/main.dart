@@ -244,8 +244,7 @@ class _MainScreenState extends State<MainScreen> {
   bool _isRandomSoundEnabled = false;
 
   final String changelog = '''
-  ☆ Фикс [issues/3]
-  ☆ Фикс задвоение (тест)
+  ★ Звуковые оповещения
   ''';
   String translatedChangelog = '';
 
