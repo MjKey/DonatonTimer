@@ -75,5 +75,9 @@
     "pick": "Выбрать",
     "width_block": "Ширина блока",
     "height_block": "Высота рамки",
-    "custom_font": "Путь до шрифта [C://pupka/font.ttf] (оставьте поле пустым, чтобы использовать шрифт Google)"
+    "custom_font": "Путь до шрифта [C://pupka/font.ttf] (оставьте поле пустым, чтобы использовать шрифт Google)",
+    "sound_updated": "Звуки из папки Sound загруженны",
+    "sound_notification": "Звуковое оповещение",
+    "random_sound": "Рандомный звук",
+    "refresh_sounds": "Обновить звуки"
 }
