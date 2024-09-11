@@ -239,9 +239,11 @@ class _MainScreenState extends State<MainScreen> {
   int _httpPort = 8080;
   int _wsPort = 4040;
   List<int> _processedDonations = [];
-  List<File> _soundFiles = []; // Файлы
-  bool _isSoundNotificationEnabled = false;
+  List<FileSystemEntity> _soundFiles = [];
+  bool _isSoundEnabled = false;
   bool _isRandomSoundEnabled = false;
+  Directory _soundDirectory = Directory('${Directory.current.path}/sound');
+  File? _currentSoundFile;
 
   final String changelog = '''
   ★ Звуковые оповещения
@@ -254,6 +256,7 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     _loadSettings();
+    _loadSoundFiles();
     _loadStatistics();
     _initSocketService();
     _startWebServer();
@@ -507,6 +510,8 @@ class _MainScreenState extends State<MainScreen> {
       _wsPort = prefs.getInt('wsPort') ?? 4040;
       _timerDuration = prefs.getInt('timer_duration') ?? 0;
       _minutesPer100Rubles = prefs.getDouble('minutes_per_100_rubles') ?? 10.0;
+      _isSoundEnabled = prefs.getBool('isSoundEnabled') ?? false;
+      _isRandomSoundEnabled = prefs.getBool('isRandomSoundEnabled') ?? false;
       String? token = prefs.getString('donation_alerts_token');
       _tokenPreview = token != null
           ? '${token.substring(0, 3)}...${token.substring(token.length - 3)}'
@@ -700,6 +705,44 @@ class _MainScreenState extends State<MainScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setInt('timer_duration', _timerDuration);
     await prefs.setDouble('minutes_per_100_rubles', _minutesPer100Rubles);
+    await prefs.setBool('isSoundEnabled', _isSoundEnabled);
+    await prefs.setBool('isRandomSoundEnabled', _isRandomSoundEnabled);
+  }
+
+  void _loadSoundFiles() {
+  String currentPath = Directory.current.path;
+  LogManager.log(Level.INFO, 'Текущая директория: $currentPath');
+
+  _soundDirectory = Directory('$currentPath/sound');
+  
+  // Проверяем, существует ли папка, если нет — создаём
+  if (!_soundDirectory.existsSync()) {
+    LogManager.log(Level.WARNING, 'Папка sound не найдена, создаём её: ${_soundDirectory.path}');
+    _soundDirectory.createSync(recursive: true);
+    LogManager.log(Level.INFO, 'Папка sound создана: ${_soundDirectory.path}');
+  } else {
+    LogManager.log(Level.INFO, 'Папка sound найдена: ${_soundDirectory.path}');
+  }
+
+  _soundFiles = _soundDirectory.listSync().where((file) => file.path.endsWith('.mp3')).toList();
+
+  if (_soundFiles.isNotEmpty) {
+    _currentSoundFile = (_isRandomSoundEnabled
+        ? (_soundFiles..shuffle()).first
+        : _soundFiles.first) as File?;
+
+    LogManager.log(Level.INFO, 'Выбранный файл для воспроизведения: ${_currentSoundFile?.path}');
+  } else {
+    LogManager.log(Level.WARNING, 'В папке sound нет файлов .mp3');
+  }
+}
+
+  void _refreshSoundFolder() {
+    _loadSoundFiles();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(context.read<LocalizationProvider>().translate('sound_updated')),
+    ));
+    LogManager.log(Level.INFO, 'Папка со звуками обновлена');
   }
 
   void _showSetInitialTimeDialog() {
@@ -889,34 +932,37 @@ class _MainScreenState extends State<MainScreen> {
                 },
                 obscureText: true,
               ),
-              Divider(
+              const Divider(
                 color: Colors.grey,
                 thickness: 2,
-                indent: 20,
-                endIndent: 20,
+                indent: 5,
+                endIndent: 5,
               ),
-              SwitchListTile(
-                title: Text(context.read<LocalizationProvider>().translate('sound_notification')),
-                value: _isSoundNotificationEnabled,
-                onChanged: (value) {
-                  setState(() {
-                    _isSoundNotificationEnabled = value;
-                  });
-                },
-              ),
-              SwitchListTile(
-                title: Text(context.read<LocalizationProvider>().translate('random_sound')),
-                value: _isRandomSoundEnabled,
-                onChanged: (value) {
-                  setState(() {
-                    _isRandomSoundEnabled = value;
-                  });
-                },
-              ),
-              ElevatedButton(
-                onPressed: _updateSoundFolder,
-                child: Text(context.read<LocalizationProvider>().translate('update_sound_folder')),
-              ),
+               SwitchListTile(
+              title: Text(context.read<LocalizationProvider>().translate('sound_notification')),
+              value: _isSoundEnabled,
+              onChanged: (bool value) {
+                setState(() {
+                  _isSoundEnabled = value;
+                });
+                _saveSettings();
+              },
+            ),
+            SwitchListTile(
+              title: Text(context.read<LocalizationProvider>().translate('random_sound')),
+              value: _isRandomSoundEnabled,
+              onChanged: (bool value) {
+                setState(() {
+                  _isRandomSoundEnabled = value;
+                  _loadSoundFiles();
+                });
+                _saveSettings();
+              },
+            ),
+            ElevatedButton(
+              onPressed: _refreshSoundFolder,
+              child: Text(context.read<LocalizationProvider>().translate('refresh_sounds')),
+            ),
             ],
           ),
           actions: [
@@ -1569,15 +1615,21 @@ class _MainScreenState extends State<MainScreen> {
     LogManager.log(Level.INFO, 'Папка со звуками обновлена');
   }
 
-  void _playSound() {
-    if (_isSoundNotificationEnabled && _soundFiles.isNotEmpty) {
-      final file = _isRandomSoundEnabled
-          ? (_soundFiles..shuffle()).first
-          : _soundFiles.first;
-      _audioPlayer.play(file.path as Source);
-      LogManager.log(Level.INFO, 'Воспроизведение звука: ${file.path}');
+  void _playSound() async {
+  if (_isSoundEnabled && _currentSoundFile != null) {
+    try {
+      LogManager.log(Level.INFO, 'Проигрывается звук: ${_currentSoundFile?.path}');
+      await _audioPlayer.play(DeviceFileSource(_currentSoundFile!.path));
+      LogManager.log(Level.INFO, 'Звук успешно проигран');
+    } catch (e) {
+      LogManager.log(Level.SEVERE, 'Ошибка при воспроизведении звука: $e');
     }
+  } else if (!_isSoundEnabled) {
+    LogManager.log(Level.INFO, 'Звуковое оповещение отключено');
+  } else if (_currentSoundFile == null) {
+    LogManager.log(Level.WARNING, 'Нет доступных файлов для воспроизведения');
   }
+}
 
   @override
   Widget build(BuildContext context) {
