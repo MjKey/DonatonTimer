@@ -652,45 +652,67 @@ class _MainScreenState extends State<MainScreen> {
     LogManager.log(Level.INFO, 'Получено пожертвование: $data');
     var donationData = json.decode(data);
     if (_processedDonations.contains(donationData['id'])) {
-      LogManager.log(Level.WARNING, 'Донат с ID ${donationData['id']} уже обработан');
-      return;
-    }
+        LogManager.log(Level.WARNING, 'Донат с ID ${donationData['id']} уже обработан');
+        return;
+      }
+    // Обрабатываем поля с учетом типов данных
     var curr = donationData['currency'] ?? 'NOT DATA';
-    var show = donationData['is_shown'] ?? 'NOT DATA';
+    var show = donationData['is_shown'] is String 
+        ? int.tryParse(donationData['is_shown']) ?? 1 
+        : donationData['is_shown'] ?? 1;
     var bsys = donationData['billing_system'] ?? 'NOT DATA';
     var bsyt = donationData['billing_system_type'] ?? 'NOT DATA';
-    if ((donationData['currency'] == 'RUB' && int.parse(donationData['is_shown'] ?? '1') == 0) || 
-    (int.parse(donationData['is_shown'] ?? '1') == 0 && 
-    (donationData['billing_system'] != 'TWITCH' && donationData['billing_system'] != 'YOUTUBE') && 
-    (donationData['billing_system_type'] != 'REWARDS' && donationData['billing_system_type'] != 'SUBSCRIPTION'))) {
-      double amountMain = donationData['amount_main'].toDouble();
-      String username = donationData['username'] ??
+    
+    LogManager.log(Level.INFO, "DONATE INFO: $curr | $show | $bsys | $bsyt");
+    
+    if ((donationData['currency'] == 'RUB' && show == 0) || 
+        (show == 0 && 
+        (donationData['billing_system'] != 'TWITCH' && donationData['billing_system'] != 'YOUTUBE') && 
+        (donationData['billing_system_type'] != 'REWARDS' && donationData['billing_system_type'] != 'SUBSCRIPTION'))) {
+      
+      // Приводим amount_main к double
+      double amountMain = (donationData['amount_main'] is int)
+          ? (donationData['amount_main'] as int).toDouble()
+          : donationData['amount_main'].toDouble();
+
+      String username = donationData['username'] ?? 
           context.read<LocalizationProvider>().translate('Anon');
+      
       int minutesAdded = ((amountMain * _minutesPer100Rubles) / 100).round();
+      var did = donationData['id'];
+      
+      LogManager.log(Level.INFO, "DONATE INFO {OWNER}: $curr | $show | $bsys | $bsyt | $username | $amountMain | $did");
+      
+      
       LogManager.log(Level.INFO, 'Добавляется: $minutesAdded минут');
       _processedDonations.add(donationData['id']);
+      
       setState(() {
         _timerDuration += minutesAdded * 60;
         _recentDonations.insert(0, DonationRecord(username, minutesAdded));
         if (_recentDonations.length > 10) _recentDonations.removeLast();
-
+        
         _topDonators.update(username, (value) => value + minutesAdded,
             ifAbsent: () => minutesAdded);
+        
         _topDonators = Map.fromEntries(_topDonators.entries.toList()
           ..sort((e1, e2) => e2.value.compareTo(e1.value)));
       });
+      
       _broadcastWebSocketMessage(
           json.encode({'action': 'update_timer', 'duration': _timerDuration}));
+      
       _saveStatistics();
       _playSound();
+      
       _broadcastWebSocketMessage(json.encode({
         'action': 'update_donations',
         'recentDonations': _recentDonations
-            .map(
-                (d) => {'username': d.username, 'minutesAdded': d.minutesAdded})
+            .map((d) => {'username': d.username, 'minutesAdded': d.minutesAdded})
             .toList(),
         'topDonators': _topDonators
       }));
+      
       LogManager.log(
           Level.INFO, 'Обработан донат: $username добавил $minutesAdded минут');
     } else {
@@ -699,6 +721,7 @@ class _MainScreenState extends State<MainScreen> {
       return;
     }
   }
+
 
   void _saveSettings() async {
     LogManager.log(Level.INFO, 'Сохранение настроек');
