@@ -244,6 +244,7 @@ class _MainScreenState extends State<MainScreen> {
   bool _isRandomSoundEnabled = false;
   Directory _soundDirectory = Directory('${Directory.current.path}/sound');
   File? _currentSoundFile;
+  String _newWidgetUrl = '';
 
   final String changelog = '''
   ★ Звуковые оповещения
@@ -516,6 +517,7 @@ class _MainScreenState extends State<MainScreen> {
       _tokenPreview = token != null
           ? '${token.substring(0, 3)}...${token.substring(token.length - 3)}'
           : '';
+      _newWidgetUrl = prefs.getString('WidgetUrl') ?? "";
     });
     if (_timerDuration == 0) {
       _showSetInitialTimeDialog();
@@ -528,7 +530,7 @@ class _MainScreenState extends State<MainScreen> {
     LogManager.log(Level.INFO, 'Инициализация SocketService');
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('donation_alerts_token');
-    String socketUrl = prefs.getString('socket_url') ?? _socketUrl;
+    String socketUrl = await _extractSocketUrl(_newWidgetUrl) ?? prefs.getString('socket_url') ?? _socketUrl;
     if (token != null) {
       _tokenPreview =
           '${token.substring(0, 3)}...${token.substring(token.length - 3)}';
@@ -658,8 +660,8 @@ class _MainScreenState extends State<MainScreen> {
     // Обрабатываем поля с учетом типов данных
     var curr = donationData['currency'] ?? 'NOT DATA';
     var show = donationData['is_shown'] is String 
-        ? int.tryParse(donationData['is_shown']) ?? 1 
-        : donationData['is_shown'] ?? 1;
+        ? int.tryParse(donationData['is_shown']) ?? 0 
+        : donationData['is_shown'] ?? 0;
     var bsys = donationData['billing_system'] ?? 'NOT DATA';
     var bsyt = donationData['billing_system_type'] ?? 'NOT DATA';
     
@@ -897,7 +899,7 @@ class _MainScreenState extends State<MainScreen> {
       final response = await http.get(Uri.parse(widgetUrl));
       if (response.statusCode == 200) {
         final body = response.body;
-        final match = RegExp(r"wss?:\/\/socket\d+\.donationalerts\.ru:\d+")
+        final match = RegExp(r"wss?:\/\/socket\d+\.donationalerts\.[a-zA-Z.]+:\d+")
             .firstMatch(body);
         if (match != null) {
           String wsUrl = match.group(0)!;
@@ -950,6 +952,13 @@ class _MainScreenState extends State<MainScreen> {
                   },
                   obscureText: true,
                 ),
+                TextField(
+                  decoration: InputDecoration(
+                      labelText: context.read<LocalizationProvider>().translate('linkSocketDA')),
+                  onChanged: (value) {
+                    _socketUrl = value;
+                  },
+                ),
                 const Divider(
                   color: Colors.grey,
                   thickness: 2,
@@ -995,7 +1004,9 @@ class _MainScreenState extends State<MainScreen> {
                 onPressed: () async {
                   SharedPreferences prefs = await SharedPreferences.getInstance();
                   await prefs.setDouble('minutes_per_100_rubles', _minutesPer100Rubles);
+                  LogManager.log(Level.INFO, 'newWidgetUrl: $newWidgetUrl');
                   if (newWidgetUrl.isNotEmpty) {
+                    await prefs.setString('WidgetUrl', newWidgetUrl);
                     Uri uri = Uri.parse(newWidgetUrl);
                     String? token = uri.queryParameters['token'];
                     if (token != null) {
@@ -1007,6 +1018,10 @@ class _MainScreenState extends State<MainScreen> {
                       }
                       await _reinitSocketService();
                     }
+                  }
+                  if(_socketUrl.isNotEmpty){
+                    await prefs.setString('socket_url', _socketUrl);
+                    await _reinitSocketService();
                   }
                   _saveSettings();
                   Navigator.of(context).pop();
@@ -1580,6 +1595,7 @@ class _MainScreenState extends State<MainScreen> {
 
   void _handleWebSocketMessage(String message) {
     var data = json.decode(message);
+    LogManager.log(Level.INFO, 'Get data ${data}');
     switch (data['action']) {
       case 'start':
         _startTimer();
