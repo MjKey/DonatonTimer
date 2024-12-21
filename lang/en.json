@@ -26,6 +26,7 @@
     "not_token":"Token not set",
     "min100":"Minutes per 100₽",
     "linkDA":"DonationAlerts Widget Link",
+    "linkSocketDA":"DonationAlerts socket Link",
     "cancel":"Cancel",
     "save":"Save",
     "start_time":"Set Start Time",
