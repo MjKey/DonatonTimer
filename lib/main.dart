@@ -662,23 +662,23 @@ class _MainScreenState extends State<MainScreen> {
     var show = donationData['is_shown'] is String 
         ? int.tryParse(donationData['is_shown']) ?? 0 
         : donationData['is_shown'] ?? 0;
+    var alert_type = donationData['alert_type'] is String 
+        ? int.tryParse(donationData['alert_type']) ?? 0 
+        : donationData['alert_type'] ?? 0;
     var bsys = donationData['billing_system'] ?? 'NOT DATA';
     var bsyt = donationData['billing_system_type'] ?? 'NOT DATA';
     
     LogManager.log(Level.INFO, "DONATE INFO: $curr | $show | $bsys | $bsyt");
     
-    if ((donationData['currency'] == 'RUB' && show == 0) || 
-        (show == 0 && 
-        (donationData['billing_system'] != 'TWITCH' && donationData['billing_system'] != 'YOUTUBE') && 
-        (donationData['billing_system_type'] != 'REWARDS' && donationData['billing_system_type'] != 'SUBSCRIPTION'))) {
-      
-      // Приводим amount_main к double
-      double amountMain = (donationData['amount_main'] is int)
-          ? (donationData['amount_main'] as int).toDouble()
-          : donationData['amount_main'].toDouble();
+    if (alert_type == 1 && show == 0 && donationData['currency'] == 'RUB'){
 
       String username = donationData['username'] ?? 
           context.read<LocalizationProvider>().translate('Anon');
+
+      // Приводим amount_main к double
+      double amountMain = (donationData['amount_main'] is int)
+        ? (donationData['amount_main'] as int).toDouble() ?? 0.0
+        : donationData['amount_main'].toDouble() ?? 0.0;
       
       int minutesAdded = ((amountMain * _minutesPer100Rubles) / 100).round();
       var did = donationData['id'];
@@ -951,13 +951,6 @@ class _MainScreenState extends State<MainScreen> {
                     newWidgetUrl = value;
                   },
                   obscureText: true,
-                ),
-                TextField(
-                  decoration: InputDecoration(
-                      labelText: context.read<LocalizationProvider>().translate('linkSocketDA')),
-                  onChanged: (value) {
-                    _socketUrl = value;
-                  },
                 ),
                 const Divider(
                   color: Colors.grey,
