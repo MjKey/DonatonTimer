@@ -222,9 +222,10 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _timerDuration = 0;
-  double _minutesPer100Rubles = 10.0;
+  double _rublesPerHour = 600.0;
   Timer? _timer;
   bool _isRunning = false;
+  bool _isSaving = false;
   final TextEditingController _minutesController = TextEditingController();
   List<DonationRecord> _recentDonations = [];
   Map<String, int> _topDonators = {};
@@ -247,11 +248,11 @@ class _MainScreenState extends State<MainScreen> {
   String _newWidgetUrl = '';
 
   final String changelog = '''
-  ★ Звуковые оповещения
+  ★ Улучшения
   ''';
   String translatedChangelog = '';
 
-  final version = "2.0.3";
+  final version = "2.0.4";
 
   @override
   void initState() {
@@ -434,33 +435,33 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
-              RichText(
-                text: TextSpan(
-                  text:
-                      '${context.read<LocalizationProvider>().translate('ps')} ',
-                  style: theme.textTheme.bodySmall,
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: 'AbadonBlack\'а',
-                      style: const TextStyle(
-                        color: Colors.blue,
-                        decoration: TextDecoration.underline,
-                      ),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () async {
-                          final Uri url =
-                              Uri.parse('https://www.twitch.tv/abadonblack');
-                          if (await canLaunchUrl(url)) {
-                            await launchUrl(url);
-                          } else {
-                            throw 'Не удалось открыть $url';
-                          }
-                        },
-                    ),
-                  ],
-                ),
-              ),
+              // const SizedBox(height: 20),
+              // RichText(
+              //   text: TextSpan(
+              //     text:
+              //         '${context.read<LocalizationProvider>().translate('ps')} ',
+              //     style: theme.textTheme.bodySmall,
+              //     children: <TextSpan>[
+              //       TextSpan(
+              //         text: 'AbadonBlack\'а',
+              //         style: const TextStyle(
+              //           color: Colors.blue,
+              //           decoration: TextDecoration.underline,
+              //         ),
+              //         recognizer: TapGestureRecognizer()
+              //           ..onTap = () async {
+              //             final Uri url =
+              //                 Uri.parse('https://www.twitch.tv/abadonblack');
+              //             if (await canLaunchUrl(url)) {
+              //               await launchUrl(url);
+              //             } else {
+              //               throw 'Не удалось открыть $url';
+              //             }
+              //           },
+              //       ),
+              //     ],
+              //   ),
+              // ),
             ],
           ),
           actions: <Widget>[
@@ -510,7 +511,7 @@ class _MainScreenState extends State<MainScreen> {
       _httpPort = prefs.getInt('httpPort') ?? 8080;
       _wsPort = prefs.getInt('wsPort') ?? 4040;
       _timerDuration = prefs.getInt('timer_duration') ?? 0;
-      _minutesPer100Rubles = prefs.getDouble('minutes_per_100_rubles') ?? 10.0;
+      _rublesPerHour = prefs.getDouble('rubles_per_hour') ?? 600.0;
       _isSoundEnabled = prefs.getBool('isSoundEnabled') ?? false;
       _isRandomSoundEnabled = prefs.getBool('isRandomSoundEnabled') ?? false;
       String? token = prefs.getString('donation_alerts_token');
@@ -523,7 +524,7 @@ class _MainScreenState extends State<MainScreen> {
       _showSetInitialTimeDialog();
     }
     LogManager.log(Level.INFO,
-        'Настройки загружены: таймер = $_timerDuration, минут за 100 рублей = $_minutesPer100Rubles');
+        'Настройки загружены: таймер = $_timerDuration, минут за 100 рублей = $_rublesPerHour');
   }
 
   Future<void> _initSocketService() async {
@@ -680,7 +681,7 @@ class _MainScreenState extends State<MainScreen> {
         ? (donationData['amount_main'] as int).toDouble() ?? 0.0
         : donationData['amount_main'].toDouble() ?? 0.0;
       
-      int minutesAdded = ((amountMain * _minutesPer100Rubles) / 100).round();
+      int minutesAdded = ((amountMain / _rublesPerHour) * 60).round();
       var did = donationData['id'];
       
       LogManager.log(Level.INFO, "DONATE INFO {OWNER}: $curr | $show | $bsys | $bsyt | $username | $amountMain | $did");
@@ -727,11 +728,25 @@ class _MainScreenState extends State<MainScreen> {
 
   void _saveSettings() async {
     LogManager.log(Level.INFO, 'Сохранение настроек');
+    setState(() {
+      _isSaving = true;
+    });
+    
+    // Небольшая задержка, чтобы пользователь увидел индикатор загрузки
+    await Future.delayed(const Duration(milliseconds: 50));
+    
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setInt('timer_duration', _timerDuration);
-    await prefs.setDouble('minutes_per_100_rubles', _minutesPer100Rubles);
+    await prefs.setDouble('rubles_per_hour', _rublesPerHour);
     await prefs.setBool('isSoundEnabled', _isSoundEnabled);
     await prefs.setBool('isRandomSoundEnabled', _isRandomSoundEnabled);
+    
+    // Небольшая задержка, чтобы индикатор был виден
+    await Future.delayed(const Duration(milliseconds: 300));
+    
+    setState(() {
+      _isSaving = false;
+    });
   }
 
   void _loadSoundFiles() {
@@ -849,6 +864,7 @@ class _MainScreenState extends State<MainScreen> {
             _stopTimer();
           }
         });
+        _saveTimerDuration();
         _broadcastWebSocketMessage(json
             .encode({'action': 'update_timer', 'duration': _timerDuration}));
       });
@@ -856,9 +872,9 @@ class _MainScreenState extends State<MainScreen> {
         _isRunning = true;
       });
     }
-    _saveTimerDuration();
     _broadcastWebSocketMessage(
         json.encode({'action': 'update_timer', 'duration': _timerDuration}));
+    _saveTimerDuration();
   }
 
   void _stopTimer() {
@@ -918,107 +934,187 @@ class _MainScreenState extends State<MainScreen> {
     context: context,
     builder: (BuildContext context) {
       return StatefulBuilder(
-        builder: (BuildContext context, StateSetter setState) {
+        builder: (BuildContext context, StateSetter dialogSetState) {
           String newWidgetUrl = ''; // Определяем переменную внутри StatefulBuilder
+          // Локальная копия для обновления значения в диалоге
+          double localRublesPerHour = _rublesPerHour;
+          bool localIsSaving = false;
+
+          // Функция для сохранения настроек внутри диалога
+          Future<void> saveSettings() async {
+            // Сразу показываем индикатор загрузки
+            dialogSetState(() {
+              localIsSaving = true;
+            });
+            
+            // Небольшая задержка, чтобы UI успел обновиться и показать оверлей
+            await Future.delayed(const Duration(milliseconds: 50));
+            
+            // Теперь выполняем сохранение
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            await prefs.setDouble('rubles_per_hour', localRublesPerHour);
+            LogManager.log(Level.INFO, 'newWidgetUrl: $newWidgetUrl');
+            
+            if (newWidgetUrl.isNotEmpty) {
+              await prefs.setString('WidgetUrl', newWidgetUrl);
+              Uri uri = Uri.parse(newWidgetUrl);
+              String? token = uri.queryParameters['token'];
+              if (token != null) {
+                await prefs.setString('donation_alerts_token', token);
+                String? socketUrl = await _extractSocketUrl(newWidgetUrl);
+                if (socketUrl != null) {
+                  _socketUrl = socketUrl;
+                  await prefs.setString('socket_url', socketUrl);
+                }
+                await _reinitSocketService();
+              }
+            }
+            
+            if(_socketUrl.isNotEmpty){
+              await prefs.setString('socket_url', _socketUrl);
+              await _reinitSocketService();
+            }
+            
+            // Обновляем глобальное значение
+            setState(() {
+              _rublesPerHour = localRublesPerHour;
+              _isSoundEnabled = _isSoundEnabled;
+              _isRandomSoundEnabled = _isRandomSoundEnabled;
+            });
+            
+            _saveSettings();
+            
+            // Задержка для видимости индикатора
+            await Future.delayed(const Duration(milliseconds: 500));
+            
+            // Теперь закрываем диалог
+            Navigator.of(context).pop();
+          }
 
           return AlertDialog(
             title: Text(context.read<LocalizationProvider>().translate('settings')),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
+            content: Stack(
               children: [
-                Text(
-                  _tokenPreview.isNotEmpty
-                      ? '${context.read<LocalizationProvider>().translate('token')}: $_tokenPreview'
-                      : context.read<LocalizationProvider>().translate('not_token'),
-                  style: TextStyle(
-                    color: _tokenPreview.isNotEmpty ? Colors.green : Colors.red,
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _tokenPreview.isNotEmpty
+                          ? '${context.read<LocalizationProvider>().translate('token')}: $_tokenPreview'
+                          : context.read<LocalizationProvider>().translate('not_token'),
+                      style: TextStyle(
+                        color: _tokenPreview.isNotEmpty ? Colors.green : Colors.red,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      "Настройка стоимости времени:",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TextField(
+                      decoration: InputDecoration(
+                          labelText: context.read<LocalizationProvider>().translate('min100')),
+                      keyboardType: TextInputType.number,
+                      onChanged: (value) {
+                        localRublesPerHour = double.tryParse(value) ?? localRublesPerHour;
+                      },
+                      controller: TextEditingController(text: localRublesPerHour.toString()),
+                    ),
+                    const SizedBox(height: 10),
+                    const Divider(
+                      color: Colors.grey,
+                      thickness: 2,
+                      indent: 5,
+                      endIndent: 5,
+                    ),
+                    Text(
+                      "Настройка DonationAlerts:",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TextField(
+                      decoration: InputDecoration(
+                          labelText: context.read<LocalizationProvider>().translate('linkDA')),
+                      onChanged: (value) {
+                        newWidgetUrl = value;
+                      },
+                      obscureText: true,
+                    ),
+                    const SizedBox(height: 10),
+                    const Divider(
+                      color: Colors.grey,
+                      thickness: 2,
+                      indent: 5,
+                      endIndent: 5,
+                    ),
+                    Text(
+                      "Настройка звуков:",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SwitchListTile(
+                      title: Text(context.read<LocalizationProvider>().translate('sound_notification')),
+                      value: _isSoundEnabled,
+                      onChanged: (bool value) {
+                        dialogSetState(() {
+                          _isSoundEnabled = value;
+                        });
+                      },
+                    ),
+                    SwitchListTile(
+                      title: Text(context.read<LocalizationProvider>().translate('random_sound')),
+                      value: _isRandomSoundEnabled,
+                      onChanged: (bool value) {
+                        dialogSetState(() {
+                          _isRandomSoundEnabled = value;
+                          _loadSoundFiles();
+                        });
+                      },
+                    ),
+                    ElevatedButton(
+                      onPressed: _refreshSoundFolder,
+                      child: Text(context.read<LocalizationProvider>().translate('refresh_sounds')),
+                    ),
+                  ],
+                ),
+                if (localIsSaving)
+                  Positioned.fill(
+                    child: Container(
+                      color: Colors.black.withOpacity(0.5),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircularProgressIndicator(),
+                            const SizedBox(height: 16),
+                            Text(
+                              "Сохранение...",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-                TextField(
-                  decoration: InputDecoration(
-                      labelText: context.read<LocalizationProvider>().translate('min100')),
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    _minutesPer100Rubles = double.tryParse(value) ?? _minutesPer100Rubles;
-                  },
-                  controller: TextEditingController(
-                      text: _minutesPer100Rubles.toString()),
-                ),
-                TextField(
-                  decoration: InputDecoration(
-                      labelText: context.read<LocalizationProvider>().translate('linkDA')),
-                  onChanged: (value) {
-                    newWidgetUrl = value;
-                  },
-                  obscureText: true,
-                ),
-                const Divider(
-                  color: Colors.grey,
-                  thickness: 2,
-                  indent: 5,
-                  endIndent: 5,
-                ),
-                SwitchListTile(
-                  title: Text(context.read<LocalizationProvider>().translate('sound_notification')),
-                  value: _isSoundEnabled,
-                  onChanged: (bool value) {
-                    setState(() {
-                      _isSoundEnabled = value;
-                    });
-                    _saveSettings();
-                  },
-                ),
-                SwitchListTile(
-                  title: Text(context.read<LocalizationProvider>().translate('random_sound')),
-                  value: _isRandomSoundEnabled,
-                  onChanged: (bool value) {
-                    setState(() {
-                      _isRandomSoundEnabled = value;
-                      _loadSoundFiles();
-                    });
-                    _saveSettings();
-                  },
-                ),
-                ElevatedButton(
-                  onPressed: _refreshSoundFolder,
-                  child: Text(context.read<LocalizationProvider>().translate('refresh_sounds')),
-                ),
               ],
             ),
             actions: [
               TextButton(
                 child: Text(context.read<LocalizationProvider>().translate('cancel')),
-                onPressed: () {
+                onPressed: localIsSaving ? null : () {
                   Navigator.of(context).pop();
                 },
               ),
-              TextButton(
+              ElevatedButton(
                 child: Text(context.read<LocalizationProvider>().translate('save')),
-                onPressed: () async {
-                  SharedPreferences prefs = await SharedPreferences.getInstance();
-                  await prefs.setDouble('minutes_per_100_rubles', _minutesPer100Rubles);
-                  LogManager.log(Level.INFO, 'newWidgetUrl: $newWidgetUrl');
-                  if (newWidgetUrl.isNotEmpty) {
-                    await prefs.setString('WidgetUrl', newWidgetUrl);
-                    Uri uri = Uri.parse(newWidgetUrl);
-                    String? token = uri.queryParameters['token'];
-                    if (token != null) {
-                      await prefs.setString('donation_alerts_token', token);
-                      String? socketUrl = await _extractSocketUrl(newWidgetUrl);
-                      if (socketUrl != null) {
-                        _socketUrl = socketUrl;
-                        await prefs.setString('socket_url', socketUrl);
-                      }
-                      await _reinitSocketService();
-                    }
-                  }
-                  if(_socketUrl.isNotEmpty){
-                    await prefs.setString('socket_url', _socketUrl);
-                    await _reinitSocketService();
-                  }
-                  _saveSettings();
-                  Navigator.of(context).pop();
-                },
+                onPressed: localIsSaving ? null : saveSettings,
               ),
             ],
           );
@@ -1213,7 +1309,7 @@ class _MainScreenState extends State<MainScreen> {
     await prefs.clear();
     setState(() {
       _timerDuration = 0;
-      _minutesPer100Rubles = 10.0;
+      _rublesPerHour = 600.0;
       _tokenPreview = '';
     });
     _initSocketService();
@@ -1881,6 +1977,68 @@ class _MainScreenState extends State<MainScreen> {
                             .translate('+min'))),
                   ],
                 ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: _isSaving ? null : () {
+                        setState(() {
+                          _rublesPerHour = _rublesPerHour - 100 > 0 ? _rublesPerHour - 100 : 100;
+                          _saveSettings();
+                        });
+                      },
+                      child: const Text("-100₽"),
+                    ),
+                    const SizedBox(width: 15),
+                    ElevatedButton(
+                      onPressed: _isSaving ? null : () {
+                        setState(() {
+                          _rublesPerHour = _rublesPerHour - 10 > 0 ? _rublesPerHour - 10 : 10;
+                          _saveSettings();
+                        });
+                      },
+                      child: const Text("-10₽"),
+                    ),
+                    const SizedBox(width: 15),
+                    _isSaving 
+                      ? SizedBox(
+                          width: 20, 
+                          height: 20, 
+                          child: CircularProgressIndicator(strokeWidth: 2)
+                        )
+                      : Text(
+                          context.read<LocalizationProvider>().translate('min100') + ": ${_rublesPerHour.toString()}₽",
+                          style: GoogleFonts.lato(
+                            textStyle: const TextStyle(
+                              fontSize: 18, 
+                              fontWeight: FontWeight.bold
+                            ),
+                          ),
+                        ),
+                    const SizedBox(width: 15),
+                    ElevatedButton(
+                      onPressed: _isSaving ? null : () {
+                        setState(() {
+                          _rublesPerHour = _rublesPerHour + 10;
+                          _saveSettings();
+                        });
+                      },
+                      child: const Text("+10₽"),
+                    ),
+                    const SizedBox(width: 15),
+                    ElevatedButton(
+                      onPressed: _isSaving ? null : () {
+                        setState(() {
+                          _rublesPerHour = _rublesPerHour + 100;
+                          _saveSettings();
+                        });
+                      },
+                      child: const Text("+100₽"),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
               ],
             ),
           ),
@@ -1902,8 +2060,7 @@ class _MainScreenState extends State<MainScreen> {
                           itemCount: _recentDonations.length,
                           itemBuilder: (context, index) {
                             var donation = _recentDonations[index];
-                            double amount = (donation.minutesAdded * 100) /
-                                _minutesPer100Rubles;
+                            double amount = donation.minutesAdded * _rublesPerHour / 60;
                             return ListTile(
                               title: Text(donation.username),
                               trailing: Text(
@@ -1936,11 +2093,10 @@ class _MainScreenState extends State<MainScreen> {
                           itemBuilder: (context, index) {
                             String key = _topDonators.keys.elementAt(index);
                             int minutes = _topDonators[key]!;
-                            // double amount = (minutes * 100) / _minutesPer100Rubles;
                             return ListTile(
                               title: Text(key),
                               trailing: Text(
-                                  '${((minutes * 100) / _minutesPer100Rubles).toStringAsFixed(2)}₽ / ${minutes ~/ 60}${context.read<LocalizationProvider>().translate('h')} ${(minutes % 60).toString().padLeft(1, '0')}${context.read<LocalizationProvider>().translate('m')}'),
+                                  '${(minutes * _rublesPerHour / 60).toStringAsFixed(2)}₽ / ${minutes ~/ 60}${context.read<LocalizationProvider>().translate('h')} ${(minutes % 60).toString().padLeft(1, '0')}${context.read<LocalizationProvider>().translate('m')}'),
                             );
                           },
                         ),
@@ -1960,11 +2116,11 @@ class _MainScreenState extends State<MainScreen> {
   void dispose() {
     LogManager.log(Level.INFO, 'Закрытие всего и вся');
     LogManager.dispose();
+    _saveTimerDuration();
     _timer?.cancel();
     _socketService?.dispose();
     _server.close();
     _webSocketServer.close();
-    _saveTimerDuration();
     super.dispose();
   }
 }
