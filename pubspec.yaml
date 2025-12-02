@@ -1,46 +1,63 @@
-name: DonathonTimer
-description: "Donathon Timer - A powerful and customizable timer application designed for live streaming and event management."
+name: donaton_timer
+description: "DonatonTimer v3.0.0 - A powerful and customizable timer application for donation marathons on live streams. By MjKey (https://mjkey.ru)"
 publish_to: 'none'
-version: 2.0.3+1
+version: 3.0.0+1
+
+# Author: MjKey (https://mjkey.ru)
+# Project: https://github.com/MjKey/DonatonTimer
 
 environment:
-  sdk: '>=3.4.3 <4.0.0'
+  sdk: ^3.10.0
 
 dependencies:
-  flutter_localizations:
-    sdk: flutter
   flutter:
     sdk: flutter
-  intl: ^0.19.0
+  flutter_localizations:
+    sdk: flutter
+
+  # State Management
   provider: ^6.1.2
+
+  # Networking & WebSocket
   http: ^1.2.2
-  logging: ^1.2.0
-  shared_preferences: ^2.3.1
-  socket_io_client: ^1.0.2
+  socket_io_client: ^2.0.3+1
   web_socket_channel: ^3.0.1
-  cupertino_icons: ^1.0.8
-  shelf: ^1.4.1
-  flutter_colorpicker: ^1.1.0
-  window_manager: ^0.3.9
+  centrifuge: ^0.17.0
+
+  # Local Server
+  shelf: ^1.4.2
+  shelf_router: ^1.1.4
+
+  # Storage
+  shared_preferences: ^2.3.2
   path_provider: ^2.1.4
-  url_launcher: ^6.3.0
-  qr_flutter: ^4.1.0
-  network_info_plus: ^6.0.0
-  audioplayers: ^6.1.0
+
+  # UI Components
+  cupertino_icons: ^1.0.8
+  flutter_colorpicker: ^1.1.0
   google_fonts: ^6.2.1
-  desktop_webview_window: ^0.2.3
-  webview_windows: ^0.4.0
-  translator: ^1.0.0
+  qr_flutter: ^4.1.0
+  nes_ui: ^0.27.0
+
+  # Window Management
+  window_manager: ^0.4.3
+
+  # Audio
+  audioplayers: ^6.1.0
+
+  # Utilities
+  intl: ^0.20.2
+  logging: ^1.2.0
+  url_launcher: ^6.3.0
+  network_info_plus: ^6.0.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true
   assets:
-    - assets/styles.json
-    - assets/pepe.gif
-    - assets/pepe.mp3
+    - assets/
     - lang/

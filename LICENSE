@@ -1,16 +1,42 @@
-MIT License
+MIT License with Additional Restrictions
 
-Copyright (c) 2024 MjKey
+Copyright (c) 2025 MjKey (https://mjkey.ru)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+of this software and associated documentation files (the "Software"), to use,
+copy, modify, and distribute the Software, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. ATTRIBUTION REQUIRED
+   All copies or substantial portions of the Software must include this
+   copyright notice and permission notice. Any fork or derivative work must
+   clearly credit MjKey as the original author.
+
+2. NON-COMMERCIAL USE ONLY
+   The Software may not be sold, sublicensed, or used for any commercial
+   purpose without explicit written permission from the copyright holder.
+
+3. NO MISREPRESENTATION
+   The Software may not be claimed as original work by any party other than
+   the copyright holder. Forks and derivative works must be clearly identified
+   as such and not presented as the original project.
+
+4. NO ENDORSEMENT
+   The name "DonatonTimer", "MjKey", or the names of contributors may not
+   be used to endorse or promote products derived from this Software without
+   specific prior written permission.
+
+5. CONTRIBUTIONS
+   Contributions via pull requests are welcome and will be licensed under
+   the same terms as this license. Contributors retain copyright of their
+   contributions but grant the project maintainer a perpetual, worldwide,
+   non-exclusive license to use, modify, and distribute their contributions.
+
+6. FORKS AND DERIVATIVE WORKS
+   Forks and modifications are permitted provided that:
+   a) The original author (MjKey) is credited
+   b) The fork is clearly marked as a modified version
+   c) The fork is not used for commercial purposes
+   d) The fork includes this license file
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -19,3 +45,5 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+For commercial licensing inquiries: https://mjkey.ru

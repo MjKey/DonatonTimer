@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "ru.mjkey" "\0"
-            VALUE "FileDescription", "donat_timer" "\0"
+            VALUE "CompanyName", "MerryJoyKeyStudio" "\0"
+            VALUE "FileDescription", "DonatonTimer - Timer for donation marathons" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "donat_timer" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2024 ru.mjkey. All rights reserved." "\0"
-            VALUE "OriginalFilename", "donat_timer.exe" "\0"
-            VALUE "ProductName", "donat_timer" "\0"
+            VALUE "InternalName", "DonatonTimer" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2025 MjKey (https://mjkey.ru). All rights reserved." "\0"
+            VALUE "OriginalFilename", "DonatonTimer.exe" "\0"
+            VALUE "ProductName", "DonatonTimer" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
