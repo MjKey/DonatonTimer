@@ -11,3 +11,4 @@ export 'donation_service_adapter.dart';
 export 'donation_alerts_adapter.dart';
 export 'donate_pay_adapter.dart';
 export 'donate_stream_adapter.dart';
+export 'donatex_adapter.dart';

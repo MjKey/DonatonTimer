@@ -1,10 +1,10 @@
-; DonatonTimer v3.0.0 Setup Script
+; DonatonTimer v3.0.1 Setup Script
 ; Автор: MjKey (https://mjkey.ru)
 ; Проект: https://github.com/MjKey/DonatonTimer
 ; Inno Setup 6.2+
 
 #define MyAppName "DonatonTimer"
-#define MyAppVersion "3.0.0"
+#define MyAppVersion "3.0.1"
 #define MyAppPublisher "MjKey"
 #define MyAppURL "https://github.com/MjKey/DonatonTimer"
 #define MyAppExeName "donaton_timer.exe"

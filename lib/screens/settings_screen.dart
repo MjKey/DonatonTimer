@@ -151,6 +151,12 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
   bool _dsEnabled = false;
   bool _dsTokenVisible = false;
 
+  // DonateX controllers
+  final _dxWidgetUrlController = TextEditingController();
+  final _dxGroupUrlController = TextEditingController();
+  bool _dxEnabled = false;
+  bool _dxTokenVisible = false;
+
   // Available socket servers for DonationAlerts
   static const List<String> _socketServers = [
     'socket5',
@@ -195,6 +201,14 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
       _dsTokenController.text = dsConfig.getCredential('token') ?? '';
     }
 
+    // DonateX
+    final dxConfig = settings.getServiceConfig('DonateX');
+    if (dxConfig != null) {
+      _dxEnabled = dxConfig.enabled;
+      _dxWidgetUrlController.text = dxConfig.getCredential('widgetUrl') ?? '';
+      _dxGroupUrlController.text = dxConfig.getCredential('groupUrl') ?? '';
+    }
+
     setState(() {});
   }
 
@@ -203,6 +217,8 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
     _daTokenController.dispose();
     _dpApiKeyController.dispose();
     _dsTokenController.dispose();
+    _dxWidgetUrlController.dispose();
+    _dxGroupUrlController.dispose();
     super.dispose();
   }
 
@@ -294,6 +310,10 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
 
           // Donate.Stream
           _buildDonateStreamSection(localization),
+          const SizedBox(height: 16),
+
+          // DonateX
+          _buildDonateXSection(localization),
         ],
       ),
     );
@@ -534,6 +554,122 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildDonateXSection(LocalizationProvider localization) {
+    final status = _getAdapterStatus('DonateX');
+    return NesContainer(
+      label: localization.tr('donatex'),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Enable checkbox + status indicator
+            Row(
+              children: [
+                NesCheckBox(
+                  value: _dxEnabled,
+                  onChange: (value) => setState(() => _dxEnabled = value),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  _dxEnabled 
+                      ? localization.tr('enabled') 
+                      : localization.tr('disabled'),
+                ),
+                const Spacer(),
+                _buildStatusIndicator(status),
+                const SizedBox(width: 8),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Widget URL field (for token extraction)
+            Text('${localization.tr('donatex_widget_url')}:'),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _dxWidgetUrlController,
+              obscureText: !_dxTokenVisible,
+              decoration: InputDecoration(
+                hintText: 'https://donatex.gg/recent-donations?token=...',
+                border: const OutlineInputBorder(),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                suffixIcon: IconButton(
+                  icon: Icon(_dxTokenVisible ? Icons.visibility_off : Icons.visibility),
+                  onPressed: () => setState(() => _dxTokenVisible = !_dxTokenVisible),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Group URL field (for widget_id extraction)
+            Text('${localization.tr('donatex_group_url')}:'),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _dxGroupUrlController,
+              decoration: InputDecoration(
+                hintText: 'https://donatex.gg/widgets/donations/...',
+                border: const OutlineInputBorder(),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Виджет последних сообщений → токен, Группа оповещалки → widget_id',
+              style: const TextStyle(fontSize: 10, color: Colors.grey),
+            ),
+            const SizedBox(height: 16),
+
+            // Save button
+            NesButton.text(
+              type: NesButtonType.success,
+              text: localization.tr('save'),
+              onPressed: () => _saveDonateXConfig(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _saveDonateXConfig() {
+    // Extract token from widget URL
+    String? token;
+    final widgetUrl = _dxWidgetUrlController.text;
+    if (widgetUrl.contains('token=')) {
+      final uri = Uri.tryParse(widgetUrl);
+      token = uri?.queryParameters['token'];
+    } else {
+      token = widgetUrl; // Assume it's just the token
+    }
+
+    // Extract widget_id from group URL
+    String? widgetId;
+    final groupUrl = _dxGroupUrlController.text;
+    final donationsMatch = RegExp(r'/widgets/donations/([a-f0-9-]+)').firstMatch(groupUrl);
+    if (donationsMatch != null) {
+      widgetId = donationsMatch.group(1);
+    } else {
+      widgetId = groupUrl; // Assume it's just the widget_id
+    }
+
+    _saveServiceConfig(
+      'DonateX',
+      _dxEnabled,
+      {
+        'token': token ?? '',
+        'widgetId': widgetId ?? '',
+        'widgetUrl': _dxWidgetUrlController.text,
+        'groupUrl': _dxGroupUrlController.text,
+      },
     );
   }
 }
