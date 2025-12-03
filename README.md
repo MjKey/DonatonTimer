@@ -19,6 +19,7 @@
 | DonationAlerts |   ✅   |   Работает    |
 | Donate.Stream  |   ✅   |   Работает    |
 | DonatePay      |   ✅   |   Работает    |
+| DonateX        |   ✅   |   Работает    |
 | Donatty        |   ❌   |   В планах    |
 | StreamElements |   ❌   |   В планах    |
 
