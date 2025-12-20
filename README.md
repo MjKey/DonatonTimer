@@ -22,6 +22,7 @@
 | Donate.Stream  |   ✅   |   Работает    |
 | DonatePay      |   ✅   |   Работает    |
 | DonateX        |   ✅   |   Работает    |
+| iHAQ Donate    |   ❌   |   В планах    |
 | Donatty        |   ❌   |   В планах    |
 | StreamElements |   ❌   |   В планах    |
 
