@@ -116,7 +116,10 @@ void main() async {
   }
 
   // Initialize web server service for OBS integration and mobile control
-  final webServerService = WebServerService();
+  final webServerService = WebServerService(
+    httpPort: savedSettings?.httpPort ?? 8080,
+    wsPort: savedSettings?.wsPort ?? 4040,
+  );
   await webServerService.init();
   LogManager.info('Web server service инициализирован');
   

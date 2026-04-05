@@ -8,6 +8,7 @@ import '../services/donation_service.dart';
 import '../services/donation_service_adapter.dart';
 import '../services/sound_service.dart';
 import '../services/log_manager.dart';
+import '../services/web_server_service.dart';
 import '../models/service_config.dart';
 import '../models/app_settings.dart';
 
@@ -685,8 +686,12 @@ class TimerSettingsTab extends StatefulWidget {
 
 class _TimerSettingsTabState extends State<TimerSettingsTab> {
   final _rateController = TextEditingController();
+  final _timePerAmountMinutesController = TextEditingController();
+  final _fixedTimeMinutesController = TextEditingController();
   final _httpPortController = TextEditingController();
   final _wsPortController = TextEditingController();
+  bool _isFixedTimeMode = false;
+  bool _isSubtractionMode = false;
 
   @override
   void initState() {
@@ -700,13 +705,19 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
 
     final settings = donationService.settings;
     _rateController.text = settings.minutesPerAmount.toString();
+    _timePerAmountMinutesController.text = settings.timePerAmountMinutes.toString();
+    _fixedTimeMinutesController.text = settings.fixedTimeMinutes.toString();
     _httpPortController.text = settings.httpPort.toString();
     _wsPortController.text = settings.wsPort.toString();
+    _isFixedTimeMode = settings.isFixedTimeMode;
+    _isSubtractionMode = settings.isSubtractionMode;
   }
 
   @override
   void dispose() {
     _rateController.dispose();
+    _timePerAmountMinutesController.dispose();
+    _fixedTimeMinutesController.dispose();
     _httpPortController.dispose();
     _wsPortController.dispose();
     super.dispose();
@@ -717,6 +728,8 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
     if (donationService == null) return;
 
     final rate = double.tryParse(_rateController.text);
+    final timePerAmountMinutes = int.tryParse(_timePerAmountMinutesController.text);
+    final fixedTimeMinutes = int.tryParse(_fixedTimeMinutesController.text);
     final httpPort = int.tryParse(_httpPortController.text);
     final wsPort = int.tryParse(_wsPortController.text);
 
@@ -724,6 +737,24 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
       NesSnackbar.show(
         context,
         text: 'Invalid rate value',
+        type: NesSnackbarType.error,
+      );
+      return;
+    }
+
+    if (timePerAmountMinutes == null || timePerAmountMinutes <= 0) {
+      NesSnackbar.show(
+        context,
+        text: 'Invalid time value',
+        type: NesSnackbarType.error,
+      );
+      return;
+    }
+
+    if (fixedTimeMinutes == null || fixedTimeMinutes <= 0) {
+      NesSnackbar.show(
+        context,
+        text: 'Invalid fixed time value',
         type: NesSnackbarType.error,
       );
       return;
@@ -749,11 +780,30 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
 
     final newSettings = donationService.settings.copyWith(
       minutesPerAmount: rate,
+      timePerAmountMinutes: timePerAmountMinutes,
       httpPort: httpPort,
       wsPort: wsPort,
+      isFixedTimeMode: _isFixedTimeMode,
+      fixedTimeMinutes: fixedTimeMinutes,
+      isSubtractionMode: _isSubtractionMode,
     );
 
     await donationService.updateSettings(newSettings);
+
+    final webServerService = context.read<WebServerService?>();
+    if (webServerService != null) {
+      try {
+        await webServerService.restartServers(httpPort: httpPort, wsPort: wsPort);
+      } catch (e) {
+        if (mounted) {
+          NesSnackbar.show(
+            context,
+            text: 'Ошибка запуска сервера: $e',
+            type: NesSnackbarType.error,
+          );
+        }
+      }
+    }
 
     if (mounted) {
       NesSnackbar.show(
@@ -781,13 +831,14 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Сколько рублей = 1 час (60 минут)',
+                    'По умолчанию 600 RUB = 60 минут',
                     style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
                       Expanded(
+                        flex: 2,
                         child: TextField(
                           controller: _rateController,
                           keyboardType: TextInputType.number,
@@ -798,7 +849,26 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
                               horizontal: 12,
                               vertical: 8,
                             ),
-                            suffixText: 'RUB = 60 min',
+                            suffixText: 'RUB',
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text('='),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        flex: 2,
+                        child: TextField(
+                          controller: _timePerAmountMinutesController,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            hintText: '60',
+                            border: const OutlineInputBorder(),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            suffixText: localization.tr('min'),
                           ),
                         ),
                       ),
@@ -806,8 +876,59 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Пример: при 600 → донат 600₽ = 60 мин, 1200₽ = 120 мин',
+                    'Пример: 600 RUB = 60 мин → донат 1200₽ = 120 мин',
                     style: const TextStyle(fontSize: 11, color: Colors.grey),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Fixed time & subtraction settings
+          NesContainer(
+            label: localization.tr('fixed_time_mode'),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      NesCheckBox(
+                        value: _isFixedTimeMode,
+                        onChange: (value) => setState(() => _isFixedTimeMode = value),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(localization.tr('fixed_time_mode')),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Text('${localization.tr('fixed_time_minutes')}:'),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _fixedTimeMinutesController,
+                    keyboardType: TextInputType.number,
+                    enabled: _isFixedTimeMode,
+                    decoration: InputDecoration(
+                      hintText: '1',
+                      border: const OutlineInputBorder(),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      NesCheckBox(
+                        value: _isSubtractionMode,
+                        onChange: (value) => setState(() => _isSubtractionMode = value),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(localization.tr('subtraction_mode')),
+                    ],
                   ),
                 ],
               ),

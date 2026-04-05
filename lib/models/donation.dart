@@ -19,11 +19,11 @@ class Donation {
   });
 
   /// Calculates the number of seconds to add based on the donation amount and rate.
-  /// Rate means: [rate] RUB = 60 minutes
-  /// Formula: seconds = (amount / rate) * 60 minutes * 60 seconds = (amount / rate) * 3600
-  int calculateSeconds(double rate) {
+  /// Rate means: [rate] RUB = [timeMinutes] minutes
+  /// Formula: seconds = (amount / rate) * timeMinutes * 60 seconds
+  int calculateSeconds(double rate, int timeMinutes) {
     if (rate <= 0) return 0;
-    return ((amount / rate) * 3600).round();
+    return ((amount / rate) * timeMinutes * 60).round();
   }
 
   /// Creates a Donation from a JSON map.

@@ -194,7 +194,17 @@ class DonationService extends ChangeNotifier {
     }
     
     // Рассчитываем время для добавления
-    final secondsToAdd = donation.calculateSeconds(_rate);
+    int secondsToAdd;
+    if (_settings.isFixedTimeMode) {
+      secondsToAdd = _settings.fixedTimeMinutes * 60;
+    } else {
+      secondsToAdd = donation.calculateSeconds(_rate, _settings.timePerAmountMinutes);
+    }
+    
+    if (_settings.isSubtractionMode) {
+      secondsToAdd = -secondsToAdd;
+    }
+    
     final minutesAdded = (secondsToAdd / 60).round();
     
     // Create donation record for statistics
@@ -215,7 +225,7 @@ class DonationService extends ChangeNotifier {
     _donationController.add(donation);
     
     // Добавляем время к таймеру
-    if (onTimeAdded != null && secondsToAdd > 0) {
+    if (onTimeAdded != null && secondsToAdd != 0) {
       onTimeAdded!(secondsToAdd);
     }
     

@@ -168,7 +168,8 @@ class WebServerService extends ChangeNotifier {
   /// Останавливает WebSocket сервер.
   Future<void> stopWebSocketServer() async {
     // Close all client connections
-    for (final client in _clients) {
+    final clientsToClose = List.of(_clients);
+    for (final client in clientsToClose) {
       try {
         await client.sink.close();
       } catch (e) {

@@ -3,6 +3,7 @@ import 'service_config.dart';
 /// Настройки приложения включая конфигурации сервисов.
 class AppSettings {
   final double minutesPerAmount;
+  final int timePerAmountMinutes;
   final int httpPort;
   final int wsPort;
   final bool soundEnabled;
@@ -11,9 +12,13 @@ class AppSettings {
   final String theme;
   final String language;
   final Map<String, ServiceConfig> serviceConfigs;
+  final bool isFixedTimeMode;
+  final int fixedTimeMinutes;
+  final bool isSubtractionMode;
 
   const AppSettings({
     this.minutesPerAmount = 600.0,
+    this.timePerAmountMinutes = 60,
     this.httpPort = 8080,
     this.wsPort = 4040,
     this.soundEnabled = true,
@@ -22,11 +27,15 @@ class AppSettings {
     this.theme = 'system',
     this.language = 'ru',
     this.serviceConfigs = const {},
+    this.isFixedTimeMode = false,
+    this.fixedTimeMinutes = 1,
+    this.isSubtractionMode = false,
   });
 
   /// Creates a copy with updated values.
   AppSettings copyWith({
     double? minutesPerAmount,
+    int? timePerAmountMinutes,
     int? httpPort,
     int? wsPort,
     bool? soundEnabled,
@@ -35,9 +44,13 @@ class AppSettings {
     String? theme,
     String? language,
     Map<String, ServiceConfig>? serviceConfigs,
+    bool? isFixedTimeMode,
+    int? fixedTimeMinutes,
+    bool? isSubtractionMode,
   }) {
     return AppSettings(
       minutesPerAmount: minutesPerAmount ?? this.minutesPerAmount,
+      timePerAmountMinutes: timePerAmountMinutes ?? this.timePerAmountMinutes,
       httpPort: httpPort ?? this.httpPort,
       wsPort: wsPort ?? this.wsPort,
       soundEnabled: soundEnabled ?? this.soundEnabled,
@@ -46,6 +59,9 @@ class AppSettings {
       theme: theme ?? this.theme,
       language: language ?? this.language,
       serviceConfigs: serviceConfigs ?? this.serviceConfigs,
+      isFixedTimeMode: isFixedTimeMode ?? this.isFixedTimeMode,
+      fixedTimeMinutes: fixedTimeMinutes ?? this.fixedTimeMinutes,
+      isSubtractionMode: isSubtractionMode ?? this.isSubtractionMode,
     );
   }
 
@@ -76,6 +92,7 @@ class AppSettings {
 
     return AppSettings(
       minutesPerAmount: (json['minutesPerAmount'] as num?)?.toDouble() ?? 600.0,
+      timePerAmountMinutes: json['timePerAmountMinutes'] as int? ?? 60,
       httpPort: json['httpPort'] as int? ?? 8080,
       wsPort: json['wsPort'] as int? ?? 4040,
       soundEnabled: json['soundEnabled'] as bool? ?? true,
@@ -84,6 +101,9 @@ class AppSettings {
       theme: json['theme'] as String? ?? 'system',
       language: json['language'] as String? ?? 'ru',
       serviceConfigs: serviceConfigs,
+      isFixedTimeMode: json['isFixedTimeMode'] as bool? ?? false,
+      fixedTimeMinutes: json['fixedTimeMinutes'] as int? ?? 1,
+      isSubtractionMode: json['isSubtractionMode'] as bool? ?? false,
     );
   }
 
@@ -91,6 +111,7 @@ class AppSettings {
   Map<String, dynamic> toJson() {
     return {
       'minutesPerAmount': minutesPerAmount,
+      'timePerAmountMinutes': timePerAmountMinutes,
       'httpPort': httpPort,
       'wsPort': wsPort,
       'soundEnabled': soundEnabled,
@@ -98,6 +119,9 @@ class AppSettings {
       'loggingEnabled': loggingEnabled,
       'theme': theme,
       'language': language,
+      'isFixedTimeMode': isFixedTimeMode,
+      'fixedTimeMinutes': fixedTimeMinutes,
+      'isSubtractionMode': isSubtractionMode,
       'serviceConfigs': serviceConfigs.map(
         (key, value) => MapEntry(key, value.toJson()),
       ),

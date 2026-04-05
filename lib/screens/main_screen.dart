@@ -26,7 +26,7 @@ class _MainScreenState extends State<MainScreen> {
   final TextEditingController _minutesController = TextEditingController();
   final TextEditingController _secondsController = TextEditingController();
   final TextEditingController _addMinutesController = TextEditingController();
-  
+
   /// Shows navigation menu dialog with NesSelectionList.
   void _showNavigationMenu(LocalizationProvider localization) {
     showDialog(
@@ -109,23 +109,23 @@ class _MainScreenState extends State<MainScreen> {
             // Header with title and theme toggle
             _buildHeader(localization, theme),
             const SizedBox(height: 16),
-            
+
             // Timer display
             _buildTimerDisplay(timer),
             const SizedBox(height: 16),
-            
+
             // Timer controls
             _buildTimerControls(timer, localization),
             const SizedBox(height: 16),
-            
+
             // Quick time buttons
             _buildQuickTimeButtons(timer, localization),
             const SizedBox(height: 16),
-            
+
             // Set time section
             _buildSetTimeSection(timer, localization),
             const SizedBox(height: 16),
-            
+
             // Statistics section
             if (donationService != null)
               _buildStatisticsSection(donationService, localization),
@@ -134,7 +134,6 @@ class _MainScreenState extends State<MainScreen> {
       ),
     );
   }
-
 
   /// Builds the header with app title and theme toggle.
   Widget _buildHeader(LocalizationProvider localization, ThemeProvider theme) {
@@ -192,9 +191,7 @@ class _MainScreenState extends State<MainScreen> {
             // Theme toggle
             NesButton.icon(
               type: NesButtonType.normal,
-              icon: theme.isDarkMode 
-                  ? NesIcons.sun 
-                  : NesIcons.moon,
+              icon: theme.isDarkMode ? NesIcons.sun : NesIcons.moon,
               onPressed: () => theme.toggleTheme(),
             ),
           ],
@@ -218,12 +215,9 @@ class _MainScreenState extends State<MainScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // App icon/logo
-                  NesIcon(
-                    iconData: NesIcons.gamepad,
-                    size: const Size(64, 64),
-                  ),
+                  NesIcon(iconData: NesIcons.gamepad, size: const Size(64, 64)),
                   const SizedBox(height: 16),
-                  
+
                   // App name and version
                   Text(
                     localization.tr('app_title'),
@@ -233,7 +227,7 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  
+
                   // Description
                   Text(
                     localization.tr('app_description'),
@@ -241,7 +235,7 @@ class _MainScreenState extends State<MainScreen> {
                     style: const TextStyle(fontSize: 14),
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // Features section
                   NesContainer(
                     label: localization.tr('features'),
@@ -279,7 +273,7 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Changelog section
                   NesContainer(
                     label: localization.tr('changelog'),
@@ -292,7 +286,7 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Author info
                   Text(
                     '${localization.tr('author')}: MjKey',
@@ -303,11 +297,11 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '${localization.tr('version')}: 3.0.1',
+                    '${localization.tr('version')}: 3.0.2',
                     style: const TextStyle(fontSize: 12),
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // Close button
                   NesButton.text(
                     type: NesButtonType.primary,
@@ -327,17 +321,9 @@ class _MainScreenState extends State<MainScreen> {
   Widget _buildFeatureItem(NesIconData icon, String text) {
     return Row(
       children: [
-        NesIcon(
-          iconData: icon,
-          size: const Size(16, 16),
-        ),
+        NesIcon(iconData: icon, size: const Size(16, 16)),
         const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            text,
-            style: const TextStyle(fontSize: 12),
-          ),
-        ),
+        Expanded(child: Text(text, style: const TextStyle(fontSize: 12))),
       ],
     );
   }
@@ -356,7 +342,7 @@ class _MainScreenState extends State<MainScreen> {
 
     final obsUrl = webServer.getTimerUrl();
     Clipboard.setData(ClipboardData(text: obsUrl));
-    
+
     NesSnackbar.show(
       context,
       text: localization.tr('link_copied'),
@@ -366,19 +352,15 @@ class _MainScreenState extends State<MainScreen> {
 
   /// Opens the settings screen.
   void _openSettings() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const SettingsScreen(),
-      ),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => const SettingsScreen()));
   }
 
   /// Opens the style generator screen.
   void _openStyleGenerator() {
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const StyleGeneratorScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const StyleGeneratorScreen()),
     );
   }
 
@@ -422,7 +404,7 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Description
                 Text(
                   localization.tr('qr_code_description'),
@@ -430,7 +412,7 @@ class _MainScreenState extends State<MainScreen> {
                   style: const TextStyle(fontSize: 14),
                 ),
                 const SizedBox(height: 8),
-                
+
                 // Network warning
                 Text(
                   localization.tr('same_network_required'),
@@ -442,7 +424,7 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                
+
                 // URL display
                 NesContainer(
                   label: localization.tr('dashboard_url'),
@@ -458,14 +440,16 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Buttons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     NesButton.text(
                       type: NesButtonType.primary,
-                      text: localization.tr('link_copied').replaceAll(' copied', ''),
+                      text: localization
+                          .tr('link_copied')
+                          .replaceAll(' copied', ''),
                       onPressed: () {
                         Clipboard.setData(ClipboardData(text: dashboardUrl));
                         NesSnackbar.show(
@@ -513,7 +497,10 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   /// Builds the main timer control buttons (start/pause, +/- minutes).
-  Widget _buildTimerControls(TimerProvider timer, LocalizationProvider localization) {
+  Widget _buildTimerControls(
+    TimerProvider timer,
+    LocalizationProvider localization,
+  ) {
     return NesContainer(
       label: localization.tr('controls'),
       child: Padding(
@@ -528,19 +515,19 @@ class _MainScreenState extends State<MainScreen> {
               onPressed: timer.subtractMinute,
             ),
             const SizedBox(width: 16),
-            
+
             // Start/Pause button
             NesButton.text(
-              type: timer.isRunning 
-                  ? NesButtonType.warning 
+              type: timer.isRunning
+                  ? NesButtonType.warning
                   : NesButtonType.success,
-              text: timer.isRunning 
-                  ? localization.tr('pause') 
+              text: timer.isRunning
+                  ? localization.tr('pause')
                   : localization.tr('start'),
               onPressed: timer.toggle,
             ),
             const SizedBox(width: 16),
-            
+
             // +1 minute button
             NesButton.text(
               type: NesButtonType.primary,
@@ -554,7 +541,10 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   /// Builds quick time adjustment buttons.
-  Widget _buildQuickTimeButtons(TimerProvider timer, LocalizationProvider localization) {
+  Widget _buildQuickTimeButtons(
+    TimerProvider timer,
+    LocalizationProvider localization,
+  ) {
     return NesContainer(
       label: localization.tr('quick_time'),
       child: Padding(
@@ -595,9 +585,11 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-
   /// Builds the set time section with input fields.
-  Widget _buildSetTimeSection(TimerProvider timer, LocalizationProvider localization) {
+  Widget _buildSetTimeSection(
+    TimerProvider timer,
+    LocalizationProvider localization,
+  ) {
     return NesContainer(
       label: localization.tr('set_time'),
       child: Padding(
@@ -713,14 +705,14 @@ class _MainScreenState extends State<MainScreen> {
     final hours = int.tryParse(_hoursController.text) ?? 0;
     final minutes = int.tryParse(_minutesController.text) ?? 0;
     final seconds = int.tryParse(_secondsController.text) ?? 0;
-    
+
     timer.setTime(hours, minutes, seconds);
-    
+
     // Clear inputs
     _hoursController.clear();
     _minutesController.clear();
     _secondsController.clear();
-    
+
     NesSnackbar.show(
       context,
       text: 'Timer set!',
@@ -757,12 +749,15 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   /// Shows confirmation dialog before resetting timer.
-  Future<void> _confirmReset(TimerProvider timer, LocalizationProvider localization) async {
+  Future<void> _confirmReset(
+    TimerProvider timer,
+    LocalizationProvider localization,
+  ) async {
     final result = await NesConfirmDialog.show(
       context: context,
       message: localization.tr('reset_confirm'),
     );
-    
+
     if (result == true && mounted) {
       timer.reset();
       NesSnackbar.show(
@@ -773,11 +768,13 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-
   /// Builds the statistics section with recent donations and top donators.
-  Widget _buildStatisticsSection(DonationService donationService, LocalizationProvider localization) {
+  Widget _buildStatisticsSection(
+    DonationService donationService,
+    LocalizationProvider localization,
+  ) {
     final stats = donationService.statistics;
-    
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -827,8 +824,14 @@ class _MainScreenState extends State<MainScreen> {
                   : ListView.builder(
                       itemCount: stats.getSortedTopDonators(limit: 10).length,
                       itemBuilder: (context, index) {
-                        final entry = stats.getSortedTopDonators(limit: 10)[index];
-                        return _buildTopDonatorItem(index + 1, entry.key, entry.value);
+                        final entry = stats.getSortedTopDonators(
+                          limit: 10,
+                        )[index];
+                        return _buildTopDonatorItem(
+                          index + 1,
+                          entry.key,
+                          entry.value,
+                        );
                       },
                     ),
             ),
@@ -876,7 +879,7 @@ class _MainScreenState extends State<MainScreen> {
       default:
         rankColor = Colors.blueGrey;
     }
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
       child: Row(
@@ -899,12 +902,7 @@ class _MainScreenState extends State<MainScreen> {
             ),
           ),
           const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              username,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
+          Expanded(child: Text(username, overflow: TextOverflow.ellipsis)),
           Text(
             '$totalMinutes min',
             style: const TextStyle(fontWeight: FontWeight.bold),
