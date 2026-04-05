@@ -168,5 +168,8 @@
   "minutes_color": "Minutes color",
   "seconds_color": "Seconds color",
   "or_widget_url": "or widget URL",
-  "socket_server": "Socket server"
+  "socket_server": "Socket server",
+  "fixed_time_mode": "Fixed time per donation",
+  "fixed_time_minutes": "Minutes per donation",
+  "subtraction_mode": "Time subtraction mode"
 }

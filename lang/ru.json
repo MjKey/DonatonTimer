@@ -168,5 +168,8 @@
   "minutes_color": "Цвет минут",
   "seconds_color": "Цвет секунд",
   "or_widget_url": "или ссылка виджета",
-  "socket_server": "Сервер сокета"
+  "socket_server": "Сервер сокета",
+  "fixed_time_mode": "Фиксированное время за донат",
+  "fixed_time_minutes": "Минут за каждый донат",
+  "subtraction_mode": "Режим убавления времени"
 }
