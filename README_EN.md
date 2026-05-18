@@ -18,6 +18,22 @@
 
 ---
 
+## Screenshots
+
+### Main Screen
+*Timer control and statistics*
+![Main Screen](.github/ASSETS/donaton_timer_mainpage.png)
+
+### Settings
+*Donation services connection*
+![Settings](.github/ASSETS/donaton_timer_settings.png)
+
+### CSS Generator
+*OBS Overlay Customization*
+![CSS Generator](.github/ASSETS/donaton_timer_csseditor.png)
+
+---
+
 ## Supported Services
 
 | Service | Status | Comment |
