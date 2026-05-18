@@ -150,15 +150,18 @@ class DonattyAdapter extends BaseDonationServiceAdapter {
   void _handleLine(String line) {
     if (line.isEmpty) return;
 
-    if (line.startsWith('data ')) {
-      final jsonStr = line.substring(5).trim();
+    if (line.startsWith('data')) {
+      final jsonStartIndex = line.indexOf('{');
+      if (jsonStartIndex == -1) return;
+      
+      final jsonStr = line.substring(jsonStartIndex).trim();
       if (jsonStr.isEmpty) return;
 
       try {
         final data = json.decode(jsonStr) as Map<String, dynamic>;
         _handleEventData(data);
       } catch (e) {
-        _logger.warning('Error parsing SSE line: $e');
+        _logger.warning('Error parsing SSE line: $e\nLine was: $line');
       }
     }
   }
