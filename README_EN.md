@@ -22,15 +22,15 @@
 
 ### Main Screen
 *Timer control and statistics*
-![Main Screen](.github/ASSETS/donaton_timer_mainpage.png)
+<img src=".github/ASSETS/donaton_timer_mainpage.png" width="600" alt="Main Screen">
 
 ### Settings
 *Donation services connection*
-![Settings](.github/ASSETS/donaton_timer_settings.png)
+<img src=".github/ASSETS/donaton_timer_settings.png" width="600" alt="Settings">
 
 ### CSS Generator
 *OBS Overlay Customization*
-![CSS Generator](.github/ASSETS/donaton_timer_csseditor.png)
+<img src=".github/ASSETS/donaton_timer_csseditor.png" width="600" alt="CSS Generator">
 
 ---
 
