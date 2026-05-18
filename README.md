@@ -52,7 +52,8 @@
 | Donate.Stream  |   Да   |   Работает    |
 | DonatePay      |   Да   |   Работает    |
 | DonateX        |   Да   |   Работает    |
-| Donatty        |   Да   |   Работает    |
+| Donatty        |   Да   | Работает (SSE) |
+| CloudTips      |   Да   | Работает (WebSocket) |
 | Streamer.bot   |   Да   |   BETA VER    |
 | iHAQ Donate    |   Нет  |   В планах    |
 | StreamElements |   Нет  |   В планах    |

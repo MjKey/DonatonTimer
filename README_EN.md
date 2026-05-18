@@ -50,7 +50,8 @@
 | **Donate.Stream** | Yes | Working |
 | **DonatePay** | Yes | Working |
 | **DonateX** | Yes | Working |
-| **Donatty** | Yes | Working |
+| **Donatty** | Yes | Working (SSE) |
+| **CloudTips** | Yes | Working (WebSocket) |
 | **Streamer.bot** | Yes | BETA VER |
 | **iHAQ Donate** | No | Planned |
 | **StreamElements** | No | Planned |

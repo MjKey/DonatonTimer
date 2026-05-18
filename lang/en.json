@@ -203,5 +203,7 @@
   "tooltip_style_generator": "Style Generator",
   "tooltip_settings": "Settings",
   "tooltip_language": "Switch language",
-  "tooltip_theme": "Switch theme"
+  "tooltip_theme": "Switch theme",
+  "cloudtips_link_label": "CloudTips widget link",
+  "cloudtips_link_hint": "Paste your link from stream.cloudtips.ru/n/... — the token will be extracted automatically"
 }

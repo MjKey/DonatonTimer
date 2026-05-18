@@ -203,5 +203,7 @@
   "tooltip_style_generator": "Генератор стилей",
   "tooltip_settings": "Настройки",
   "tooltip_language": "Сменить язык",
-  "tooltip_theme": "Сменить тему"
+  "tooltip_theme": "Сменить тему",
+  "cloudtips_link_label": "Ссылка на виджет CloudTips",
+  "cloudtips_link_hint": "Скопируйте ссылку из stream.cloudtips.ru/n/... — токен будет извлечён автоматически"
 }

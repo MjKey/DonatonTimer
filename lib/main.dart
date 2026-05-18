@@ -14,6 +14,7 @@ import 'services/donate_pay_adapter.dart';
 import 'services/donate_stream_adapter.dart';
 import 'services/donatex_adapter.dart';
 import 'services/donatty_adapter.dart';
+import 'services/cloudtips_adapter.dart';
 import 'services/streamer_bot_adapter.dart';
 import 'services/web_server_service.dart';
 import 'services/sound_service.dart';
@@ -86,6 +87,8 @@ void main() async {
   LogManager.info('Адаптер DonateX зарегистрирован');
   donationService.registerAdapter(DonattyAdapter());
   LogManager.info('Адаптер Donatty зарегистрирован');
+  donationService.registerAdapter(CloudTipsAdapter());
+  LogManager.info('Адаптер CloudTips зарегистрирован');
   donationService.registerAdapter(StreamerBotAdapter());
   LogManager.info('Адаптер StreamerBot зарегистрирован');
   

@@ -13,4 +13,5 @@ export 'donate_pay_adapter.dart';
 export 'donate_stream_adapter.dart';
 export 'donatex_adapter.dart';
 export 'donatty_adapter.dart';
+export 'cloudtips_adapter.dart';
 export 'streamer_bot_adapter.dart';

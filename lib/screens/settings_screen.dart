@@ -184,6 +184,11 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
     'api-008',
   ];
 
+  // CloudTips controllers
+  final _ctTokenController = TextEditingController();
+  bool _ctEnabled = false;
+  bool _ctTokenVisible = false;
+
   // StreamerBot controllers
   final _sbWsUrlController = TextEditingController();
   bool _sbEnabled = false;
@@ -254,6 +259,13 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
       _donattyApiServer = donattyConfig.getCredential('apiServer') ?? 'api-014';
     }
 
+    // CloudTips
+    final ctConfig = settings.getServiceConfig('CloudTips');
+    if (ctConfig != null) {
+      _ctEnabled = ctConfig.enabled;
+      _ctTokenController.text = ctConfig.getCredential('token') ?? '';
+    }
+
     // StreamerBot
     final sbConfig = settings.getServiceConfig('StreamerBot');
     if (sbConfig != null) {
@@ -286,6 +298,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
     _dxWidgetUrlController.dispose();
     _dxGroupUrlController.dispose();
     _donattyTokenController.dispose();
+    _ctTokenController.dispose();
     _sbWsUrlController.dispose();
     _sbSourceController.dispose();
     _sbTypeController.dispose();
@@ -399,6 +412,10 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
 
           // Donatty
           _buildDonattySection(localization),
+          const SizedBox(height: 16),
+
+          // CloudTips
+          _buildCloudTipsSection(localization),
           const SizedBox(height: 16),
 
           // StreamerBot
@@ -866,6 +883,73 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
               onPressed: () => _saveServiceConfig('Donatty', _donattyEnabled, {
                 'token': _donattyTokenController.text,
                 'apiServer': _donattyApiServer,
+              }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCloudTipsSection(LocalizationProvider localization) {
+    final status = _getAdapterStatus('CloudTips');
+    return NesContainer(
+      label: 'CloudTips',
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                NesCheckBox(
+                  value: _ctEnabled,
+                  onChange: (value) => setState(() => _ctEnabled = value),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  _ctEnabled
+                      ? localization.tr('enabled')
+                      : localization.tr('disabled'),
+                ),
+                const Spacer(),
+                _buildStatusIndicator(status),
+                const SizedBox(width: 8),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text('${localization.tr('cloudtips_link_label')}:'),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _ctTokenController,
+              obscureText: !_ctTokenVisible,
+              decoration: InputDecoration(
+                hintText: 'https://stream.cloudtips.ru/n/...',
+                border: const OutlineInputBorder(),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _ctTokenVisible ? Icons.visibility_off : Icons.visibility,
+                  ),
+                  onPressed: () =>
+                      setState(() => _ctTokenVisible = !_ctTokenVisible),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              localization.tr('cloudtips_link_hint'),
+              style: const TextStyle(fontSize: 10, color: Colors.grey),
+            ),
+            const SizedBox(height: 16),
+            NesButton.text(
+              type: NesButtonType.success,
+              text: localization.tr('save'),
+              onPressed: () => _saveServiceConfig('CloudTips', _ctEnabled, {
+                'token': _ctTokenController.text.trim(),
               }),
             ),
           ],
