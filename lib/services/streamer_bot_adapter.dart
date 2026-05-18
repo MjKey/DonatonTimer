@@ -138,7 +138,19 @@ class StreamerBotAdapter extends BaseDonationServiceAdapter {
     try {
       for (final m in _mappings) {
         if (m['source'] == source && m['type'] == type) {
-          final amount = _parseDoubleField(m['amount']);
+          double amount = _parseDoubleField(m['amount']);
+          
+          // Если сумма в настройках = 0, пытаемся вытащить её из данных самого события (динамическая сумма)
+          if (amount <= 0) {
+            final dataAmount = _parseDoubleField(data['amount']);
+            final dataBits = _parseDoubleField(data['bits']);
+            
+            if (dataAmount > 0) {
+              amount = dataAmount;
+            } else if (dataBits > 0) {
+              amount = dataBits;
+            }
+          }
           
           final userObj = data['user'] as Map<String, dynamic>?;
           final username = userObj?['name'] as String? ?? 

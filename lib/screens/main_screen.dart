@@ -51,7 +51,7 @@ class _MainScreenState extends State<MainScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                NesIcon(iconData: NesIcons.warning, size: const Size(48, 48)),
+                NesIcon(iconData: NesIcons.exclamationMarkBlock, size: const Size(48, 48)),
                 const SizedBox(height: 16),
                 const Text(
                   'Обнаружены старые настройки портов (8080/4040).\n\n'
