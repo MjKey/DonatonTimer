@@ -194,17 +194,29 @@ class DonatonTimerApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      // Use nes_ui theme for retro 8-bit style
-      theme: flutterNesTheme(
-        brightness: Brightness.light,
-        nesTheme: const NesTheme(pixelSize: 4),
-        primaryColor: const Color(0xffb4b6f6),
-      ),
-      darkTheme: flutterNesTheme(
-        brightness: Brightness.dark,
-        nesTheme: const NesTheme(pixelSize: 4),
-        primaryColor: const Color(0xff8b8dca),
-      ),
+      // Theme: pixel (nes_ui) or material depending on appStyle
+      theme: themeProvider.isPixelStyle
+          ? flutterNesTheme(
+              brightness: Brightness.light,
+              nesTheme: const NesTheme(pixelSize: 4),
+              primaryColor: const Color(0xffb4b6f6),
+            )
+          : ThemeData(
+              colorSchemeSeed: const Color(0xffb4b6f6),
+              brightness: Brightness.light,
+              useMaterial3: true,
+            ),
+      darkTheme: themeProvider.isPixelStyle
+          ? flutterNesTheme(
+              brightness: Brightness.dark,
+              nesTheme: const NesTheme(pixelSize: 4),
+              primaryColor: const Color(0xff8b8dca),
+            )
+          : ThemeData(
+              colorSchemeSeed: const Color(0xff8b8dca),
+              brightness: Brightness.dark,
+              useMaterial3: true,
+            ),
       themeMode: themeProvider.themeMode,
       home: const MainScreen(),
     );
