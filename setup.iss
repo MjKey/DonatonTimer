@@ -4,7 +4,7 @@
 ; Inno Setup 6.2+
 
 #define MyAppName "DonatonTimer"
-#define MyAppVersion "3.0."
+#define MyAppVersion "3.0.5"
 #define MyAppPublisher "MjKey"
 #define MyAppURL "https://github.com/MjKey/DonatonTimer"
 #define MyAppExeName "donaton_timer.exe"

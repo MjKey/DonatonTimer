@@ -123,9 +123,12 @@ void main() async {
 
   // Initialize web server service for OBS integration and mobile control
   final webServerService = WebServerService(
-    httpPort: savedSettings?.httpPort ?? 8080,
-    wsPort: savedSettings?.wsPort ?? 4040,
+    httpPort: savedSettings?.httpPort ?? 7575,
+    wsPort: savedSettings?.wsPort ?? 3434,
   );
+  if (savedSettings != null && (savedSettings.httpPort == 8080 || savedSettings.wsPort == 4040)) {
+    webServerService.hasOldPortsWarning = true;
+  }
   await webServerService.init();
   LogManager.info('Web server service инициализирован');
   

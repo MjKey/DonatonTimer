@@ -27,6 +27,86 @@ class _MainScreenState extends State<MainScreen> {
   final TextEditingController _secondsController = TextEditingController();
   final TextEditingController _addMinutesController = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final webServer = context.read<WebServerService?>();
+      if (webServer != null && webServer.hasOldPortsWarning) {
+        _showOldPortsWarning();
+      }
+    });
+  }
+
+  void _showOldPortsWarning() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        child: NesContainer(
+          label: 'Внимание!',
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                NesIcon(iconData: NesIcons.warning, size: const Size(48, 48)),
+                const SizedBox(height: 16),
+                const Text(
+                  'Обнаружены старые настройки портов (8080/4040).\n\n'
+                  'Они могут конфликтовать со Streamer.bot или другими программами.\n'
+                  'Нажмите кнопку ниже, чтобы автоматически применить новые порты (7575/3434).',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 14),
+                ),
+                const SizedBox(height: 24),
+                NesButton.text(
+                  type: NesButtonType.success,
+                  text: 'Исправить порты',
+                  onPressed: () {
+                    final webServer = context.read<WebServerService?>();
+                    final donationService = context.read<DonationService?>();
+                    if (webServer != null && donationService != null) {
+                      webServer.hasOldPortsWarning = false;
+                      
+                      final currentSettings = donationService.settings;
+                      final newSettings = currentSettings.copyWith(
+                        httpPort: 7575,
+                        wsPort: 3434,
+                      );
+                      donationService.updateSettings(newSettings);
+                      webServer.restartServers(httpPort: 7575, wsPort: 3434);
+                    }
+                    Navigator.of(context).pop();
+                    
+                    NesSnackbar.show(
+                      context,
+                      text: 'Порты успешно обновлены!',
+                      type: NesSnackbarType.success,
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
+                NesButton.text(
+                  type: NesButtonType.normal,
+                  text: 'Игнорировать',
+                  onPressed: () {
+                    final webServer = context.read<WebServerService?>();
+                    if (webServer != null) {
+                      webServer.hasOldPortsWarning = false;
+                    }
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   /// Shows navigation menu dialog with NesSelectionList.
   void _showNavigationMenu(LocalizationProvider localization) {
     showDialog(

@@ -33,10 +33,11 @@ class WebServerService extends ChangeNotifier {
   int _currentDuration = 0;
   List<Map<String, dynamic>> _recentDonations = [];
   Map<String, int> _topDonators = {};
+  bool hasOldPortsWarning = false;
   
   WebServerService({
-    int httpPort = 8080,
-    int wsPort = 4040,
+    int httpPort = 7575,
+    int wsPort = 3434,
   }) : _httpPort = httpPort,
        _wsPort = wsPort;
   
@@ -50,8 +51,30 @@ class WebServerService extends ChangeNotifier {
   /// Инициализирует сервис и запускает оба сервера.
   Future<void> init() async {
     await _getLocalIpAddress();
-    await startHttpServer(_httpPort);
-    await startWebSocketServer(_wsPort);
+    
+    try {
+      await startHttpServer(_httpPort);
+    } catch (e) {
+      LogManager.warning('WebServerService: Не удалось запустить HTTP на $_httpPort');
+      if (_httpPort == 7575) {
+        try {
+          LogManager.info('WebServerService: Пробуем порт 7576...');
+          await startHttpServer(7576);
+        } catch (_) {}
+      }
+    }
+    
+    try {
+      await startWebSocketServer(_wsPort);
+    } catch (e) {
+      LogManager.warning('WebServerService: Не удалось запустить WS на $_wsPort');
+      if (_wsPort == 3434) {
+        try {
+          LogManager.info('WebServerService: Пробуем порт 3435...');
+          await startWebSocketServer(3435);
+        } catch (_) {}
+      }
+    }
   }
   
   /// Получает локальный IP адрес.

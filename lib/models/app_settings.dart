@@ -19,8 +19,8 @@ class AppSettings {
   const AppSettings({
     this.minutesPerAmount = 600.0,
     this.timePerAmountMinutes = 60,
-    this.httpPort = 8080,
-    this.wsPort = 4040,
+    this.httpPort = 7575,
+    this.wsPort = 3434,
     this.soundEnabled = true,
     this.randomSoundEnabled = false,
     this.loggingEnabled = true,
@@ -93,8 +93,8 @@ class AppSettings {
     return AppSettings(
       minutesPerAmount: (json['minutesPerAmount'] as num?)?.toDouble() ?? 600.0,
       timePerAmountMinutes: json['timePerAmountMinutes'] as int? ?? 60,
-      httpPort: json['httpPort'] as int? ?? 8080,
-      wsPort: json['wsPort'] as int? ?? 4040,
+      httpPort: json['httpPort'] as int? ?? 7575,
+      wsPort: json['wsPort'] as int? ?? 3434,
       soundEnabled: json['soundEnabled'] as bool? ?? true,
       randomSoundEnabled: json['randomSoundEnabled'] as bool? ?? false,
       loggingEnabled: json['loggingEnabled'] as bool? ?? true,
