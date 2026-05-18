@@ -22,17 +22,25 @@
 
 ## Скриншоты
 
-### Главный экран
-*Управление таймером и статистика*
-<img src=".github/ASSETS/donaton_timer_mainpage.png" width="600" alt="Главный экран">
-
-### Настройки
-*Подключение сервисов донатов*
-<img src=".github/ASSETS/donaton_timer_settings.png" width="600" alt="Настройки">
-
-### CSS Генератор
-*Кастомизация оверлея для OBS*
-<img src=".github/ASSETS/donaton_timer_csseditor.png" width="600" alt="CSS Генератор">
+<table align="center">
+  <tr>
+    <td align="center" valign="top">
+      <b>Главный экран</b><br>
+      <i>Управление и статистика</i><br><br>
+      <img src=".github/ASSETS/donaton_timer_mainpage.png" width="260" alt="Главный экран">
+    </td>
+    <td align="center" valign="top">
+      <b>Настройки</b><br>
+      <i>Подключение донат-сервисов</i><br><br>
+      <img src=".github/ASSETS/donaton_timer_settings.png" width="260" alt="Настройки">
+    </td>
+    <td align="center" valign="top">
+      <b>CSS Генератор</b><br>
+      <i>Кастомизация оверлея</i><br><br>
+      <img src=".github/ASSETS/donaton_timer_csseditor.png" width="260" alt="CSS Генератор">
+    </td>
+  </tr>
+</table>
 
 ---
 
