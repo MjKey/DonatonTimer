@@ -8,7 +8,7 @@
 >
 > Будет полезно тем, кто хочет себе удобный и функциональный таймер для донатона!
 
-**Автор:** [MjKey](https://mjkey.ru)
+**Автор:** [MjKey](https://mjkey.ru)  
 **Поддержать проект:** [CloudTips](https://pay.cloudtips.ru/p/cf634f74) • [Dalink](https://dalink.to/mjk3y)
 
 ---
