@@ -13,6 +13,8 @@ import 'services/donation_alerts_adapter.dart';
 import 'services/donate_pay_adapter.dart';
 import 'services/donate_stream_adapter.dart';
 import 'services/donatex_adapter.dart';
+import 'services/donatty_adapter.dart';
+import 'services/streamer_bot_adapter.dart';
 import 'services/web_server_service.dart';
 import 'services/sound_service.dart';
 import 'services/log_manager.dart';
@@ -23,7 +25,7 @@ void main() async {
 
   // Initialize logging
   await LogManager.init();
-  LogManager.info('Запуск приложения DonatonTimer v3.0.1 by MjKey');
+  LogManager.info('Запуск приложения DonatonTimer v3.0.5 by MjKey');
 
   // Initialize window manager for desktop
   await windowManager.ensureInitialized();
@@ -36,7 +38,7 @@ void main() async {
     backgroundColor: Colors.transparent,
     skipTaskbar: false,
     titleBarStyle: TitleBarStyle.normal,
-    title: 'DonatonTimer v3.0.1 by MjKey',
+    title: 'DonatonTimer v3.0.5 by MjKey',
   );
 
   windowManager.waitUntilReadyToShow(windowOptions, () async {
@@ -79,6 +81,10 @@ void main() async {
   LogManager.info('Адаптер DonateStream зарегистрирован');
   donationService.registerAdapter(DonateXAdapter());
   LogManager.info('Адаптер DonateX зарегистрирован');
+  donationService.registerAdapter(DonattyAdapter());
+  LogManager.info('Адаптер Donatty зарегистрирован');
+  donationService.registerAdapter(StreamerBotAdapter());
+  LogManager.info('Адаптер StreamerBot зарегистрирован');
   
   // Auto-connect enabled services from saved settings
   final settings = donationService.settings;

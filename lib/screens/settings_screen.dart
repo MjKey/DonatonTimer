@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:nes_ui/nes_ui.dart';
 import 'package:provider/provider.dart';
@@ -44,20 +45,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(width: 16),
                 Text(
                   localization.tr('settings'),
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            
+
             // Tab buttons
             _buildTabButtons(localization),
             const SizedBox(height: 16),
-            
+
             // Tab content
-            Expanded(
-              child: _buildTabContent(localization),
-            ),
+            Expanded(child: _buildTabContent(localization)),
           ],
         ),
       ),
@@ -69,8 +71,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       children: [
         Expanded(
           child: NesButton.text(
-            type: _selectedTabIndex == 0 
-                ? NesButtonType.primary 
+            type: _selectedTabIndex == 0
+                ? NesButtonType.primary
                 : NesButtonType.normal,
             text: localization.tr('services'),
             onPressed: () => setState(() => _selectedTabIndex = 0),
@@ -79,8 +81,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         const SizedBox(width: 8),
         Expanded(
           child: NesButton.text(
-            type: _selectedTabIndex == 1 
-                ? NesButtonType.primary 
+            type: _selectedTabIndex == 1
+                ? NesButtonType.primary
                 : NesButtonType.normal,
             text: localization.tr('timer'),
             onPressed: () => setState(() => _selectedTabIndex = 1),
@@ -89,8 +91,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         const SizedBox(width: 8),
         Expanded(
           child: NesButton.text(
-            type: _selectedTabIndex == 2 
-                ? NesButtonType.primary 
+            type: _selectedTabIndex == 2
+                ? NesButtonType.primary
                 : NesButtonType.normal,
             text: localization.tr('sounds'),
             onPressed: () => setState(() => _selectedTabIndex = 2),
@@ -99,8 +101,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         const SizedBox(width: 8),
         Expanded(
           child: NesButton.text(
-            type: _selectedTabIndex == 3 
-                ? NesButtonType.primary 
+            type: _selectedTabIndex == 3
+                ? NesButtonType.primary
                 : NesButtonType.normal,
             text: localization.tr('data'),
             onPressed: () => setState(() => _selectedTabIndex = 3),
@@ -125,7 +127,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 }
-
 
 /// Вкладка настройки донат-сервисов.
 class ServicesSettingsTab extends StatefulWidget {
@@ -157,6 +158,21 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
   final _dxGroupUrlController = TextEditingController();
   bool _dxEnabled = false;
   bool _dxTokenVisible = false;
+
+  // Donatty controllers
+  final _donattyTokenController = TextEditingController();
+  bool _donattyEnabled = false;
+  bool _donattyTokenVisible = false;
+
+  // StreamerBot controllers
+  final _sbWsUrlController = TextEditingController();
+  bool _sbEnabled = false;
+  
+  List<Map<String, dynamic>> _sbMappings = [];
+  bool _sbIsAddingMapping = false;
+  final _sbSourceController = TextEditingController();
+  final _sbTypeController = TextEditingController();
+  final _sbAmountController = TextEditingController();
 
   // Available socket servers for DonationAlerts
   static const List<String> _socketServers = [
@@ -210,6 +226,34 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
       _dxGroupUrlController.text = dxConfig.getCredential('groupUrl') ?? '';
     }
 
+    // Donatty
+    final donattyConfig = settings.getServiceConfig('Donatty');
+    if (donattyConfig != null) {
+      _donattyEnabled = donattyConfig.enabled;
+      _donattyTokenController.text = donattyConfig.getCredential('token') ?? '';
+    }
+
+    // StreamerBot
+    final sbConfig = settings.getServiceConfig('StreamerBot');
+    if (sbConfig != null) {
+      _sbEnabled = sbConfig.enabled;
+      _sbWsUrlController.text = sbConfig.getCredential('wsUrl') ?? 'ws://127.0.0.1:8080/';
+      final mappingsStr = sbConfig.getCredential('mappings');
+      if (mappingsStr != null && mappingsStr.isNotEmpty) {
+        try {
+          final parsed = json.decode(mappingsStr) as List;
+          _sbMappings = parsed.map((e) => Map<String, dynamic>.from(e)).toList();
+        } catch (_) {
+          _sbMappings = [];
+        }
+      } else {
+        _sbMappings = [];
+      }
+    } else {
+      _sbWsUrlController.text = 'ws://127.0.0.1:8080/';
+      _sbMappings = [];
+    }
+
     setState(() {});
   }
 
@@ -220,10 +264,19 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
     _dsTokenController.dispose();
     _dxWidgetUrlController.dispose();
     _dxGroupUrlController.dispose();
+    _donattyTokenController.dispose();
+    _sbWsUrlController.dispose();
+    _sbSourceController.dispose();
+    _sbTypeController.dispose();
+    _sbAmountController.dispose();
     super.dispose();
   }
 
-  Future<void> _saveServiceConfig(String serviceName, bool enabled, Map<String, String> credentials) async {
+  Future<void> _saveServiceConfig(
+    String serviceName,
+    bool enabled,
+    Map<String, String> credentials,
+  ) async {
     final donationService = context.read<DonationService?>();
     if (donationService == null) return;
 
@@ -254,7 +307,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
   Widget _buildStatusIndicator(ConnectionStatus status) {
     Color color;
     String tooltip;
-    
+
     switch (status) {
       case ConnectionStatus.connected:
         color = Colors.green;
@@ -274,7 +327,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
         color = Colors.grey;
         tooltip = 'Отключено';
     }
-    
+
     return Tooltip(
       message: tooltip,
       child: Container(
@@ -284,7 +337,13 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
           color: color,
           shape: BoxShape.circle,
           boxShadow: status == ConnectionStatus.connected
-              ? [BoxShadow(color: color.withOpacity(0.5), blurRadius: 4, spreadRadius: 1)]
+              ? [
+                  BoxShadow(
+                    color: color.withOpacity(0.5),
+                    blurRadius: 4,
+                    spreadRadius: 1,
+                  ),
+                ]
               : null,
         ),
       ),
@@ -315,6 +374,14 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
 
           // DonateX
           _buildDonateXSection(localization),
+          const SizedBox(height: 16),
+
+          // Donatty
+          _buildDonattySection(localization),
+          const SizedBox(height: 16),
+
+          // StreamerBot
+          _buildStreamerBotSection(localization),
         ],
       ),
     );
@@ -338,8 +405,8 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  _daEnabled 
-                      ? localization.tr('enabled') 
+                  _daEnabled
+                      ? localization.tr('enabled')
                       : localization.tr('disabled'),
                 ),
                 const Spacer(),
@@ -350,7 +417,9 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
             const SizedBox(height: 16),
 
             // Token field
-            Text('${localization.tr('token')} (${localization.tr('or_widget_url')}):'),
+            Text(
+              '${localization.tr('token')} (${localization.tr('or_widget_url')}):',
+            ),
             const SizedBox(height: 8),
             TextField(
               controller: _daTokenController,
@@ -363,8 +432,11 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
                   vertical: 8,
                 ),
                 suffixIcon: IconButton(
-                  icon: Icon(_daTokenVisible ? Icons.visibility_off : Icons.visibility),
-                  onPressed: () => setState(() => _daTokenVisible = !_daTokenVisible),
+                  icon: Icon(
+                    _daTokenVisible ? Icons.visibility_off : Icons.visibility,
+                  ),
+                  onPressed: () =>
+                      setState(() => _daTokenVisible = !_daTokenVisible),
                 ),
               ),
             ),
@@ -404,14 +476,11 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
             NesButton.text(
               type: NesButtonType.success,
               text: localization.tr('save'),
-              onPressed: () => _saveServiceConfig(
-                'DonationAlerts',
-                _daEnabled,
-                {
-                  'token': _daTokenController.text,
-                  'socketServer': _daSocketServer,
-                },
-              ),
+              onPressed: () =>
+                  _saveServiceConfig('DonationAlerts', _daEnabled, {
+                    'token': _daTokenController.text,
+                    'socketServer': _daSocketServer,
+                  }),
             ),
           ],
         ),
@@ -437,8 +506,8 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  _dpEnabled 
-                      ? localization.tr('enabled') 
+                  _dpEnabled
+                      ? localization.tr('enabled')
                       : localization.tr('disabled'),
                 ),
                 const Spacer(),
@@ -462,8 +531,11 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
                   vertical: 8,
                 ),
                 suffixIcon: IconButton(
-                  icon: Icon(_dpKeyVisible ? Icons.visibility_off : Icons.visibility),
-                  onPressed: () => setState(() => _dpKeyVisible = !_dpKeyVisible),
+                  icon: Icon(
+                    _dpKeyVisible ? Icons.visibility_off : Icons.visibility,
+                  ),
+                  onPressed: () =>
+                      setState(() => _dpKeyVisible = !_dpKeyVisible),
                 ),
               ),
             ),
@@ -473,13 +545,9 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
             NesButton.text(
               type: NesButtonType.success,
               text: localization.tr('save'),
-              onPressed: () => _saveServiceConfig(
-                'DonatePay',
-                _dpEnabled,
-                {
-                  'apiKey': _dpApiKeyController.text,
-                },
-              ),
+              onPressed: () => _saveServiceConfig('DonatePay', _dpEnabled, {
+                'apiKey': _dpApiKeyController.text,
+              }),
             ),
           ],
         ),
@@ -505,8 +573,8 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  _dsEnabled 
-                      ? localization.tr('enabled') 
+                  _dsEnabled
+                      ? localization.tr('enabled')
                       : localization.tr('disabled'),
                 ),
                 const Spacer(),
@@ -517,7 +585,9 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
             const SizedBox(height: 16),
 
             // Token field
-            Text('${localization.tr('token')} (${localization.tr('or_widget_url')}):'),
+            Text(
+              '${localization.tr('token')} (${localization.tr('or_widget_url')}):',
+            ),
             const SizedBox(height: 8),
             TextField(
               controller: _dsTokenController,
@@ -530,8 +600,11 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
                   vertical: 8,
                 ),
                 suffixIcon: IconButton(
-                  icon: Icon(_dsTokenVisible ? Icons.visibility_off : Icons.visibility),
-                  onPressed: () => setState(() => _dsTokenVisible = !_dsTokenVisible),
+                  icon: Icon(
+                    _dsTokenVisible ? Icons.visibility_off : Icons.visibility,
+                  ),
+                  onPressed: () =>
+                      setState(() => _dsTokenVisible = !_dsTokenVisible),
                 ),
               ),
             ),
@@ -546,11 +619,9 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
             NesButton.text(
               type: NesButtonType.success,
               text: localization.tr('save'),
-              onPressed: () => _saveServiceConfig(
-                'DonateStream',
-                _dsEnabled,
-                {'token': _dsTokenController.text},
-              ),
+              onPressed: () => _saveServiceConfig('DonateStream', _dsEnabled, {
+                'token': _dsTokenController.text,
+              }),
             ),
           ],
         ),
@@ -576,8 +647,8 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  _dxEnabled 
-                      ? localization.tr('enabled') 
+                  _dxEnabled
+                      ? localization.tr('enabled')
                       : localization.tr('disabled'),
                 ),
                 const Spacer(),
@@ -587,34 +658,48 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
             ),
             const SizedBox(height: 16),
 
+            Text(
+              localization.tr('donatex_setup_note'),
+              style: const TextStyle(fontSize: 11, color: Colors.grey),
+            ),
+            const SizedBox(height: 16),
+
             // Widget URL field (for token extraction)
-            Text('${localization.tr('donatex_widget_url')}:'),
+            Text('${localization.tr('donatex_recent_url_label')}:'),
             const SizedBox(height: 8),
             TextField(
               controller: _dxWidgetUrlController,
               obscureText: !_dxTokenVisible,
               decoration: InputDecoration(
-                hintText: 'https://donatex.gg/recent-donations?token=...',
+                hintText: localization.tr('donatex_recent_url_hint'),
                 border: const OutlineInputBorder(),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 12,
                   vertical: 8,
                 ),
                 suffixIcon: IconButton(
-                  icon: Icon(_dxTokenVisible ? Icons.visibility_off : Icons.visibility),
-                  onPressed: () => setState(() => _dxTokenVisible = !_dxTokenVisible),
+                  icon: Icon(
+                    _dxTokenVisible ? Icons.visibility_off : Icons.visibility,
+                  ),
+                  onPressed: () =>
+                      setState(() => _dxTokenVisible = !_dxTokenVisible),
                 ),
               ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              localization.tr('donatex_recent_url_help'),
+              style: const TextStyle(fontSize: 10, color: Colors.grey),
             ),
             const SizedBox(height: 16),
 
             // Group URL field (for widget_id extraction)
-            Text('${localization.tr('donatex_group_url')}:'),
+            Text('${localization.tr('donatex_group_url_label')}:'),
             const SizedBox(height: 8),
             TextField(
               controller: _dxGroupUrlController,
               decoration: InputDecoration(
-                hintText: 'https://donatex.gg/widgets/donations/...',
+                hintText: localization.tr('donatex_group_url_hint'),
                 border: const OutlineInputBorder(),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -623,8 +708,15 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
               ),
             ),
             const SizedBox(height: 4),
+            Offstage(
+              offstage: true,
+              child: Text(
+                'Виджет последних сообщений → токен, Группа оповещалки → widget_id',
+                style: const TextStyle(fontSize: 10, color: Colors.grey),
+              ),
+            ),
             Text(
-              'Виджет последних сообщений → токен, Группа оповещалки → widget_id',
+              localization.tr('donatex_group_url_help'),
               style: const TextStyle(fontSize: 10, color: Colors.grey),
             ),
             const SizedBox(height: 16),
@@ -655,26 +747,252 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
     // Extract widget_id from group URL
     String? widgetId;
     final groupUrl = _dxGroupUrlController.text;
-    final donationsMatch = RegExp(r'/widgets/donations/([a-f0-9-]+)').firstMatch(groupUrl);
+    final donationsMatch = RegExp(
+      r'/widgets/donations/([a-f0-9-]+)',
+    ).firstMatch(groupUrl);
     if (donationsMatch != null) {
       widgetId = donationsMatch.group(1);
     } else {
       widgetId = groupUrl; // Assume it's just the widget_id
     }
 
-    _saveServiceConfig(
-      'DonateX',
-      _dxEnabled,
-      {
-        'token': token ?? '',
-        'widgetId': widgetId ?? '',
-        'widgetUrl': _dxWidgetUrlController.text,
-        'groupUrl': _dxGroupUrlController.text,
-      },
+    _saveServiceConfig('DonateX', _dxEnabled, {
+      'token': token ?? '',
+      'widgetId': widgetId ?? '',
+      'widgetUrl': _dxWidgetUrlController.text,
+      'groupUrl': _dxGroupUrlController.text,
+    });
+  }
+
+  Widget _buildDonattySection(LocalizationProvider localization) {
+    final status = _getAdapterStatus('Donatty');
+    return NesContainer(
+      label: 'Donatty',
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                NesCheckBox(
+                  value: _donattyEnabled,
+                  onChange: (value) => setState(() => _donattyEnabled = value),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  _donattyEnabled
+                      ? localization.tr('enabled')
+                      : localization.tr('disabled'),
+                ),
+                const Spacer(),
+                _buildStatusIndicator(status),
+                const SizedBox(width: 8),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text('Link (with ref and token):'),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _donattyTokenController,
+              obscureText: !_donattyTokenVisible,
+              decoration: InputDecoration(
+                hintText: 'https://widgets.donatty.com/group/?ref=...&token=...',
+                border: const OutlineInputBorder(),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _donattyTokenVisible ? Icons.visibility_off : Icons.visibility,
+                  ),
+                  onPressed: () =>
+                      setState(() => _donattyTokenVisible = !_donattyTokenVisible),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            NesButton.text(
+              type: NesButtonType.success,
+              text: localization.tr('save'),
+              onPressed: () => _saveServiceConfig('Donatty', _donattyEnabled, {
+                'token': _donattyTokenController.text,
+              }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStreamerBotSection(LocalizationProvider localization) {
+    final status = _getAdapterStatus('StreamerBot');
+    return NesContainer(
+      label: 'Streamer.bot',
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                NesCheckBox(
+                  value: _sbEnabled,
+                  onChange: (value) => setState(() => _sbEnabled = value),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  _sbEnabled
+                      ? localization.tr('enabled')
+                      : localization.tr('disabled'),
+                ),
+                const Spacer(),
+                _buildStatusIndicator(status),
+                const SizedBox(width: 8),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text('WebSocket URL:'),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _sbWsUrlController,
+              decoration: const InputDecoration(
+                hintText: 'ws://127.0.0.1:8080/',
+                border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+              ),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'Убедитесь, что Streamer.bot WebSocket Server запущен.',
+              style: TextStyle(fontSize: 10, color: Colors.grey),
+            ),
+            const SizedBox(height: 16),
+            NesButton.text(
+              type: NesButtonType.success,
+              text: localization.tr('save'),
+              onPressed: () => _saveServiceConfig('StreamerBot', _sbEnabled, {
+                'wsUrl': _sbWsUrlController.text,
+                'mappings': json.encode(_sbMappings),
+              }),
+            ),
+            const SizedBox(height: 16),
+            const Divider(),
+            const SizedBox(height: 16),
+            const Text('Привязка событий (Событие -> Сумма)'),
+            const SizedBox(height: 8),
+            ..._sbMappings.asMap().entries.map((entry) {
+              final index = entry.key;
+              final mapping = entry.value;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '${mapping['source']} / ${mapping['type']} → ${mapping['amount']}',
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () {
+                        setState(() {
+                          _sbMappings.removeAt(index);
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              );
+            }),
+            if (_sbIsAddingMapping) ...[
+              const SizedBox(height: 8),
+              NesContainer(
+                label: 'Новое событие',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextField(
+                      controller: _sbSourceController,
+                      decoration: const InputDecoration(
+                        hintText: 'Source (например, Twitch)',
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _sbTypeController,
+                      decoration: const InputDecoration(
+                        hintText: 'Type (например, Sub)',
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _sbAmountController,
+                      decoration: const InputDecoration(
+                        hintText: 'Сумма (эквивалент доната)',
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        NesButton.text(
+                          type: NesButtonType.normal,
+                          text: 'Отмена',
+                          onPressed: () => setState(() => _sbIsAddingMapping = false),
+                        ),
+                        const SizedBox(width: 8),
+                        NesButton.text(
+                          type: NesButtonType.success,
+                          text: 'ОК',
+                          onPressed: () {
+                            final amount = double.tryParse(_sbAmountController.text) ?? 0.0;
+                            if (_sbSourceController.text.isNotEmpty && _sbTypeController.text.isNotEmpty) {
+                              setState(() {
+                                _sbMappings.add({
+                                  'source': _sbSourceController.text.trim(),
+                                  'type': _sbTypeController.text.trim(),
+                                  'amount': amount,
+                                });
+                                _sbIsAddingMapping = false;
+                                _sbSourceController.clear();
+                                _sbTypeController.clear();
+                                _sbAmountController.clear();
+                              });
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ] else ...[
+              const SizedBox(height: 8),
+              NesButton.text(
+                type: NesButtonType.normal,
+                text: '+ Добавить событие',
+                onPressed: () => setState(() => _sbIsAddingMapping = true),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }
-
 
 /// Вкладка настройки таймера.
 class TimerSettingsTab extends StatefulWidget {
@@ -705,7 +1023,8 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
 
     final settings = donationService.settings;
     _rateController.text = settings.minutesPerAmount.toString();
-    _timePerAmountMinutesController.text = settings.timePerAmountMinutes.toString();
+    _timePerAmountMinutesController.text = settings.timePerAmountMinutes
+        .toString();
     _fixedTimeMinutesController.text = settings.fixedTimeMinutes.toString();
     _httpPortController.text = settings.httpPort.toString();
     _wsPortController.text = settings.wsPort.toString();
@@ -728,7 +1047,9 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
     if (donationService == null) return;
 
     final rate = double.tryParse(_rateController.text);
-    final timePerAmountMinutes = int.tryParse(_timePerAmountMinutesController.text);
+    final timePerAmountMinutes = int.tryParse(
+      _timePerAmountMinutesController.text,
+    );
     final fixedTimeMinutes = int.tryParse(_fixedTimeMinutesController.text);
     final httpPort = int.tryParse(_httpPortController.text);
     final wsPort = int.tryParse(_wsPortController.text);
@@ -793,7 +1114,10 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
     final webServerService = context.read<WebServerService?>();
     if (webServerService != null) {
       try {
-        await webServerService.restartServers(httpPort: httpPort, wsPort: wsPort);
+        await webServerService.restartServers(
+          httpPort: httpPort,
+          wsPort: wsPort,
+        );
       } catch (e) {
         if (mounted) {
           NesSnackbar.show(
@@ -897,7 +1221,8 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
                     children: [
                       NesCheckBox(
                         value: _isFixedTimeMode,
-                        onChange: (value) => setState(() => _isFixedTimeMode = value),
+                        onChange: (value) =>
+                            setState(() => _isFixedTimeMode = value),
                       ),
                       const SizedBox(width: 12),
                       Text(localization.tr('fixed_time_mode')),
@@ -924,7 +1249,8 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
                     children: [
                       NesCheckBox(
                         value: _isSubtractionMode,
-                        onChange: (value) => setState(() => _isSubtractionMode = value),
+                        onChange: (value) =>
+                            setState(() => _isSubtractionMode = value),
                       ),
                       const SizedBox(width: 12),
                       Text(localization.tr('subtraction_mode')),
@@ -994,7 +1320,6 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
   }
 }
 
-
 /// Вкладка настройки звуков.
 class SoundsSettingsTab extends StatefulWidget {
   const SoundsSettingsTab({super.key});
@@ -1021,13 +1346,13 @@ class _SoundsSettingsTabState extends State<SoundsSettingsTab> {
     final settings = donationService.settings;
     _soundEnabled = settings.soundEnabled;
     _randomSoundEnabled = settings.randomSoundEnabled;
-    
+
     // Sync with sound service if available
     if (soundService != null) {
       _soundEnabled = soundService.soundEnabled;
       _randomSoundEnabled = soundService.randomSoundEnabled;
     }
-    
+
     setState(() {});
   }
 
@@ -1042,7 +1367,7 @@ class _SoundsSettingsTabState extends State<SoundsSettingsTab> {
     );
 
     await donationService.updateSettings(newSettings);
-    
+
     // Update sound service settings
     if (soundService != null) {
       soundService.soundEnabled = _soundEnabled;
@@ -1063,25 +1388,26 @@ class _SoundsSettingsTabState extends State<SoundsSettingsTab> {
     if (soundService != null) {
       await soundService.refreshSounds();
     }
-    
+
     if (mounted) {
       final soundService = context.read<SoundService?>();
       final count = soundService?.soundCount ?? 0;
       NesSnackbar.show(
         context,
-        text: '${context.read<LocalizationProvider>().tr('sounds_loaded')} ($count)',
+        text:
+            '${context.read<LocalizationProvider>().tr('sounds_loaded')} ($count)',
         type: NesSnackbarType.success,
       );
     }
   }
-  
+
   Future<void> _openSoundFolder() async {
     final soundService = context.read<SoundService?>();
     if (soundService != null) {
       await soundService.openSoundFolder();
     }
   }
-  
+
   Future<void> _testSound() async {
     final soundService = context.read<SoundService?>();
     if (soundService != null) {
@@ -1126,7 +1452,7 @@ class _SoundsSettingsTabState extends State<SoundsSettingsTab> {
                     children: [
                       NesCheckBox(
                         value: _randomSoundEnabled,
-                        onChange: _soundEnabled 
+                        onChange: _soundEnabled
                             ? (value) {
                                 setState(() => _randomSoundEnabled = value);
                               }
@@ -1142,7 +1468,7 @@ class _SoundsSettingsTabState extends State<SoundsSettingsTab> {
                     ],
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // Sound files info
                   Text(
                     '${localization.tr('sound_files')}: $soundCount',
@@ -1173,15 +1499,17 @@ class _SoundsSettingsTabState extends State<SoundsSettingsTab> {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  
+
                   // Test sound button
                   NesButton.text(
                     type: NesButtonType.normal,
                     text: localization.tr('test_sound'),
-                    onPressed: _soundEnabled && soundCount > 0 ? _testSound : null,
+                    onPressed: _soundEnabled && soundCount > 0
+                        ? _testSound
+                        : null,
                   ),
                   const SizedBox(height: 8),
-                  
+
                   Text(
                     'Place .mp3, .wav, .ogg files in the "sound" folder',
                     style: const TextStyle(fontSize: 11, color: Colors.grey),
@@ -1203,7 +1531,6 @@ class _SoundsSettingsTabState extends State<SoundsSettingsTab> {
     );
   }
 }
-
 
 /// Вкладка управления данными (сброс статистики, настроек, логирование).
 class DataSettingsTab extends StatefulWidget {
@@ -1254,7 +1581,7 @@ class _DataSettingsTabState extends State<DataSettingsTab> {
 
   Future<void> _resetStatistics(BuildContext context) async {
     final localization = context.read<LocalizationProvider>();
-    
+
     final confirmed = await NesConfirmDialog.show(
       context: context,
       message: localization.tr('reset_statistics_confirm'),
@@ -1265,7 +1592,7 @@ class _DataSettingsTabState extends State<DataSettingsTab> {
     if (confirmed == true && context.mounted) {
       final donationService = context.read<DonationService?>();
       donationService?.clearStatistics();
-      
+
       NesSnackbar.show(
         context,
         text: localization.tr('statistics_reset'),
@@ -1276,7 +1603,7 @@ class _DataSettingsTabState extends State<DataSettingsTab> {
 
   Future<void> _resetAllSettings(BuildContext context) async {
     final localization = context.read<LocalizationProvider>();
-    
+
     final confirmed = await NesConfirmDialog.show(
       context: context,
       message: localization.tr('reset_all_confirm'),
@@ -1287,16 +1614,16 @@ class _DataSettingsTabState extends State<DataSettingsTab> {
     if (confirmed == true && context.mounted) {
       final donationService = context.read<DonationService?>();
       final timerProvider = context.read<TimerProvider?>();
-      
+
       // Reset to default settings
       if (donationService != null) {
         await donationService.updateSettings(const AppSettings());
         donationService.clearStatistics();
       }
-      
+
       // Reset timer
       timerProvider?.reset();
-      
+
       NesSnackbar.show(
         context,
         text: localization.tr('all_reset'),

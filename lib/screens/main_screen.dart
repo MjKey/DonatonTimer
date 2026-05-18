@@ -297,7 +297,7 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '${localization.tr('version')}: 3.0.2',
+                    '${localization.tr('version')}: 3.0.5',
                     style: const TextStyle(fontSize: 12),
                   ),
                   const SizedBox(height: 24),
