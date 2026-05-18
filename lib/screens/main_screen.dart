@@ -215,64 +215,113 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
+  /// Builds a styled tooltip wrapping the given child.
+  Widget _buildTooltip({required String message, required Widget child}) {
+    return Tooltip(
+      message: message,
+      waitDuration: Duration.zero,
+      showDuration: const Duration(seconds: 3),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1A2E),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: const Color(0xFF6C63FF), width: 1.5),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x886C63FF),
+            blurRadius: 8,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      textStyle: const TextStyle(
+        color: Colors.white,
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
+        letterSpacing: 0.3,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      child: child,
+    );
+  }
+
   /// Builds the header with app title and theme toggle.
   Widget _buildHeader(LocalizationProvider localization, ThemeProvider theme) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Wrap(
+      alignment: WrapAlignment.spaceBetween,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 16,
+      runSpacing: 12,
       children: [
         Text(
           localization.tr('app_title'),
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        Row(
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
           children: [
             // Copy OBS overlay URL button
-            NesButton.icon(
-              type: NesButtonType.normal,
-              icon: NesIcons.tv,
-              onPressed: () => _copyObsUrl(localization),
+            _buildTooltip(
+              message: localization.tr('tooltip_copy_obs'),
+              child: NesButton.icon(
+                type: NesButtonType.normal,
+                icon: NesIcons.tv,
+                onPressed: () => _copyObsUrl(localization),
+              ),
             ),
-            const SizedBox(width: 8),
-            // About button - информация о программе
-            NesButton.icon(
-              type: NesButtonType.normal,
-              icon: NesIcons.questionMark,
-              onPressed: () => _showAboutDialog(localization),
+            // About button
+            _buildTooltip(
+              message: localization.tr('tooltip_about'),
+              child: NesButton.icon(
+                type: NesButtonType.normal,
+                icon: NesIcons.questionMark,
+                onPressed: () => _showAboutDialog(localization),
+              ),
             ),
-            const SizedBox(width: 8),
             // QR Code button for mobile control
-            NesButton.icon(
-              type: NesButtonType.normal,
-              icon: NesIcons.camera,
-              onPressed: () => _showQrCodeDialog(localization),
+            _buildTooltip(
+              message: localization.tr('tooltip_qr_code'),
+              child: NesButton.icon(
+                type: NesButtonType.normal,
+                icon: NesIcons.camera,
+                onPressed: () => _showQrCodeDialog(localization),
+              ),
             ),
-            const SizedBox(width: 8),
             // CSS Generator button
-            NesButton.icon(
-              type: NesButtonType.normal,
-              icon: NesIcons.edit,
-              onPressed: () => _openStyleGenerator(),
+            _buildTooltip(
+              message: localization.tr('tooltip_style_generator'),
+              child: NesButton.icon(
+                type: NesButtonType.normal,
+                icon: NesIcons.edit,
+                onPressed: () => _openStyleGenerator(),
+              ),
             ),
-            const SizedBox(width: 8),
             // Settings button
-            NesButton.icon(
-              type: NesButtonType.normal,
-              icon: NesIcons.wrench,
-              onPressed: () => _openSettings(),
+            _buildTooltip(
+              message: localization.tr('tooltip_settings'),
+              child: NesButton.icon(
+                type: NesButtonType.normal,
+                icon: NesIcons.wrench,
+                onPressed: () => _openSettings(),
+              ),
             ),
-            const SizedBox(width: 8),
             // Language toggle
-            NesButton.icon(
-              type: NesButtonType.normal,
-              icon: NesIcons.rename,
-              onPressed: () => localization.toggleLanguage(),
+            _buildTooltip(
+              message: localization.tr('tooltip_language'),
+              child: NesButton.icon(
+                type: NesButtonType.normal,
+                icon: NesIcons.rename,
+                onPressed: () => localization.toggleLanguage(),
+              ),
             ),
-            const SizedBox(width: 8),
             // Theme toggle
-            NesButton.icon(
-              type: NesButtonType.normal,
-              icon: theme.isDarkMode ? NesIcons.sun : NesIcons.moon,
-              onPressed: () => theme.toggleTheme(),
+            _buildTooltip(
+              message: localization.tr('tooltip_theme'),
+              child: NesButton.icon(
+                type: NesButtonType.normal,
+                icon: theme.isDarkMode ? NesIcons.sun : NesIcons.moon,
+                onPressed: () => theme.toggleTheme(),
+              ),
             ),
           ],
         ),
@@ -347,6 +396,11 @@ class _MainScreenState extends State<MainScreen> {
                           _buildFeatureItem(
                             NesIcons.check,
                             localization.tr('feature_auto_save'),
+                          ),
+                          const SizedBox(height: 8),
+                          _buildFeatureItem(
+                            NesIcons.check,
+                            localization.tr('feature_streamer_bot'),
                           ),
                         ],
                       ),

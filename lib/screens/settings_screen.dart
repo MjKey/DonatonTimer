@@ -791,7 +791,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
               ],
             ),
             const SizedBox(height: 16),
-            Text('Link (with ref and token):'),
+            Text('${localization.tr('donatty_link_label')}:'),
             const SizedBox(height: 8),
             TextField(
               controller: _donattyTokenController,
@@ -853,23 +853,23 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
               ],
             ),
             const SizedBox(height: 16),
-            Text('WebSocket URL:'),
+            Text('${localization.tr('sb_ws_url_label')}:'),
             const SizedBox(height: 8),
             TextField(
               controller: _sbWsUrlController,
-              decoration: const InputDecoration(
-                hintText: 'ws://127.0.0.1:8080/',
-                border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.symmetric(
+              decoration: InputDecoration(
+                hintText: localization.tr('sb_ws_url_hint'),
+                border: const OutlineInputBorder(),
+                contentPadding: const EdgeInsets.symmetric(
                   horizontal: 12,
                   vertical: 8,
                 ),
               ),
             ),
             const SizedBox(height: 4),
-            const Text(
-              'Убедитесь, что Streamer.bot WebSocket Server запущен.',
-              style: TextStyle(fontSize: 10, color: Colors.grey),
+            Text(
+              localization.tr('sb_ws_ensure_running'),
+              style: const TextStyle(fontSize: 10, color: Colors.grey),
             ),
             const SizedBox(height: 16),
             NesButton.text(
@@ -883,7 +883,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
             const SizedBox(height: 16),
             const Divider(),
             const SizedBox(height: 16),
-            const Text('Привязка событий (Событие -> Сумма)'),
+            Text(localization.tr('sb_event_mappings')),
             const SizedBox(height: 8),
             ..._sbMappings.asMap().entries.map((entry) {
               final index = entry.key;
@@ -913,34 +913,34 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
             if (_sbIsAddingMapping) ...[
               const SizedBox(height: 8),
               NesContainer(
-                label: 'Новое событие',
+                label: localization.tr('sb_new_event'),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     TextField(
                       controller: _sbSourceController,
-                      decoration: const InputDecoration(
-                        hintText: 'Source (например, Twitch)',
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: InputDecoration(
+                        hintText: localization.tr('sb_source_hint'),
+                        border: const OutlineInputBorder(),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       ),
                     ),
                     const SizedBox(height: 8),
                     TextField(
                       controller: _sbTypeController,
-                      decoration: const InputDecoration(
-                        hintText: 'Type (например, Sub)',
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: InputDecoration(
+                        hintText: localization.tr('sb_type_hint'),
+                        border: const OutlineInputBorder(),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       ),
                     ),
                     const SizedBox(height: 8),
                     TextField(
                       controller: _sbAmountController,
-                      decoration: const InputDecoration(
-                        hintText: 'Сумма (эквивалент доната)',
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: InputDecoration(
+                        hintText: localization.tr('sb_amount_hint'),
+                        border: const OutlineInputBorder(),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       ),
                       keyboardType: TextInputType.number,
                     ),
@@ -950,7 +950,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
                       children: [
                         NesButton.text(
                           type: NesButtonType.normal,
-                          text: 'Отмена',
+                          text: localization.tr('sb_cancel'),
                           onPressed: () => setState(() => _sbIsAddingMapping = false),
                         ),
                         const SizedBox(width: 8),
@@ -983,7 +983,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
               const SizedBox(height: 8),
               NesButton.text(
                 type: NesButtonType.normal,
-                text: '+ Добавить событие',
+                text: localization.tr('sb_add_event'),
                 onPressed: () => setState(() => _sbIsAddingMapping = true),
               ),
             ],

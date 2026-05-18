@@ -46,6 +46,9 @@ void main() async {
     await windowManager.focus();
   });
 
+  // Запускаем анимированный прелоадер сразу же, чтобы избежать белого экрана
+  runApp(const PreloaderApp());
+
   // Initialize storage service
   final storageService = StorageService();
   await storageService.init();
@@ -159,6 +162,7 @@ void main() async {
     soundService.playSound();
   });
 
+  // Запуск основного приложения после завершения всей инициализации
   runApp(
     MultiProvider(
       providers: [
@@ -207,6 +211,99 @@ class DonatonTimerApp extends StatelessWidget {
       ),
       themeMode: themeProvider.themeMode,
       home: const MainScreen(),
+    );
+  }
+}
+
+/// Анимированный загрузочный экран с gif pepeD и пульсирующей надписью <<< ЗагрузОчка >>>.
+class PreloaderApp extends StatelessWidget {
+  const PreloaderApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: const Color(0xFF121214),
+      ),
+      home: const PreloaderScreen(),
+    );
+  }
+}
+
+class PreloaderScreen extends StatefulWidget {
+  const PreloaderScreen({super.key});
+
+  @override
+  State<PreloaderScreen> createState() => _PreloaderScreenState();
+}
+
+class _PreloaderScreenState extends State<PreloaderScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    )..repeat(reverse: true);
+    _animation = Tween<double>(begin: 0.3, end: 1.0).animate(_controller);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Анимированный pepeD gif
+            Image.asset(
+              'assets/pepeD.gif',
+              width: 150,
+              height: 150,
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) {
+                // Если ассет не найден (на всякий случай), покажем стильную иконку
+                return const Icon(
+                  Icons.sports_esports,
+                  size: 100,
+                  color: Color(0xffb4b6f6),
+                );
+              },
+            ),
+            const SizedBox(height: 24),
+            // Пульсирующий неоновый текст ЗагрузОчка
+            FadeTransition(
+              opacity: _animation,
+              child: const Text(
+                '<<< ЗагрузОчка >>>',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'monospace',
+                  color: Color(0xffb4b6f6),
+                  letterSpacing: 2,
+                  shadows: [
+                    Shadow(
+                      color: Color(0x88b4b6f6),
+                      blurRadius: 10,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
