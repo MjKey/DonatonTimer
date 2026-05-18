@@ -163,6 +163,26 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
   final _donattyTokenController = TextEditingController();
   bool _donattyEnabled = false;
   bool _donattyTokenVisible = false;
+  String _donattyApiServer = 'api-014';
+  
+  static const List<String> _donattyApiServers = [
+    'api-014',
+    'api',
+    'api-015',
+    'api-013',
+    'api-010',
+    'api-011',
+    'api-012',
+    'api-007',
+    'api-009',
+    'api-006',
+    'api-001',
+    'api-002',
+    'api-003',
+    'api-004',
+    'api-005',
+    'api-008',
+  ];
 
   // StreamerBot controllers
   final _sbWsUrlController = TextEditingController();
@@ -231,6 +251,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
     if (donattyConfig != null) {
       _donattyEnabled = donattyConfig.enabled;
       _donattyTokenController.text = donattyConfig.getCredential('token') ?? '';
+      _donattyApiServer = donattyConfig.getCredential('apiServer') ?? 'api-014';
     }
 
     // StreamerBot
@@ -813,11 +834,38 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
               ),
             ),
             const SizedBox(height: 16),
+            
+            // API server dropdown
+            Text('${localization.tr('api_server')}:'),
+            const SizedBox(height: 8),
+            DropdownButton<String>(
+              value: _donattyApiServer,
+              isExpanded: true,
+              items: _donattyApiServers.map((server) {
+                return DropdownMenuItem(
+                  value: server,
+                  child: Text('$server.donatty.com'),
+                );
+              }).toList(),
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() => _donattyApiServer = value);
+                }
+              },
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'По умолчанию api-014. Измените, если донаты не приходят.',
+              style: const TextStyle(fontSize: 10, color: Colors.grey),
+            ),
+            const SizedBox(height: 16),
+            
             NesButton.text(
               type: NesButtonType.success,
               text: localization.tr('save'),
               onPressed: () => _saveServiceConfig('Donatty', _donattyEnabled, {
                 'token': _donattyTokenController.text,
+                'apiServer': _donattyApiServer,
               }),
             ),
           ],
@@ -1542,6 +1590,8 @@ class DataSettingsTab extends StatefulWidget {
 
 class _DataSettingsTabState extends State<DataSettingsTab> {
   bool _loggingEnabled = true;
+  bool _enableCurrencyConversion = false;
+  String _currencyConverterSource = 'er-api';
 
   @override
   void initState() {
@@ -1553,18 +1603,22 @@ class _DataSettingsTabState extends State<DataSettingsTab> {
     final donationService = context.read<DonationService?>();
     if (donationService != null) {
       _loggingEnabled = donationService.settings.loggingEnabled;
+      _enableCurrencyConversion = donationService.settings.enableCurrencyConversion;
+      _currencyConverterSource = donationService.settings.currencyConverterSource;
     }
     // Also sync with LogManager
     _loggingEnabled = LogManager.enabled;
     setState(() {});
   }
 
-  Future<void> _saveLoggingSettings() async {
+  Future<void> _saveDataSettings() async {
     final donationService = context.read<DonationService?>();
     if (donationService == null) return;
 
     final newSettings = donationService.settings.copyWith(
       loggingEnabled: _loggingEnabled,
+      enableCurrencyConversion: _enableCurrencyConversion,
+      currencyConverterSource: _currencyConverterSource,
     );
 
     await donationService.updateSettings(newSettings);
@@ -1640,6 +1694,60 @@ class _DataSettingsTabState extends State<DataSettingsTab> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Currency Converter settings
+          NesContainer(
+            label: localization.tr('currency_converter'),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      NesCheckBox(
+                        value: _enableCurrencyConversion,
+                        onChange: (value) => setState(() => _enableCurrencyConversion = value),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(child: Text(localization.tr('enable_currency_conversion'))),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    localization.tr('currency_converter_desc'),
+                    style: const TextStyle(fontSize: 11, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 16),
+                  Text('${localization.tr('converter_source')}:'),
+                  const SizedBox(height: 8),
+                  DropdownButton<String>(
+                    value: _currencyConverterSource,
+                    isExpanded: true,
+                    items: const [
+                      DropdownMenuItem(value: 'cbr-xml', child: Text('ЦБ РФ (XML, по умолчанию)')),
+                      DropdownMenuItem(value: 'cbr-json', child: Text('ЦБ РФ (JSON)')),
+                      DropdownMenuItem(value: 'ratata', child: Text('Ratata Money (ratata.money)')),
+                      DropdownMenuItem(value: 'er-api', child: Text('ER-API (open.er-api.com)')),
+                      DropdownMenuItem(value: 'frankfurter', child: Text('Frankfurter (api.frankfurter.app)')),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => _currencyConverterSource = value);
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  NesButton.text(
+                    type: NesButtonType.normal,
+                    text: localization.tr('save'),
+                    onPressed: _saveDataSettings,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
           // Logging settings
           NesContainer(
             label: localization.tr('logging'),
@@ -1670,7 +1778,7 @@ class _DataSettingsTabState extends State<DataSettingsTab> {
                   NesButton.text(
                     type: NesButtonType.normal,
                     text: localization.tr('save'),
-                    onPressed: _saveLoggingSettings,
+                    onPressed: _saveDataSettings,
                   ),
                 ],
               ),

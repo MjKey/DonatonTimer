@@ -173,11 +173,7 @@ class DonateStreamAdapter extends BaseDonationServiceAdapter {
       final currency = alertData['currency'] as String? ?? 'RUB';
       final message = alertData['message'] as String?;
       
-      // Only process RUB donations
-      if (currency != 'RUB') {
-        _logger.info('Skipping non-RUB donation: currency=$currency');
-        return;
-      }
+      // Валюта больше не фильтруется здесь, это делает DonationService
       
       final donation = Donation(
         id: '${serviceName}_$id',

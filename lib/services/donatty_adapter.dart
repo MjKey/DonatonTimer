@@ -24,9 +24,17 @@ class DonattyAdapter extends BaseDonationServiceAdapter {
   String? _groupId;
   String? _linkToken;
   String? _accessToken;
+  String _apiServer = 'api-014';
 
   @override
   String get serviceName => 'Donatty';
+
+  /// Маскирует токен, оставляя только первые 5 символов
+  String _maskToken(String? token) {
+    if (token == null || token.isEmpty) return 'null';
+    if (token.length <= 5) return '***';
+    return '${token.substring(0, 5)}***';
+  }
 
   /// Extracts tokens from the URL.
   /// Supports: https://widgets.donatty.com/group/?ref={group_id}&token={link_token}
@@ -46,6 +54,9 @@ class DonattyAdapter extends BaseDonationServiceAdapter {
 
   @override
   Future<void> connect(Map<String, dynamic> config) async {
+    // Отключаемся от предыдущего соединения, если оно было
+    await disconnect();
+
     final urlOrTokens = config['token'] as String?;
     
     if (urlOrTokens == null || urlOrTokens.isEmpty) {
@@ -59,6 +70,7 @@ class DonattyAdapter extends BaseDonationServiceAdapter {
     if (tokens != null) {
       _groupId = tokens['group_id'];
       _linkToken = tokens['link_token'];
+      LogManager.info('Donatty: URL parsed, groupId=${_maskToken(_groupId)}, linkToken=${_maskToken(_linkToken)}');
     } else {
       // It might be a token configuration, but we strictly need both group_id and link_token or a full link
       _logger.warning('Invalid Donatty link format. Ensure it contains ref and token.');
@@ -67,9 +79,11 @@ class DonattyAdapter extends BaseDonationServiceAdapter {
       return;
     }
 
+    _apiServer = config['apiServer'] as String? ?? 'api-014';
+    
     updateStatus(ConnectionStatus.connecting);
-    _logger.info('Connecting to Donatty...');
-    LogManager.info('Donatty: получение access_token...');
+    _logger.info('Connecting to Donatty via $_apiServer...');
+    LogManager.info('Donatty: получение access_token (сервер: $_apiServer)...');
 
     await _initConnection();
   }
@@ -80,7 +94,7 @@ class DonattyAdapter extends BaseDonationServiceAdapter {
         ..connectionTimeout = const Duration(seconds: 15);
 
       // 1. Get access token
-      final authUrl = Uri.parse('https://api-014.donatty.com/auth/tokens/$_linkToken');
+      final authUrl = Uri.parse('https://$_apiServer.donatty.com/auth/tokens/$_linkToken');
       final authRequest = await _httpClient!.getUrl(authUrl);
       final authResponse = await authRequest.close();
 
@@ -97,10 +111,10 @@ class DonattyAdapter extends BaseDonationServiceAdapter {
         throw Exception('Access token not found in response');
       }
 
-      LogManager.info('Donatty: access_token получен, подключение к SSE...');
+      LogManager.info('Donatty: access_token получен (${_maskToken(_accessToken)}), подключение к SSE...');
 
       // 2. Connect to SSE
-      final sseUrl = Uri.parse('https://api-014.donatty.com/widgets/$_groupId/sse?jwt=$_accessToken');
+      final sseUrl = Uri.parse('https://$_apiServer.donatty.com/widgets/$_groupId/sse?jwt=$_accessToken');
       _request = await _httpClient!.getUrl(sseUrl);
       _request!.headers.set('Accept', 'text/event-stream');
       _request!.headers.set('Cache-Control', 'no-cache');
@@ -163,6 +177,14 @@ class DonattyAdapter extends BaseDonationServiceAdapter {
       } catch (e) {
         _logger.warning('Error parsing SSE line: $e\nLine was: $line');
       }
+    } else if (line.startsWith('{')) {
+      // Возможно, они шлют чистый JSON без префикса data:
+      try {
+        final data = json.decode(line) as Map<String, dynamic>;
+        _handleEventData(data);
+      } catch (e) {
+        _logger.warning('Error parsing pure JSON line: $e\nLine was: $line');
+      }
     }
   }
 
@@ -193,12 +215,21 @@ class DonattyAdapter extends BaseDonationServiceAdapter {
           }
         }
       }
+    } else if (action == 'DATA') {
+      // Donatty присылает данные напрямую с action "DATA"
+      final eventData = data['data'] as Map<String, dynamic>?;
+      if (eventData != null) {
+        _processDonation(eventData);
+      }
     }
   }
 
   void _processDonation(Map<String, dynamic> eventData) {
     final eventType = eventData['streamEventType'] as String?;
-    if (eventType != 'DONATTY_DONATION') return;
+    
+    if (eventType != 'DONATTY_DONATION') {
+       return;
+    }
 
     try {
       final subscriber = eventData['subscriber'] as String? ?? 'Anonymous';

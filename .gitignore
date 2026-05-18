@@ -1,0 +1,55 @@
+# ── AI / Personal helper files ──────────────────────────────────────────────
+PROJECT_CONTEXT.md
+.gitignore
+# ── Flutter / Dart ───────────────────────────────────────────────────────────
+# Build outputs
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+
+# Generated files
+*.g.dart
+*.freezed.dart
+*.mocks.dart
+
+# Coverage
+coverage/
+
+# ── Windows ──────────────────────────────────────────────────────────────────
+windows/flutter/generated_plugin_registrant.cc
+windows/flutter/generated_plugin_registrant.h
+windows/flutter/generated_plugins.cmake
+windows/flutter/ephemeral/
+
+# ── IDE ──────────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# ── OS ───────────────────────────────────────────────────────────────────────
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+logs/
+logs.txt
+
+# ── Installer and large binaries ──────────────────────────────────────────────
+installer/
+*.exe

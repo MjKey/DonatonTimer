@@ -15,6 +15,8 @@ class AppSettings {
   final bool isFixedTimeMode;
   final int fixedTimeMinutes;
   final bool isSubtractionMode;
+  final bool enableCurrencyConversion;
+  final String currencyConverterSource;
 
   const AppSettings({
     this.minutesPerAmount = 600.0,
@@ -30,6 +32,8 @@ class AppSettings {
     this.isFixedTimeMode = false,
     this.fixedTimeMinutes = 1,
     this.isSubtractionMode = false,
+    this.enableCurrencyConversion = false,
+    this.currencyConverterSource = 'cbr-xml',
   });
 
   /// Creates a copy with updated values.
@@ -47,6 +51,8 @@ class AppSettings {
     bool? isFixedTimeMode,
     int? fixedTimeMinutes,
     bool? isSubtractionMode,
+    bool? enableCurrencyConversion,
+    String? currencyConverterSource,
   }) {
     return AppSettings(
       minutesPerAmount: minutesPerAmount ?? this.minutesPerAmount,
@@ -62,6 +68,8 @@ class AppSettings {
       isFixedTimeMode: isFixedTimeMode ?? this.isFixedTimeMode,
       fixedTimeMinutes: fixedTimeMinutes ?? this.fixedTimeMinutes,
       isSubtractionMode: isSubtractionMode ?? this.isSubtractionMode,
+      enableCurrencyConversion: enableCurrencyConversion ?? this.enableCurrencyConversion,
+      currencyConverterSource: currencyConverterSource ?? this.currencyConverterSource,
     );
   }
 
@@ -104,6 +112,8 @@ class AppSettings {
       isFixedTimeMode: json['isFixedTimeMode'] as bool? ?? false,
       fixedTimeMinutes: json['fixedTimeMinutes'] as int? ?? 1,
       isSubtractionMode: json['isSubtractionMode'] as bool? ?? false,
+      enableCurrencyConversion: json['enableCurrencyConversion'] as bool? ?? false,
+      currencyConverterSource: json['currencyConverterSource'] as String? ?? 'cbr-xml',
     );
   }
 
@@ -122,6 +132,8 @@ class AppSettings {
       'isFixedTimeMode': isFixedTimeMode,
       'fixedTimeMinutes': fixedTimeMinutes,
       'isSubtractionMode': isSubtractionMode,
+      'enableCurrencyConversion': enableCurrencyConversion,
+      'currencyConverterSource': currencyConverterSource,
       'serviceConfigs': serviceConfigs.map(
         (key, value) => MapEntry(key, value.toJson()),
       ),

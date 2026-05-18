@@ -241,11 +241,7 @@ class DonatePayAdapter extends BaseDonationServiceAdapter {
       final currency = transaction?['currency'] as String? ?? 'RUB';
       final donationMessage = vars['comment'] as String?;
       
-      // Only process RUB donations
-      if (currency != 'RUB') {
-        LogManager.info('DonatePay: пропуск не-RUB доната ($currency)');
-        return;
-      }
+      // Валюта больше не фильтруется здесь, это делает DonationService
       
       final donation = Donation(
         id: '${serviceName}_$id',

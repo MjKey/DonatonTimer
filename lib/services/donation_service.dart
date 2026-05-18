@@ -8,6 +8,7 @@ import '../models/statistics.dart';
 import 'donation_service_adapter.dart';
 import 'storage_service.dart';
 import 'log_manager.dart';
+import 'currency_converter_service.dart';
 
 /// Сервис для управления адаптерами донат-сервисов и обработки донатов.
 class DonationService extends ChangeNotifier {
@@ -74,6 +75,9 @@ class DonationService extends ChangeNotifier {
       _rate = savedSettings.minutesPerAmount;
     }
     
+    // Загружаем курсы валют
+    CurrencyConverterService().fetchRates(_settings.currencyConverterSource);
+    
     // Load statistics
     final savedStats = _storageService.loadStatistics();
     if (savedStats != null) {
@@ -85,9 +89,16 @@ class DonationService extends ChangeNotifier {
   
   /// Updates the application settings.
   Future<void> updateSettings(AppSettings newSettings) async {
+    final oldSource = _settings.currencyConverterSource;
     _settings = newSettings;
     _rate = newSettings.minutesPerAmount;
     await _storageService.saveSettings(newSettings);
+    
+    // Обновляем курсы, если источник изменился или если они еще не загружены
+    if (oldSource != newSettings.currencyConverterSource || !CurrencyConverterService().hasRates) {
+      CurrencyConverterService().fetchRates(newSettings.currencyConverterSource);
+    }
+    
     notifyListeners();
   }
   
@@ -193,12 +204,38 @@ class DonationService extends ChangeNotifier {
       }
     }
     
+    // Конвертация валют
+    double effectiveAmount = donation.amount;
+    String effectiveCurrency = donation.currency.toUpperCase();
+    
+    if (effectiveCurrency != 'RUB') {
+      if (!_settings.enableCurrencyConversion) {
+        LogManager.info('Пропуск доната не в RUB ($effectiveCurrency), т.к. конвертация выключена: ${donation.username}');
+        return;
+      }
+      
+      final converter = CurrencyConverterService();
+      final converted = converter.convertToRub(donation.amount, effectiveCurrency);
+      
+      if (converted == null) {
+        LogManager.warning('Не удалось конвертировать ${donation.amount} $effectiveCurrency в RUB. Донат пропущен.');
+        return;
+      }
+      
+      LogManager.info('Конвертация: ${donation.amount} $effectiveCurrency -> ${converted.toStringAsFixed(2)} RUB');
+      effectiveAmount = converted;
+    }
+    
     // Рассчитываем время для добавления
     int secondsToAdd;
     if (_settings.isFixedTimeMode) {
       secondsToAdd = _settings.fixedTimeMinutes * 60;
     } else {
-      secondsToAdd = donation.calculateSeconds(_rate, _settings.timePerAmountMinutes);
+      if (_rate <= 0) {
+        secondsToAdd = 0;
+      } else {
+        secondsToAdd = ((effectiveAmount / _rate) * _settings.timePerAmountMinutes * 60).round();
+      }
     }
     
     if (_settings.isSubtractionMode) {

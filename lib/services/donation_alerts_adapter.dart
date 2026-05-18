@@ -210,15 +210,11 @@ class DonationAlertsAdapter extends BaseDonationServiceAdapter {
         return;
       }
       
-      // Only process RUB donations
-      if (currency != 'RUB') {
-        _logger.info('Skipping non-RUB donation: $currency');
-        return;
-      }
+      // Валюта больше не фильтруется здесь, это делает DonationService
       
       final id = donationData['id']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString();
       final username = donationData['username'] as String? ?? 'Anonymous';
-      final amount = _parseDoubleField(donationData['amount_main']);
+      final amount = _parseDoubleField(donationData['amount']);
       final donationMessage = donationData['message'] as String?;
       
       final donation = Donation(
