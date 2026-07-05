@@ -1,4 +1,4 @@
-name: Build Linux Artifact
+name: Build Linux Artifacts
 
 on:
   push:
@@ -18,7 +18,19 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
+
+    strategy:
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-latest
+            flutter_arch: x64
+            appimage_arch: x86_64
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+            flutter_arch: arm64
+            appimage_arch: aarch64
 
     steps:
       - name: Checkout repository
@@ -27,7 +39,7 @@ jobs:
       - name: Install Linux build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev imagemagick
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -43,10 +55,12 @@ jobs:
           if [ ! -d "linux" ]; then
             flutter create --platforms=linux .
             # Patch my_application.cc to replace gtk_widget_show with gtk_widget_realize for window_manager support
-            sed -i 's/gtk_widget_show(GTK_WIDGET(window));/gtk_widget_realize(GTK_WIDGET(window));/g' linux/runner/my_application.cc
+            if [ -f "linux/runner/my_application.cc" ]; then
+              sed -i 's/gtk_widget_show(GTK_WIDGET(window));/gtk_widget_realize(GTK_WIDGET(window));/g' linux/runner/my_application.cc
+            fi
           fi
 
-      - name: Commit and push Linux platform folder if missing
+      - name: Commit and push Linux platform folder if missing (x86_64 only)
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -57,8 +71,8 @@ jobs:
             git commit -m "chore: add auto-generated Linux platform support files"
             git push
           fi
-        # Only commit and push if we are running on a push event (not PRs from forks or pull requests)
-        if: github.event_name != 'pull_request'
+        # Only commit and push on the x86_64 job and on push/dispatch events (not PRs) to avoid race conditions
+        if: matrix.arch == 'x86_64' && github.event_name != 'pull_request'
 
       - name: Install Flutter dependencies
         run: flutter pub get
@@ -66,13 +80,56 @@ jobs:
       - name: Build Linux app
         run: flutter build linux --release
 
-      - name: Package Linux bundle
+      - name: Package Linux bundle (tar.gz)
         run: |
           mkdir -p dist
-          tar -czf dist/donaton_timer-linux-x64.tar.gz -C build/linux/x64/release/bundle .
+          tar -czf dist/donaton_timer-linux-${{ matrix.arch }}.tar.gz -C build/linux/${{ matrix.flutter_arch }}/release/bundle .
 
-      - name: Upload artifact
+      - name: Package AppImage
+        run: |
+          # 1. Download appimagetool matching the runner's architecture
+          wget https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-${{ matrix.arch }}.AppImage -O appimagetool.AppImage
+          chmod +x appimagetool.AppImage
+          ./appimagetool.AppImage --appimage-extract
+
+          # 2. Extract application icon from ICO file
+          convert windows/runner/resources/app_icon.ico[0] donaton_timer.png
+
+          # 3. Create AppDir directory structure
+          mkdir -p AppDir/usr/bin
+
+          # 4. Copy build bundle files
+          cp -r build/linux/${{ matrix.flutter_arch }}/release/bundle/* AppDir/usr/bin/
+
+          # 5. Place icon and configure metadata
+          cp donaton_timer.png AppDir/
+
+          # 6. Create AppRun launcher script
+          cat << 'EOF' > AppDir/AppRun
+          #!/bin/sh
+          SELF=$(readlink -f "$0")
+          HERE=$(dirname "$SELF")
+          exec "$HERE/usr/bin/donaton_timer" "$@"
+          EOF
+          chmod +x AppDir/AppRun
+
+          # 7. Create desktop configuration file
+          cat << 'EOF' > AppDir/donaton_timer.desktop
+          [Desktop Entry]
+          Name=DonatonTimer
+          Exec=donaton_timer
+          Icon=donaton_timer
+          Type=Application
+          Categories=Utility;
+          EOF
+
+          # 8. Build the AppImage
+          ARCH=${{ matrix.appimage_arch }} ./squashfs-root/AppRun AppDir dist/donaton_timer-linux-${{ matrix.arch }}.AppImage
+
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: donaton_timer-linux-x64
-          path: dist/donaton_timer-linux-x64.tar.gz
+          name: donaton_timer-linux-${{ matrix.arch }}
+          path: |
+            dist/donaton_timer-linux-${{ matrix.arch }}.tar.gz
+            dist/donaton_timer-linux-${{ matrix.arch }}.AppImage
