@@ -1,0 +1,78 @@
+name: Build Linux Artifact
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - add-linux-build-workflow
+  pull_request:
+    branches:
+      - main
+      - master
+      - add-linux-build-workflow
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Enable Linux platform
+        run: flutter config --enable-linux-desktop
+
+      - name: Generate Linux platform folder if missing
+        run: |
+          if [ ! -d "linux" ]; then
+            flutter create --platforms=linux .
+            # Patch my_application.cc to replace gtk_widget_show with gtk_widget_realize for window_manager support
+            sed -i 's/gtk_widget_show(GTK_WIDGET(window));/gtk_widget_realize(GTK_WIDGET(window));/g' linux/runner/my_application.cc
+          fi
+
+      - name: Commit and push Linux platform folder if missing
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add linux/
+          if git diff --cached --quiet; then
+            echo "No new Linux platform files to commit."
+          else
+            git commit -m "chore: add auto-generated Linux platform support files"
+            git push
+          fi
+        # Only commit and push if we are running on a push event (not PRs from forks or pull requests)
+        if: github.event_name != 'pull_request'
+
+      - name: Install Flutter dependencies
+        run: flutter pub get
+
+      - name: Build Linux app
+        run: flutter build linux --release
+
+      - name: Package Linux bundle
+        run: |
+          mkdir -p dist
+          tar -czf dist/donaton_timer-linux-x64.tar.gz -C build/linux/x64/release/bundle .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: donaton_timer-linux-x64
+          path: dist/donaton_timer-linux-x64.tar.gz
