@@ -39,7 +39,7 @@ jobs:
       - name: Install Linux build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev imagemagick
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev imagemagick alien rpm
 
       - name: Setup Flutter (x86_64)
         uses: subosito/flutter-action@v2
@@ -133,6 +133,65 @@ jobs:
           # 8. Build the AppImage
           ARCH=${{ matrix.appimage_arch }} ./squashfs-root/AppRun AppDir dist/donaton_timer-linux-${{ matrix.arch }}.AppImage
 
+      - name: Package DEB and RPM
+        run: |
+          # 1. Extract version from pubspec.yaml
+          VERSION=$(grep 'version: ' pubspec.yaml | sed 's/version: //' | cut -d'+' -f1)
+          
+          # 2. Determine Debian arch
+          DEB_ARCH="${{ matrix.flutter_arch }}"
+          if [ "$DEB_ARCH" = "x64" ]; then
+            DEB_ARCH="amd64"
+          fi
+          
+          # 3. Create directory structure
+          DEB_DIR="donaton-timer_${VERSION}_${DEB_ARCH}"
+          mkdir -p $DEB_DIR/DEBIAN
+          mkdir -p $DEB_DIR/usr/bin
+          mkdir -p $DEB_DIR/usr/share/donaton-timer
+          mkdir -p $DEB_DIR/usr/share/applications
+          mkdir -p $DEB_DIR/usr/share/pixmaps
+          
+          # 4. Copy files
+          cp -r build/linux/${{ matrix.flutter_arch }}/release/bundle/* $DEB_DIR/usr/share/donaton-timer/
+          cp donaton_timer.png $DEB_DIR/usr/share/pixmaps/donaton-timer.png
+          
+          # 5. Create launcher script
+          cat << 'EOF' > $DEB_DIR/usr/bin/donaton-timer
+          #!/bin/sh
+          exec /usr/share/donaton-timer/donaton_timer "$@"
+          EOF
+          chmod +x $DEB_DIR/usr/bin/donaton-timer
+          
+          # 6. Create desktop file
+          cat << 'EOF' > $DEB_DIR/usr/share/applications/donaton-timer.desktop
+          [Desktop Entry]
+          Name=DonatonTimer
+          Exec=donaton-timer
+          Icon=donaton-timer
+          Type=Application
+          Categories=Utility;
+          Terminal=false
+          EOF
+          
+          # 7. Create DEBIAN/control with auto-dependencies
+          cat << EOF > $DEB_DIR/DEBIAN/control
+          Package: donaton-timer
+          Version: ${VERSION}
+          Architecture: ${DEB_ARCH}
+          Maintainer: MjKey <go@mjkey.ru>
+          Depends: libgtk-3-0 | libgtk-3-0t64, libgstreamer1.0-0 | libgstreamer1.0-0t64, gstreamer1.0-plugins-base, gstreamer1.0-plugins-good, gstreamer1.0-plugins-bad, libgles2
+          Description: DonatonTimer - A powerful and customizable timer application for donation marathons on live streams.
+          EOF
+          
+          # 8. Build DEB
+          dpkg-deb --build $DEB_DIR
+          mv $DEB_DIR.deb dist/
+          
+          # 9. Convert to RPM using alien
+          sudo alien -r --nodeps dist/$DEB_DIR.deb
+          mv *.rpm dist/
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -140,3 +199,5 @@ jobs:
           path: |
             dist/donaton_timer-linux-${{ matrix.arch }}.tar.gz
             dist/donaton_timer-linux-${{ matrix.arch }}.AppImage
+            dist/*.deb
+            dist/*.rpm
