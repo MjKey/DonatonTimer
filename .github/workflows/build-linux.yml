@@ -189,7 +189,7 @@ jobs:
           mv $DEB_DIR.deb dist/
           
           # 9. Convert to RPM using alien
-          sudo alien -r --nodeps dist/$DEB_DIR.deb
+          sudo alien -r dist/$DEB_DIR.deb
           mv *.rpm dist/
 
       - name: Upload artifacts
