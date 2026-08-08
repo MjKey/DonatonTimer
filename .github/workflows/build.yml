@@ -28,12 +28,12 @@ jobs:
         run: flutter build windows --release
 
       - name: Install Inno Setup
-        uses: Minuris/Setup-Inno-Setup@v1
-        with:
-          inno-version: '6.2.2'
+        run: |
+          choco install innosetup --no-progress -y
+          "C:\Program Files (x86)\Inno Setup 6" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Build Installer with Inno Setup
-        run: iscc setup.iss
+        run: ISCC.exe setup.iss
 
       - name: Create Portable Zip
         shell: powershell
