@@ -19,12 +19,19 @@ class DonationAlertsAdapter extends BaseDonationServiceAdapter {
     'socket4',
   ];
   
+  // Available domains
+  static const List<String> availableDomains = [
+    'com',
+    'ru',
+  ];
+  
   final Logger _logger = Logger('DonationAlertsAdapter');
   
   WebSocketChannel? _channel;
   StreamSubscription? _subscription;
   String? _token;
   String _socketServer = 'socket5';
+  String _domain = 'com';
   Timer? _pingTimer;
   Timer? _reconnectTimer;
   int _reconnectAttempts = 0;
@@ -32,15 +39,16 @@ class DonationAlertsAdapter extends BaseDonationServiceAdapter {
   static const Duration _reconnectDelay = Duration(seconds: 5);
   static const Duration _pingInterval = Duration(seconds: 25);
   
-  String get _wsUrl => 'wss://$_socketServer.donationalerts.ru/socket.io/?EIO=3&transport=websocket';
+  String get _wsUrl => 'wss://$_socketServer.donationalerts.$_domain/socket.io/?EIO=3&transport=websocket';
   
   @override
   String get serviceName => 'DonationAlerts';
   
   /// Extracts token from URL or returns the input if it's already a token.
   /// Supports: https://www.donationalerts.com/widget/alerts?group_id=1&token=XXX
+  /// and https://www.donationalerts.ru/widget/alerts?group_id=1&token=XXX
   static String extractToken(String input) {
-    if (input.contains('donationalerts.com') && input.contains('token=')) {
+    if (input.contains('token=')) {
       final uri = Uri.tryParse(input);
       if (uri != null) {
         final token = uri.queryParameters['token'];
@@ -57,6 +65,7 @@ class DonationAlertsAdapter extends BaseDonationServiceAdapter {
     final rawToken = config['token'] as String?;
     _token = rawToken != null ? extractToken(rawToken) : null;
     _socketServer = config['socketServer'] as String? ?? 'socket5';
+    _domain = config['domain'] as String? ?? 'com';
     
     if (_token == null || _token!.isEmpty) {
       _logger.warning('Token is required for DonationAlerts connection');
@@ -66,8 +75,8 @@ class DonationAlertsAdapter extends BaseDonationServiceAdapter {
     }
     
     updateStatus(ConnectionStatus.connecting);
-    _logger.info('Connecting to DonationAlerts via $_socketServer...');
-    LogManager.info('DonationAlerts: подключение через $_socketServer...');
+    _logger.info('Connecting to DonationAlerts via $_socketServer.donationalerts.$_domain...');
+    LogManager.info('DonationAlerts: подключение через $_socketServer.donationalerts.$_domain...');
     
     await _initWebSocket();
   }
@@ -75,7 +84,7 @@ class DonationAlertsAdapter extends BaseDonationServiceAdapter {
   Future<void> _initWebSocket() async {
     try {
       _channel = WebSocketChannel.connect(Uri.parse(_wsUrl));
-      LogManager.info('DonationAlerts: WebSocket создан ($_socketServer)');
+      LogManager.info('DonationAlerts: WebSocket создан ($_socketServer.donationalerts.$_domain)');
       
       _subscription = _channel!.stream.listen(
         _handleMessage,

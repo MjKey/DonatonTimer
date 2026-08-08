@@ -1,7 +1,7 @@
 name: donaton_timer
 description: "DonatonTimer v3.0.0 - A powerful and customizable timer application for donation marathons on live streams. By MjKey (https://mjkey.ru)"
 publish_to: 'none'
-version: 3.0.0+1
+version: 3.0.7+1
 
 # Author: MjKey (https://mjkey.ru)
 # Project: https://github.com/MjKey/DonatonTimer

@@ -141,6 +141,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
   final _daTokenController = TextEditingController();
   bool _daEnabled = false;
   String _daSocketServer = 'socket5';
+  String _daDomain = 'com';
   bool _daTokenVisible = false;
 
   // DonatePay controllers
@@ -199,7 +200,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
   final _sbTypeController = TextEditingController();
   final _sbAmountController = TextEditingController();
 
-  // Available socket servers for DonationAlerts
+  // Available socket servers and domains for DonationAlerts
   static const List<String> _socketServers = [
     'socket5',
     'socket',
@@ -207,6 +208,10 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
     'socket2',
     'socket3',
     'socket4',
+  ];
+  static const List<String> _daDomains = [
+    'com',
+    'ru',
   ];
 
   @override
@@ -227,6 +232,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
       _daEnabled = daConfig.enabled;
       _daTokenController.text = daConfig.getCredential('token') ?? '';
       _daSocketServer = daConfig.getCredential('socketServer') ?? 'socket5';
+      _daDomain = daConfig.getCredential('domain') ?? 'com';
     }
 
     // DonatePay
@@ -485,6 +491,26 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
             ),
             const SizedBox(height: 16),
 
+            // Domain dropdown
+            Text('${localization.tr('domain')}:'),
+            const SizedBox(height: 8),
+            DropdownButton<String>(
+              value: _daDomain,
+              isExpanded: true,
+              items: _daDomains.map((domain) {
+                return DropdownMenuItem(
+                  value: domain,
+                  child: Text('donationalerts.$domain'),
+                );
+              }).toList(),
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() => _daDomain = value);
+                }
+              },
+            ),
+            const SizedBox(height: 16),
+
             // Socket server dropdown
             Text('${localization.tr('socket_server')}:'),
             const SizedBox(height: 8),
@@ -494,7 +520,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
               items: _socketServers.map((socket) {
                 return DropdownMenuItem(
                   value: socket,
-                  child: Text('$socket.donationalerts.ru'),
+                  child: Text('$socket.donationalerts.$_daDomain'),
                 );
               }).toList(),
               onChanged: (value) {
@@ -518,6 +544,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
                   _saveServiceConfig('DonationAlerts', _daEnabled, {
                     'token': _daTokenController.text,
                     'socketServer': _daSocketServer,
+                    'domain': _daDomain,
                   }),
             ),
           ],
