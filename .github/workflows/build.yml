@@ -2,10 +2,13 @@ name: Build Windows Release
 
 on:
   push:
-    branches: [ "main" ]
     tags:
       - '*'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -38,7 +41,8 @@ jobs:
       - name: Create Portable Zip
         shell: powershell
         run: |
-          Compress-Archive -Path "build\windows\x64\runner\Release\*" -DestinationPath "installer\DonatonTimer_v3.0.7_Portable.zip" -Force
+          $VERSION = (Get-Content pubspec.yaml | Select-String "^version:").Line.Split(':')[1].Trim().Split('+')[0]
+          Compress-Archive -Path "build\windows\x64\runner\Release\*" -DestinationPath "installer\DonatonTimer_v${VERSION}_Portable.zip" -Force
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
