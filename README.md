@@ -58,6 +58,9 @@
 | iHAQ Donate    |   Нет  |   В планах    |
 | StreamElements |   Нет  |   В планах    |
 
+> [!NOTE]
+> **Если сервис перестал работать:** Напишите об этом в [Issues](https://github.com/MjKey/DonatonTimer/issues)!
+
 ## Что нового в v3.0.X
 
 - **Мульти-сервис** — DonationAlerts, DonatePay, Donate.Stream, DonateX, Donatty одновременно
