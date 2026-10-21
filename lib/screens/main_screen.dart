@@ -108,61 +108,8 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   /// Shows navigation menu dialog with NesSelectionList.
-  void _showNavigationMenu(LocalizationProvider localization) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => Dialog(
-        child: NesContainer(
-          label: localization.tr('navigation'),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                NesSelectionList(
-                  onSelect: (index) {
-                    Navigator.of(dialogContext).pop();
-                    _handleNavigationSelection(index);
-                  },
-                  children: [
-                    Text(localization.tr('main_screen')),
-                    Text(localization.tr('style_generator')),
-                    Text(localization.tr('settings')),
-                    Text(localization.tr('about_title')),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                NesButton.text(
-                  type: NesButtonType.normal,
-                  text: localization.tr('close'),
-                  onPressed: () => Navigator.of(dialogContext).pop(),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 
   /// Handles navigation menu selection.
-  void _handleNavigationSelection(int index) {
-    final localization = context.read<LocalizationProvider>();
-    switch (index) {
-      case 0:
-        // Already on main screen
-        break;
-      case 1:
-        _openStyleGenerator();
-        break;
-      case 2:
-        _openSettings();
-        break;
-      case 3:
-        _showAboutDialog(localization);
-        break;
-    }
-  }
 
   @override
   void dispose() {

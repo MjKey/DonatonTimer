@@ -10,7 +10,7 @@ class CurrencyConverterService {
 
   final _logger = Logger('CurrencyConverterService');
   
-  Map<String, double> _rates = {}; // Currency -> Rate (relative to base)
+  final Map<String, double> _rates = {}; // Currency -> Rate (relative to base)
   DateTime? _lastUpdate;
   
   bool get hasRates => _rates.isNotEmpty && _rates.containsKey('RUB');

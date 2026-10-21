@@ -363,9 +363,9 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
         tooltip = 'Ошибка';
         break;
       case ConnectionStatus.disconnected:
-      default:
         color = Colors.grey;
         tooltip = 'Отключено';
+        break;
     }
 
     return Tooltip(
@@ -379,7 +379,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
           boxShadow: status == ConnectionStatus.connected
               ? [
                   BoxShadow(
-                    color: color.withOpacity(0.5),
+                    color: color.withValues(alpha: 0.5),
                     blurRadius: 4,
                     spreadRadius: 1,
                   ),
@@ -1270,20 +1270,22 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
 
     await donationService.updateSettings(newSettings);
 
-    final webServerService = context.read<WebServerService?>();
-    if (webServerService != null) {
-      try {
-        await webServerService.restartServers(
-          httpPort: httpPort,
-          wsPort: wsPort,
-        );
-      } catch (e) {
-        if (mounted) {
-          NesSnackbar.show(
-            context,
-            text: 'Ошибка запуска сервера: $e',
-            type: NesSnackbarType.error,
+    if (mounted) {
+      final webServerService = context.read<WebServerService?>();
+      if (webServerService != null) {
+        try {
+          await webServerService.restartServers(
+            httpPort: httpPort,
+            wsPort: wsPort,
           );
+        } catch (e) {
+          if (mounted) {
+            NesSnackbar.show(
+              context,
+              text: 'Ошибка запуска сервера: $e',
+              type: NesSnackbarType.error,
+            );
+          }
         }
       }
     }
@@ -1758,11 +1760,13 @@ class _DataSettingsTabState extends State<DataSettingsTab> {
       final donationService = context.read<DonationService?>();
       donationService?.clearStatistics();
 
-      NesSnackbar.show(
-        context,
-        text: localization.tr('statistics_reset'),
-        type: NesSnackbarType.success,
-      );
+      if (context.mounted) {
+        NesSnackbar.show(
+          context,
+          text: localization.tr('statistics_reset'),
+          type: NesSnackbarType.success,
+        );
+      }
     }
   }
 
@@ -1789,11 +1793,13 @@ class _DataSettingsTabState extends State<DataSettingsTab> {
       // Reset timer
       timerProvider?.reset();
 
-      NesSnackbar.show(
-        context,
-        text: localization.tr('all_reset'),
-        type: NesSnackbarType.success,
-      );
+      if (context.mounted) {
+        NesSnackbar.show(
+          context,
+          text: localization.tr('all_reset'),
+          type: NesSnackbarType.success,
+        );
+      }
     }
   }
 

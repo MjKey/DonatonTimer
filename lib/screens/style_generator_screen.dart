@@ -949,9 +949,9 @@ class _ColorPickerDialogState extends State<_ColorPickerDialog> {
   @override
   void initState() {
     super.initState();
-    _red = widget.initialColor.red.toDouble();
-    _green = widget.initialColor.green.toDouble();
-    _blue = widget.initialColor.blue.toDouble();
+    _red = (widget.initialColor.r * 255.0).round().clamp(0, 255).toDouble();
+    _green = (widget.initialColor.g * 255.0).round().clamp(0, 255).toDouble();
+    _blue = (widget.initialColor.b * 255.0).round().clamp(0, 255).toDouble();
   }
 
   Color get _currentColor => Color.fromARGB(255, _red.toInt(), _green.toInt(), _blue.toInt());
@@ -1063,9 +1063,9 @@ class _ColorPickerDialogState extends State<_ColorPickerDialog> {
     return GestureDetector(
       onTap: () {
         setState(() {
-          _red = color.red.toDouble();
-          _green = color.green.toDouble();
-          _blue = color.blue.toDouble();
+          _red = (color.r * 255.0).round().clamp(0, 255).toDouble();
+          _green = (color.g * 255.0).round().clamp(0, 255).toDouble();
+          _blue = (color.b * 255.0).round().clamp(0, 255).toDouble();
         });
       },
       child: Container(

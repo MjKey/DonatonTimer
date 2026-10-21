@@ -37,7 +37,6 @@ class DonationAlertsAdapter extends BaseDonationServiceAdapter {
   int _reconnectAttempts = 0;
   static const int _maxReconnectAttempts = 10;
   static const Duration _reconnectDelay = Duration(seconds: 5);
-  static const Duration _pingInterval = Duration(seconds: 25);
   
   String get _wsUrl => 'wss://$_socketServer.donationalerts.$_domain/socket.io/?EIO=3&transport=websocket';
   
