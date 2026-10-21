@@ -22,15 +22,7 @@ class LogManager {
   static IOSink? _logFile;
   static String? _logFilePath;
   static bool _isInitialized = false;
-  static bool _enabled = true;
-  
-  /// Включено ли логирование
-  static bool get enabled => _enabled;
-  
-  /// Включить/выключить логирование
-  static set enabled(bool value) {
-    _enabled = value;
-  }
+  static bool enabled = true;
 
   /// Инициализация логирования
   /// 
@@ -79,7 +71,7 @@ class LogManager {
   /// [level] - уровень логирования (INFO, WARNING, ERROR)
   /// [message] - сообщение для записи
   static void log(LogLevel level, String message) {
-    if (!_enabled) return;
+    if (!enabled) return;
     
     final timestamp = DateTime.now().toIso8601String();
     final logMessage = '$timestamp: ${level.name}: $message';

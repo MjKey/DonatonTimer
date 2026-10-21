@@ -10,7 +10,7 @@ class StyleGeneratorService {
 
   /// Converts a Flutter Color to a CSS rgba string.
   static String colorToRgba(Color color) {
-    return 'rgba(${color.red}, ${color.green}, ${color.blue}, ${(color.alpha / 255).toStringAsFixed(2)})';
+    return 'rgba(${(color.r * 255.0).round().clamp(0, 255)}, ${(color.g * 255.0).round().clamp(0, 255)}, ${(color.b * 255.0).round().clamp(0, 255)}, ${(color.a).toStringAsFixed(2)})';
   }
 
   /// Gets Google Fonts import URL for the font family.
@@ -489,25 +489,4 @@ ${generateCSS(style).split('\n').map((line) => '    $line').join('\n')}
   ];
 
   /// Gets CSS keyframes for separator animations.
-  static String _getSeparatorAnimationKeyframes(String animationType) {
-    switch (animationType) {
-      case 'blink':
-        return '''@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}''';
-      case 'fade':
-        return '''@keyframes fade {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}''';
-      case 'pulse':
-        return '''@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.2); opacity: 0.8; }
-}''';
-      default:
-        return '';
-    }
-  }
 }
