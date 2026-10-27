@@ -1,55 +1,67 @@
-# ── AI / Personal helper files ──────────────────────────────────────────────
+# Local project notes.
 PROJECT_CONTEXT.md
-.gitignore
-# ── Flutter / Dart ───────────────────────────────────────────────────────────
-# Build outputs
-build/
+
+# Dart and Flutter caches and build output.
 .dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
 .packages
 .pub-cache/
 .pub/
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+coverage/
+*.dill
+app.*.symbols
+app.*.map.json
 
-# Generated files
+# Generated Dart files.
 *.g.dart
 *.freezed.dart
 *.mocks.dart
 
-# Coverage
-coverage/
+# Keep pubspec.lock versioned for reproducible application builds.
 
-# ── Windows ──────────────────────────────────────────────────────────────────
+# Generated Windows Flutter files and Visual Studio local state.
+windows/flutter/ephemeral/
 windows/flutter/generated_plugin_registrant.cc
 windows/flutter/generated_plugin_registrant.h
 windows/flutter/generated_plugins.cmake
-windows/flutter/ephemeral/
-
-# ── IDE ──────────────────────────────────────────────────────────────────────
-.idea/
-.vscode/
-*.iml
-*.ipr
-*.iws
+.vs/
 *.suo
 *.user
 *.userosscache
 *.sln.docstates
 
-# ── OS ───────────────────────────────────────────────────────────────────────
+# Local IDE settings.
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Inno Setup installer output and compiled executables.
+/Output/
+installer/
+*.exe
+
+# Runtime files and local configuration.
+/sound/
+*.log
+logs/
+logs.txt
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# OS and editor temporary files.
+.DS_Store
+.AppleDouble
+.LSOverride
 Thumbs.db
 ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
-.DS_Store
-.AppleDouble
-.LSOverride
-
-# ── Logs ─────────────────────────────────────────────────────────────────────
-*.log
-logs/
-logs.txt
-
-# ── Installer and large binaries ──────────────────────────────────────────────
-installer/
-*.exe
+*.swp
+*.swo
+*~
