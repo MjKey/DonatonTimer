@@ -1,304 +1,399 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:web_socket_channel/web_socket_channel.dart';
+
+import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+
 import '../models/donation.dart';
 import 'donation_service_adapter.dart';
 import 'log_manager.dart';
 
-/// Адаптер для DonationAlerts.
-/// Использует WebSocket с протоколом Socket.IO v2.
+/// Receives donations via Centrifugo v2 using widget token authentication.
 class DonationAlertsAdapter extends BaseDonationServiceAdapter {
-  // Available socket servers
-  static const List<String> availableSockets = [
-    'socket5',
-    'socket',
-    'socket1',
-    'socket2',
-    'socket3',
-    'socket4',
-  ];
-  
-  // Available domains
-  static const List<String> availableDomains = [
-    'com',
-    'ru',
-  ];
-  
+  DonationAlertsAdapter({
+    http.Client? httpClient,
+    WebSocketChannel Function(Uri)? socketConnector,
+  }) : _httpClient = httpClient ?? http.Client(),
+       _socketConnector = socketConnector ?? WebSocketChannel.connect;
+
+  static const availableDomains = ['com', 'ru'];
+  static final _socketUri = Uri.parse(
+    'wss://centrifugo.donationalerts.com/connection/websocket',
+  );
+  static const _timeout = Duration(seconds: 15);
+  static const _maxReconnectAttempts = 10;
+
+  final http.Client _httpClient;
   final Logger _logger = Logger('DonationAlertsAdapter');
-  
+  final WebSocketChannel Function(Uri) _socketConnector;
+  final _pending = <int, _PendingRequest>{};
   WebSocketChannel? _channel;
   StreamSubscription? _subscription;
-  String? _token;
-  String _socketServer = 'socket5';
-  String _domain = 'com';
   Timer? _pingTimer;
+  Timer? _sessionTimer;
   Timer? _reconnectTimer;
+  String _widgetToken = '';
+  String _domain = 'com';
+  String? _donationChannel;
+  bool _active = false;
+  int _generation = 0;
+  int _requestId = 0;
   int _reconnectAttempts = 0;
-  static const int _maxReconnectAttempts = 10;
-  static const Duration _reconnectDelay = Duration(seconds: 5);
-  static const Duration _pingInterval = Duration(seconds: 25);
-  
-  String get _wsUrl => 'wss://$_socketServer.donationalerts.$_domain/socket.io/?EIO=3&transport=websocket';
-  
+  DateTime? _sessionExpiresAt;
+
   @override
   String get serviceName => 'DonationAlerts';
-  
-  /// Extracts token from URL or returns the input if it's already a token.
-  /// Supports: https://www.donationalerts.com/widget/alerts?group_id=1&token=XXX
-  /// and https://www.donationalerts.ru/widget/alerts?group_id=1&token=XXX
+
+  /// Accepts either a token or a full widget URL.
   static String extractToken(String input) {
-    if (input.contains('token=')) {
-      final uri = Uri.tryParse(input);
-      if (uri != null) {
-        final token = uri.queryParameters['token'];
-        if (token != null && token.isNotEmpty) {
-          return token;
-        }
-      }
-    }
-    return input;
+    final value = input.trim();
+    return Uri.tryParse(value)?.queryParameters['token'] ?? value;
   }
-  
+
   @override
   Future<void> connect(Map<String, dynamic> config) async {
-    final rawToken = config['token'] as String?;
-    _token = rawToken != null ? extractToken(rawToken) : null;
-    _socketServer = config['socketServer'] as String? ?? 'socket5';
+    final disconnecting = disconnect();
+    final generation = _generation;
+    await disconnecting;
+    if (generation != _generation) throw StateError('Подключение отменено');
+    _widgetToken = extractToken(config['token'] as String? ?? '');
     _domain = config['domain'] as String? ?? 'com';
-    
-    if (_token == null || _token!.isEmpty) {
-      _logger.warning('Token is required for DonationAlerts connection');
-      LogManager.warning('DonationAlerts: токен не указан');
+    if (_widgetToken.isEmpty || !availableDomains.contains(_domain)) {
       updateStatus(ConnectionStatus.error);
-      return;
+      throw ArgumentError('DonationAlerts: проверьте токен и домен');
     }
-    
-    updateStatus(ConnectionStatus.connecting);
-    _logger.info('Connecting to DonationAlerts via $_socketServer.donationalerts.$_domain...');
-    LogManager.info('DonationAlerts: подключение через $_socketServer.donationalerts.$_domain...');
-    
-    await _initWebSocket();
-  }
-  
-  Future<void> _initWebSocket() async {
-    try {
-      _channel = WebSocketChannel.connect(Uri.parse(_wsUrl));
-      LogManager.info('DonationAlerts: WebSocket создан ($_socketServer.donationalerts.$_domain)');
-      
-      _subscription = _channel!.stream.listen(
-        _handleMessage,
-        onError: (error) {
-          _logger.severe('WebSocket error: $error');
-          LogManager.error('DonationAlerts: ошибка WebSocket - $error');
-          updateStatus(ConnectionStatus.error);
-          _scheduleReconnect();
-        },
-        onDone: () {
-          _logger.warning('WebSocket connection closed');
-          LogManager.warning('DonationAlerts: соединение закрыто');
-          if (status != ConnectionStatus.disconnected) {
-            updateStatus(ConnectionStatus.reconnecting);
-            _scheduleReconnect();
-          }
-        },
-      );
-      
-    } catch (e, stackTrace) {
-      _logger.severe('Error connecting to DonationAlerts: $e\n$stackTrace');
-      LogManager.error('DonationAlerts: ошибка подключения - $e');
-      updateStatus(ConnectionStatus.error);
-      _scheduleReconnect();
-    }
-  }
-
-
-  void _handleMessage(dynamic message) {
-    final data = message.toString();
-    _logger.fine('Received: $data');
-    
-    // Socket.IO v2 ping/pong: server sends "2", client responds "3"
-    if (data == '2') {
-      _channel?.sink.add('3');
-      return;
-    }
-    
-    // Initial handshake: 0{"sid":...}
-    if (data.startsWith('0{')) {
-      _logger.info('Received handshake, sending connect');
-      LogManager.info('DonationAlerts: handshake получен');
-      // Send connect packet (type 40 in Socket.IO)
-      _channel?.sink.add('40');
-      return;
-    }
-    
-    // Connect acknowledgment: 40 or 40{...}
-    if (data == '40' || data.startsWith('40{')) {
-      _logger.info('Connected to Socket.IO namespace');
-      LogManager.info('DonationAlerts: namespace подключён, отправка токена...');
-      // Send authentication with token
-      _sendAuth();
-      return;
-    }
-    
-    // Message packet: 42[...]
-    if (data.startsWith('42')) {
-      _handleEventMessage(data);
-      return;
-    }
-    
-    // Ack packet: 43[...]
-    if (data.startsWith('43')) {
-      _logger.info('Received ack: $data');
-      return;
-    }
-  }
-  
-  void _sendAuth() {
-    // DonationAlerts expects add-user event with token
-    final authMessage = '42["add-user",{"token":"$_token","type":"minor"}]';
-    _channel?.sink.add(authMessage);
-    _logger.info('Sent auth token');
-    LogManager.info('DonationAlerts: токен отправлен');
-    
-    // Consider connected after sending auth
-    updateStatus(ConnectionStatus.connected);
+    // Keep accepting the legacy socketServer setting, but use Centrifugo
+    // to receive donations regardless of its saved value.
+    _active = true;
     _reconnectAttempts = 0;
-    _startPingTimer();
-    LogManager.info('DonationAlerts: подключено успешно');
-  }
-  
-  void _startPingTimer() {
-    // Socket.IO v2: server sends ping "2", client responds with pong "3"
-    // We don't need to send pings ourselves - just respond to server pings
-    // The _handleMessage already handles this with the "2" -> "3" response
-    _pingTimer?.cancel();
-    // Keep timer reference for cleanup, but don't send anything
-    // Server will ping us and we respond in _handleMessage
-  }
-  
-  void _handleEventMessage(String data) {
+    updateStatus(ConnectionStatus.connecting);
     try {
-      // Remove "42" prefix and parse JSON array
-      final jsonStr = data.substring(2);
-      final arr = json.decode(jsonStr) as List;
-      
-      if (arr.isEmpty) return;
-      
-      final eventName = arr[0] as String;
-      _logger.info('Event: $eventName');
-      
-      if (eventName == 'donation' && arr.length > 1) {
-        _handleDonation(arr[1]);
-      }
-    } catch (e) {
-      _logger.warning('Error parsing event: $e');
-    }
-  }
-  
-  void _handleDonation(dynamic data) {
-    try {
-      Map<String, dynamic> donationData;
-      
-      if (data is String) {
-        donationData = json.decode(data) as Map<String, dynamic>;
-      } else if (data is Map) {
-        donationData = Map<String, dynamic>.from(data);
-      } else {
-        _logger.warning('Unknown donation data format: ${data.runtimeType}');
-        return;
-      }
-      
-      final alertType = _parseIntField(donationData['alert_type']);
-      final isShown = _parseIntField(donationData['is_shown']);
-      final currency = donationData['currency'] as String? ?? '';
-      
-      // alert_type == 1 means donation, is_shown == 0 means not yet displayed
-      if (alertType != 1 || isShown != 0) {
-        _logger.info('Skipping: alert_type=$alertType, is_shown=$isShown');
-        return;
-      }
-      
-      // Валюта больше не фильтруется здесь, это делает DonationService
-      
-      final id = donationData['id']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString();
-      final username = donationData['username'] as String? ?? 'Anonymous';
-      final amount = _parseDoubleField(donationData['amount']);
-      final donationMessage = donationData['message'] as String?;
-      
-      final donation = Donation(
-        id: '${serviceName}_$id',
-        serviceName: serviceName,
-        username: username,
-        amount: amount,
-        currency: currency,
-        message: donationMessage,
-        timestamp: DateTime.now(),
+      await _openSession(generation);
+    } catch (error) {
+      _connectionLost(
+        generation,
+        'ошибка подключения: $error',
+        retry: error is! _ApiFailure || !error.requiresNewToken,
       );
-      
-      _logger.info('Donation: $username - $amount $currency');
-      LogManager.info('DonationAlerts: донат от $username - $amount $currency');
-      emitDonation(donation);
-      
-    } catch (e, stackTrace) {
-      _logger.severe('Error processing donation: $e\n$stackTrace');
-      LogManager.error('DonationAlerts: ошибка обработки доната - $e');
+      rethrow;
     }
   }
-  
-  int _parseIntField(dynamic value) {
-    if (value == null) return 0;
-    if (value is int) return value;
-    if (value is String) return int.tryParse(value) ?? 0;
-    return 0;
+
+  bool _isCurrent(int generation) => _active && generation == _generation;
+
+  void _checkSession(int generation) {
+    if (!_isCurrent(generation)) throw StateError('Подключение отменено');
   }
-  
-  double _parseDoubleField(dynamic value) {
-    if (value == null) return 0.0;
-    if (value is double) return value;
-    if (value is int) return value.toDouble();
-    if (value is String) return double.tryParse(value) ?? 0.0;
-    return 0.0;
-  }
-  
-  void _scheduleReconnect() {
-    if (_reconnectAttempts >= _maxReconnectAttempts) {
-      _logger.severe('Max reconnect attempts reached');
-      LogManager.error('DonationAlerts: превышено число попыток переподключения');
-      updateStatus(ConnectionStatus.error);
-      return;
+
+  Future<Map<String, dynamic>> _api(
+    String path, {
+    String? bearer,
+    Map<String, String>? query,
+    Map<String, dynamic>? body,
+  }) async {
+    final uri = Uri.https('www.donationalerts.$_domain', '/api/v1$path', query);
+    final headers = <String, String>{
+      if (bearer != null) 'Authorization': 'Bearer $bearer',
+      if (body != null) 'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+    late http.Response response;
+    try {
+      response =
+          await (body == null
+                  ? _httpClient.get(uri, headers: headers)
+                  : _httpClient.post(
+                      uri,
+                      headers: headers,
+                      body: jsonEncode(body),
+                    ))
+              .timeout(_timeout);
+    } catch (error) {
+      // Omit the request URI and HTTP exception because they may contain a token.
+      throw StateError('API $path: ${error.runtimeType}');
     }
-    
-    _reconnectTimer?.cancel();
-    _reconnectTimer = Timer(_reconnectDelay * (_reconnectAttempts + 1), () {
-      _reconnectAttempts++;
-      _logger.info('Reconnect attempt #$_reconnectAttempts');
-      LogManager.info('DonationAlerts: попытка переподключения #$_reconnectAttempts');
-      updateStatus(ConnectionStatus.reconnecting);
-      _initWebSocket();
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw _ApiFailure(path, response.statusCode);
+    }
+    dynamic decoded;
+    try {
+      decoded = jsonDecode(response.body);
+    } catch (_) {
+      throw StateError('API $path: ответ не в формате JSON');
+    }
+    if (decoded is! Map<String, dynamic>) {
+      throw StateError('API $path: некорректный ответ');
+    }
+    final code = int.tryParse(decoded['code'].toString());
+    // The widget API returns errors, including invalid tokens, with HTTP 202.
+    if ((code != null && code != 0) || decoded['success'] == false) {
+      throw _ApiFailure(path, response.statusCode, code: code);
+    }
+    return decoded;
+  }
+
+  Future<void> _openSession(int generation) async {
+    LogManager.info('DonationAlerts: авторизация виджета для Centrifugo...');
+    final session = await _api('/token/widget', query: {'token': _widgetToken});
+    _checkSession(generation);
+    final apiToken = session['data']['token'] as String;
+    final profile = await _api('/user/widget', bearer: apiToken);
+    _checkSession(generation);
+    final user = profile['data'] as Map<String, dynamic>;
+    final userId = user['id'];
+    final connectionToken = user['socket_connection_token'] as String;
+    if (userId == null || connectionToken.isEmpty) {
+      throw StateError('В профиле нет данных для подключения Centrifugo');
+    }
+    final channelName = '\$alerts:donation_$userId';
+    _donationChannel = channelName;
+    _sessionExpiresAt = null;
+
+    final channel = _socketConnector(_socketUri);
+    _channel = channel;
+    _subscription = channel.stream.listen(
+      (message) {
+        if (_isCurrent(generation)) _handleMessage(message);
+      },
+      onError: (_) => _connectionLost(generation, 'ошибка WebSocket'),
+      onDone: () => _connectionLost(
+        generation,
+        'WebSocket закрыт (код ${channel.closeCode})',
+      ),
+    );
+    await channel.ready.timeout(_timeout);
+    _checkSession(generation);
+    final connection = await _rpc({'token': connectionToken});
+    _checkSession(generation);
+    final clientId = connection['client'] as String;
+    _scheduleSessionRenewal(connection, generation);
+
+    final authorization = await _api(
+      '/centrifuge/subscribe',
+      bearer: apiToken,
+      body: {
+        'client': clientId,
+        'channels': [channelName],
+      },
+    );
+    _checkSession(generation);
+    final channels = authorization['channels'] as List;
+    final authorized = channels.cast<Map<String, dynamic>>().firstWhere(
+      (entry) => entry['channel'] == channelName,
+    );
+    final subscribed = await _rpc({
+      'channel': channelName,
+      'token': authorized['token'] as String,
+    }, method: 1);
+    _checkSession(generation);
+    _scheduleSessionRenewal(subscribed, generation);
+    _reconnectAttempts = 0;
+    updateStatus(ConnectionStatus.connected);
+    LogManager.info('DonationAlerts: подписка подтверждена: $channelName');
+    _pingTimer = Timer.periodic(const Duration(seconds: 25), (_) async {
+      try {
+        await _rpc({}, method: 7);
+      } catch (_) {
+        _connectionLost(generation, 'нет ответа на ping');
+      }
     });
   }
-  
+
+  Future<Map<String, dynamic>> _rpc(
+    Map<String, dynamic> params, {
+    int? method,
+  }) async {
+    final id = ++_requestId;
+    final request = _PendingRequest(allowEmptyResult: method == 7);
+    final channel = _channel;
+    if (channel == null) throw StateError('WebSocket не подключён');
+    _pending[id] = request;
+    try {
+      channel.sink.add(
+        jsonEncode({'id': id, 'method': ?method, 'params': params}),
+      );
+      return await request.reply.future.timeout(_timeout);
+    } finally {
+      _pending.remove(id);
+    }
+  }
+
+  void _handleMessage(dynamic message) {
+    final raw = message is List<int>
+        ? utf8.decode(message, allowMalformed: true)
+        : message.toString();
+    // Centrifugo v2 may batch multiple JSON commands separated by newlines.
+    for (final line in const LineSplitter().convert(raw)) {
+      if (line.trim().isEmpty) continue;
+      try {
+        final packet = jsonDecode(line) as Map<String, dynamic>;
+        _logger.fine(() => 'DonationAlerts ← ${jsonEncode(packet)}');
+        final id = packet['id'];
+        if (id != null) {
+          final request = _pending.remove(id);
+          if (request == null) continue;
+          final reply = request.reply;
+          final error = packet['error'];
+          if (error != null) {
+            reply.completeError(StateError('Centrifugo: код ${error['code']}'));
+          } else if (packet['result'] is Map) {
+            reply.complete(Map<String, dynamic>.from(packet['result'] as Map));
+          } else if (request.allowEmptyResult && packet['result'] == null) {
+            // Centrifugo 2.5 acknowledges pings with a packet containing only id.
+            reply.complete({});
+          } else {
+            reply.completeError(StateError('Centrifugo: ответ без result'));
+          }
+          continue;
+        }
+        final result = packet['result'];
+        if (result is! Map || result['channel'] != _donationChannel) continue;
+        if (result['type'] != null && result['type'] != 0) continue;
+        final publication = result['data'];
+        if (publication is Map && publication['data'] is Map) {
+          _handleDonation(
+            Map<String, dynamic>.from(publication['data'] as Map),
+          );
+        }
+      } catch (_) {
+        LogManager.warning('DonationAlerts: некорректное сообщение Centrifugo');
+      }
+    }
+  }
+
+  void _handleDonation(Map<String, dynamic> data) {
+    // The donation channel identifies the event type; alert_type is not provided.
+    if (data['is_shown']?.toString() == '1') return;
+    final id = data['id']?.toString();
+    final amount = double.tryParse(data['amount'].toString());
+    final currency = data['currency'] as String? ?? '';
+    if (id == null ||
+        amount == null ||
+        !amount.isFinite ||
+        amount < 0 ||
+        currency.isEmpty) {
+      LogManager.warning('DonationAlerts: в донате нет id, суммы или валюты');
+      return;
+    }
+    final donation = Donation(
+      id: '${serviceName}_$id',
+      serviceName: serviceName,
+      username: data['username'] as String? ?? 'Anonymous',
+      amount: amount,
+      currency: currency,
+      message: data['message'] as String?,
+      timestamp: DateTime.now(),
+    );
+    LogManager.info(
+      'DonationAlerts: донат от ${donation.username} - $amount $currency',
+    );
+    emitDonation(donation);
+  }
+
+  void _scheduleSessionRenewal(Map<String, dynamic> result, int generation) {
+    final ttl = result['ttl'];
+    if (result['expires'] != true || ttl is! num || ttl <= 0) return;
+    final renewAt = DateTime.now().add(
+      Duration(seconds: ttl.toInt() > 30 ? ttl.toInt() - 30 : 1),
+    );
+    if (_sessionExpiresAt != null && !renewAt.isBefore(_sessionExpiresAt!)) {
+      return;
+    }
+    _sessionExpiresAt = renewAt;
+    _sessionTimer?.cancel();
+    _sessionTimer = Timer(renewAt.difference(DateTime.now()), () {
+      _connectionLost(generation, 'обновление срока авторизации');
+    });
+  }
+
+  void _connectionLost(int generation, String reason, {bool retry = true}) {
+    if (!_isCurrent(generation)) return;
+    // Immediately invalidate stale HTTP responses and socket callbacks.
+    final nextGeneration = ++_generation;
+    LogManager.warning('DonationAlerts: $reason');
+    unawaited(_closeSocket());
+    if (!retry || _reconnectAttempts >= _maxReconnectAttempts) {
+      _active = false;
+      updateStatus(ConnectionStatus.error);
+      if (retry) {
+        LogManager.error(
+          'DonationAlerts: превышено число попыток переподключения',
+        );
+      }
+      return;
+    }
+    updateStatus(ConnectionStatus.reconnecting);
+    final attempt = ++_reconnectAttempts;
+    _reconnectTimer = Timer(Duration(seconds: 5 * attempt), () async {
+      if (!_isCurrent(nextGeneration)) return;
+      LogManager.info('DonationAlerts: попытка переподключения #$attempt');
+      try {
+        await _openSession(nextGeneration);
+      } catch (error) {
+        _connectionLost(
+          nextGeneration,
+          'ошибка подключения: $error',
+          retry: error is! _ApiFailure || !error.requiresNewToken,
+        );
+      }
+    });
+  }
+
+  Future<void> _closeSocket() async {
+    _pingTimer?.cancel();
+    _sessionTimer?.cancel();
+    final subscription = _subscription;
+    final channel = _channel;
+    _subscription = null;
+    _channel = null;
+    for (final request in _pending.values) {
+      request.reply.completeError(StateError('WebSocket отключён'));
+    }
+    _pending.clear();
+    await subscription?.cancel();
+    try {
+      await channel?.sink.close().timeout(const Duration(seconds: 2));
+    } catch (_) {
+      // The server may have already closed the connection.
+    }
+  }
+
   @override
   Future<void> disconnect() async {
-    _logger.info('Disconnecting from DonationAlerts...');
-    LogManager.info('DonationAlerts: отключение...');
-    updateStatus(ConnectionStatus.disconnected);
-    
-    _pingTimer?.cancel();
+    _active = false;
+    _generation++;
     _reconnectTimer?.cancel();
-    await _subscription?.cancel();
-    await _channel?.sink.close();
-    
-    _channel = null;
-    _subscription = null;
-    _logger.info('Disconnected from DonationAlerts');
-    LogManager.info('DonationAlerts: отключено');
+    await _closeSocket();
+    _donationChannel = null;
+    updateStatus(ConnectionStatus.disconnected);
   }
-  
+
   @override
   Future<void> dispose() async {
-    await disconnect();
     await super.dispose();
+    _httpClient.close();
   }
+}
+
+class _PendingRequest {
+  _PendingRequest({required this.allowEmptyResult});
+
+  final bool allowEmptyResult;
+  final reply = Completer<Map<String, dynamic>>();
+}
+
+class _ApiFailure implements Exception {
+  const _ApiFailure(this.path, this.status, {this.code});
+
+  final String path;
+  final int status;
+  final int? code;
+
+  bool get requiresNewToken => code == 1001 || status == 401 || status == 403;
+
+  @override
+  String toString() => requiresNewToken
+      ? 'API $path: требуется актуальный токен виджета (HTTP $status, код $code)'
+      : 'API $path: HTTP $status, код $code';
 }

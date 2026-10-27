@@ -140,6 +140,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
   // DonationAlerts controllers
   final _daTokenController = TextEditingController();
   bool _daEnabled = false;
+  // Preserve the legacy value for compatibility with settings in older versions.
   String _daSocketServer = 'socket5';
   String _daDomain = 'com';
   bool _daTokenVisible = false;
@@ -200,15 +201,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
   final _sbTypeController = TextEditingController();
   final _sbAmountController = TextEditingController();
 
-  // Available socket servers and domains for DonationAlerts
-  static const List<String> _socketServers = [
-    'socket5',
-    'socket',
-    'socket1',
-    'socket2',
-    'socket3',
-    'socket4',
-  ];
+  // Available API domains for DonationAlerts
   static const List<String> _daDomains = [
     'com',
     'ru',
@@ -508,31 +501,6 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
                   setState(() => _daDomain = value);
                 }
               },
-            ),
-            const SizedBox(height: 16),
-
-            // Socket server dropdown
-            Text('${localization.tr('socket_server')}:'),
-            const SizedBox(height: 8),
-            DropdownButton<String>(
-              value: _daSocketServer,
-              isExpanded: true,
-              items: _socketServers.map((socket) {
-                return DropdownMenuItem(
-                  value: socket,
-                  child: Text('$socket.donationalerts.$_daDomain'),
-                );
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() => _daSocketServer = value);
-                }
-              },
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Если донаты не приходят - попробуйте другой сокет',
-              style: const TextStyle(fontSize: 10, color: Colors.grey),
             ),
             const SizedBox(height: 16),
 

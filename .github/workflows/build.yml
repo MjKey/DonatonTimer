@@ -30,6 +30,9 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
+      - name: Run tests
+        run: flutter test --reporter expanded
+
       - name: Build Windows executable
         run: flutter build windows --release
 
