@@ -206,5 +206,14 @@
   "tooltip_language": "Switch language",
   "tooltip_theme": "Switch theme",
   "cloudtips_link_label": "CloudTips widget link",
-  "cloudtips_link_hint": "Paste your link from stream.cloudtips.ru/n/... — the token will be extracted automatically"
+  "cloudtips_link_hint": "Paste your link from stream.cloudtips.ru/n/... — the token will be extracted automatically",
+  "app_ui_style": "Application UI style",
+  "app_ui_style_retro": "Retro (version 3)",
+  "app_ui_style_classic": "Classic (version 2)",
+  "app_ui_style_description": "Choose the pixel interface from v3 or the familiar Material look from v2. This changes the application only, not the OBS overlay.",
+  "app_theme_mode": "Color theme",
+  "app_theme_system": "System",
+  "app_theme_light": "Light",
+  "app_theme_dark": "Dark",
+  "appearance_saved_hint": "Changes apply immediately and are saved automatically."
 }

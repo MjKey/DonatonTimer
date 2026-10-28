@@ -206,5 +206,14 @@
   "tooltip_language": "Сменить язык",
   "tooltip_theme": "Сменить тему",
   "cloudtips_link_label": "Ссылка на виджет CloudTips",
-  "cloudtips_link_hint": "Скопируйте ссылку из stream.cloudtips.ru/n/... — токен будет извлечён автоматически"
+  "cloudtips_link_hint": "Скопируйте ссылку из stream.cloudtips.ru/n/... — токен будет извлечён автоматически",
+  "app_ui_style": "Стиль интерфейса приложения",
+  "app_ui_style_retro": "Ретро (версия 3)",
+  "app_ui_style_classic": "Классический (версия 2)",
+  "app_ui_style_description": "Выберите пиксельный интерфейс v3 или привычное оформление Material из v2. Меняется только приложение, оформление OBS-оверлея остаётся прежним.",
+  "app_theme_mode": "Цветовая тема",
+  "app_theme_system": "Системная",
+  "app_theme_light": "Светлая",
+  "app_theme_dark": "Тёмная",
+  "appearance_saved_hint": "Изменения применяются сразу и сохраняются автоматически."
 }

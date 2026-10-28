@@ -12,6 +12,8 @@ import '../services/log_manager.dart';
 import '../services/web_server_service.dart';
 import '../models/service_config.dart';
 import '../models/app_settings.dart';
+import '../widgets/app_widgets.dart';
+import 'appearance_settings_tab.dart';
 
 /// Экран настроек с вкладками для сервисов, таймера и звуков.
 class SettingsScreen extends StatefulWidget {
@@ -37,7 +39,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // Header
             Row(
               children: [
-                NesButton.icon(
+                AppButton.icon(
                   type: NesButtonType.normal,
                   icon: NesIcons.leftArrowIndicator,
                   onPressed: () => Navigator.of(context).pop(),
@@ -67,47 +69,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildTabButtons(LocalizationProvider localization) {
-    return Row(
+    final tabs = ['services', 'timer', 'sounds', 'data', 'appearance'];
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
       children: [
-        Expanded(
-          child: NesButton.text(
-            type: _selectedTabIndex == 0
+        for (var index = 0; index < tabs.length; index++)
+          AppButton.text(
+            type: _selectedTabIndex == index
                 ? NesButtonType.primary
                 : NesButtonType.normal,
-            text: localization.tr('services'),
-            onPressed: () => setState(() => _selectedTabIndex = 0),
+            text: localization.tr(tabs[index]),
+            onPressed: () => setState(() => _selectedTabIndex = index),
           ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: NesButton.text(
-            type: _selectedTabIndex == 1
-                ? NesButtonType.primary
-                : NesButtonType.normal,
-            text: localization.tr('timer'),
-            onPressed: () => setState(() => _selectedTabIndex = 1),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: NesButton.text(
-            type: _selectedTabIndex == 2
-                ? NesButtonType.primary
-                : NesButtonType.normal,
-            text: localization.tr('sounds'),
-            onPressed: () => setState(() => _selectedTabIndex = 2),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: NesButton.text(
-            type: _selectedTabIndex == 3
-                ? NesButtonType.primary
-                : NesButtonType.normal,
-            text: localization.tr('data'),
-            onPressed: () => setState(() => _selectedTabIndex = 3),
-          ),
-        ),
       ],
     );
   }
@@ -122,6 +96,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return const SoundsSettingsTab();
       case 3:
         return const DataSettingsTab();
+      case 4:
+        return const AppearanceSettingsTab();
       default:
         return const ServicesSettingsTab();
     }
@@ -329,7 +305,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
     await donationService.updateServiceConfig(config);
 
     if (mounted) {
-      NesSnackbar.show(
+      AppSnackbar.show(
         context,
         text: '$serviceName OK!',
         type: NesSnackbarType.success,
@@ -433,7 +409,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
 
   Widget _buildDonationAlertsSection(LocalizationProvider localization) {
     final status = _getAdapterStatus('DonationAlerts');
-    return NesContainer(
+    return AppPanel(
       label: localization.tr('donation_alerts'),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -443,7 +419,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
             // Enable checkbox + status indicator
             Row(
               children: [
-                NesCheckBox(
+                AppCheckBox(
                   value: _daEnabled,
                   onChange: (value) => setState(() => _daEnabled = value),
                 ),
@@ -537,7 +513,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
             const SizedBox(height: 16),
 
             // Save button
-            NesButton.text(
+            AppButton.text(
               type: NesButtonType.success,
               text: localization.tr('save'),
               onPressed: () =>
@@ -555,7 +531,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
 
   Widget _buildDonatePaySection(LocalizationProvider localization) {
     final status = _getAdapterStatus('DonatePay');
-    return NesContainer(
+    return AppPanel(
       label: localization.tr('donate_pay'),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -565,7 +541,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
             // Enable checkbox + status indicator
             Row(
               children: [
-                NesCheckBox(
+                AppCheckBox(
                   value: _dpEnabled,
                   onChange: (value) => setState(() => _dpEnabled = value),
                 ),
@@ -607,7 +583,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
             const SizedBox(height: 16),
 
             // Save button
-            NesButton.text(
+            AppButton.text(
               type: NesButtonType.success,
               text: localization.tr('save'),
               onPressed: () => _saveServiceConfig('DonatePay', _dpEnabled, {
@@ -622,7 +598,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
 
   Widget _buildDonateStreamSection(LocalizationProvider localization) {
     final status = _getAdapterStatus('DonateStream');
-    return NesContainer(
+    return AppPanel(
       label: localization.tr('donate_stream'),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -632,7 +608,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
             // Enable checkbox + status indicator
             Row(
               children: [
-                NesCheckBox(
+                AppCheckBox(
                   value: _dsEnabled,
                   onChange: (value) => setState(() => _dsEnabled = value),
                 ),
@@ -681,7 +657,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
             const SizedBox(height: 16),
 
             // Save button
-            NesButton.text(
+            AppButton.text(
               type: NesButtonType.success,
               text: localization.tr('save'),
               onPressed: () => _saveServiceConfig('DonateStream', _dsEnabled, {
@@ -696,7 +672,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
 
   Widget _buildDonateXSection(LocalizationProvider localization) {
     final status = _getAdapterStatus('DonateX');
-    return NesContainer(
+    return AppPanel(
       label: localization.tr('donatex'),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -706,7 +682,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
             // Enable checkbox + status indicator
             Row(
               children: [
-                NesCheckBox(
+                AppCheckBox(
                   value: _dxEnabled,
                   onChange: (value) => setState(() => _dxEnabled = value),
                 ),
@@ -787,7 +763,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
             const SizedBox(height: 16),
 
             // Save button
-            NesButton.text(
+            AppButton.text(
               type: NesButtonType.success,
               text: localization.tr('save'),
               onPressed: () => _saveDonateXConfig(),
@@ -831,7 +807,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
 
   Widget _buildDonattySection(LocalizationProvider localization) {
     final status = _getAdapterStatus('Donatty');
-    return NesContainer(
+    return AppPanel(
       label: 'Donatty',
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -840,7 +816,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
           children: [
             Row(
               children: [
-                NesCheckBox(
+                AppCheckBox(
                   value: _donattyEnabled,
                   onChange: (value) => setState(() => _donattyEnabled = value),
                 ),
@@ -904,7 +880,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
             ),
             const SizedBox(height: 16),
             
-            NesButton.text(
+            AppButton.text(
               type: NesButtonType.success,
               text: localization.tr('save'),
               onPressed: () => _saveServiceConfig('Donatty', _donattyEnabled, {
@@ -920,7 +896,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
 
   Widget _buildCloudTipsSection(LocalizationProvider localization) {
     final status = _getAdapterStatus('CloudTips');
-    return NesContainer(
+    return AppPanel(
       label: 'CloudTips',
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -929,7 +905,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
           children: [
             Row(
               children: [
-                NesCheckBox(
+                AppCheckBox(
                   value: _ctEnabled,
                   onChange: (value) => setState(() => _ctEnabled = value),
                 ),
@@ -972,7 +948,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
               style: const TextStyle(fontSize: 10, color: Colors.grey),
             ),
             const SizedBox(height: 16),
-            NesButton.text(
+            AppButton.text(
               type: NesButtonType.success,
               text: localization.tr('save'),
               onPressed: () => _saveServiceConfig('CloudTips', _ctEnabled, {
@@ -987,7 +963,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
 
   Widget _buildStreamerBotSection(LocalizationProvider localization) {
     final status = _getAdapterStatus('StreamerBot');
-    return NesContainer(
+    return AppPanel(
       label: 'Streamer.bot',
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -996,7 +972,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
           children: [
             Row(
               children: [
-                NesCheckBox(
+                AppCheckBox(
                   value: _sbEnabled,
                   onChange: (value) => setState(() => _sbEnabled = value),
                 ),
@@ -1031,7 +1007,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
               style: const TextStyle(fontSize: 10, color: Colors.grey),
             ),
             const SizedBox(height: 16),
-            NesButton.text(
+            AppButton.text(
               type: NesButtonType.success,
               text: localization.tr('save'),
               onPressed: () => _saveServiceConfig('StreamerBot', _sbEnabled, {
@@ -1071,7 +1047,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
             }),
             if (_sbIsAddingMapping) ...[
               const SizedBox(height: 8),
-              NesContainer(
+              AppPanel(
                 label: localization.tr('sb_new_event'),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1107,13 +1083,13 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        NesButton.text(
+                        AppButton.text(
                           type: NesButtonType.normal,
                           text: localization.tr('sb_cancel'),
                           onPressed: () => setState(() => _sbIsAddingMapping = false),
                         ),
                         const SizedBox(width: 8),
-                        NesButton.text(
+                        AppButton.text(
                           type: NesButtonType.success,
                           text: 'ОК',
                           onPressed: () {
@@ -1140,7 +1116,7 @@ class _ServicesSettingsTabState extends State<ServicesSettingsTab> {
               ),
             ] else ...[
               const SizedBox(height: 8),
-              NesButton.text(
+              AppButton.text(
                 type: NesButtonType.normal,
                 text: localization.tr('sb_add_event'),
                 onPressed: () => setState(() => _sbIsAddingMapping = true),
@@ -1214,7 +1190,7 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
     final wsPort = int.tryParse(_wsPortController.text);
 
     if (rate == null || rate <= 0) {
-      NesSnackbar.show(
+      AppSnackbar.show(
         context,
         text: 'Invalid rate value',
         type: NesSnackbarType.error,
@@ -1223,7 +1199,7 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
     }
 
     if (timePerAmountMinutes == null || timePerAmountMinutes <= 0) {
-      NesSnackbar.show(
+      AppSnackbar.show(
         context,
         text: 'Invalid time value',
         type: NesSnackbarType.error,
@@ -1232,7 +1208,7 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
     }
 
     if (fixedTimeMinutes == null || fixedTimeMinutes <= 0) {
-      NesSnackbar.show(
+      AppSnackbar.show(
         context,
         text: 'Invalid fixed time value',
         type: NesSnackbarType.error,
@@ -1241,7 +1217,7 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
     }
 
     if (httpPort == null || httpPort < 1 || httpPort > 65535) {
-      NesSnackbar.show(
+      AppSnackbar.show(
         context,
         text: context.read<LocalizationProvider>().tr('invalid_port'),
         type: NesSnackbarType.error,
@@ -1250,7 +1226,7 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
     }
 
     if (wsPort == null || wsPort < 1 || wsPort > 65535) {
-      NesSnackbar.show(
+      AppSnackbar.show(
         context,
         text: context.read<LocalizationProvider>().tr('invalid_port'),
         type: NesSnackbarType.error,
@@ -1279,7 +1255,7 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
         );
       } catch (e) {
         if (mounted) {
-          NesSnackbar.show(
+          AppSnackbar.show(
             context,
             text: 'Ошибка запуска сервера: $e',
             type: NesSnackbarType.error,
@@ -1289,7 +1265,7 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
     }
 
     if (mounted) {
-      NesSnackbar.show(
+      AppSnackbar.show(
         context,
         text: context.read<LocalizationProvider>().tr('settings_saved'),
         type: NesSnackbarType.success,
@@ -1306,7 +1282,7 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Rate settings
-          NesContainer(
+          AppPanel(
             label: localization.tr('minutes_per_amount'),
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -1369,7 +1345,7 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
           const SizedBox(height: 16),
 
           // Fixed time & subtraction settings
-          NesContainer(
+          AppPanel(
             label: localization.tr('fixed_time_mode'),
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -1378,7 +1354,7 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
                 children: [
                   Row(
                     children: [
-                      NesCheckBox(
+                      AppCheckBox(
                         value: _isFixedTimeMode,
                         onChange: (value) =>
                             setState(() => _isFixedTimeMode = value),
@@ -1406,7 +1382,7 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
                   const SizedBox(height: 16),
                   Row(
                     children: [
-                      NesCheckBox(
+                      AppCheckBox(
                         value: _isSubtractionMode,
                         onChange: (value) =>
                             setState(() => _isSubtractionMode = value),
@@ -1422,7 +1398,7 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
           const SizedBox(height: 16),
 
           // Port settings
-          NesContainer(
+          AppPanel(
             label: localization.tr('port_settings'),
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -1468,7 +1444,7 @@ class _TimerSettingsTabState extends State<TimerSettingsTab> {
           const SizedBox(height: 16),
 
           // Save button
-          NesButton.text(
+          AppButton.text(
             type: NesButtonType.success,
             text: localization.tr('save'),
             onPressed: _saveTimerSettings,
@@ -1534,7 +1510,7 @@ class _SoundsSettingsTabState extends State<SoundsSettingsTab> {
     }
 
     if (mounted) {
-      NesSnackbar.show(
+      AppSnackbar.show(
         context,
         text: context.read<LocalizationProvider>().tr('settings_saved'),
         type: NesSnackbarType.success,
@@ -1551,7 +1527,7 @@ class _SoundsSettingsTabState extends State<SoundsSettingsTab> {
     if (mounted) {
       final soundService = context.read<SoundService?>();
       final count = soundService?.soundCount ?? 0;
-      NesSnackbar.show(
+      AppSnackbar.show(
         context,
         text:
             '${context.read<LocalizationProvider>().tr('sounds_loaded')} ($count)',
@@ -1584,7 +1560,7 @@ class _SoundsSettingsTabState extends State<SoundsSettingsTab> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          NesContainer(
+          AppPanel(
             label: localization.tr('sounds'),
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -1594,7 +1570,7 @@ class _SoundsSettingsTabState extends State<SoundsSettingsTab> {
                   // Sound enabled checkbox
                   Row(
                     children: [
-                      NesCheckBox(
+                      AppCheckBox(
                         value: _soundEnabled,
                         onChange: (value) {
                           setState(() => _soundEnabled = value);
@@ -1609,7 +1585,7 @@ class _SoundsSettingsTabState extends State<SoundsSettingsTab> {
                   // Random sound checkbox
                   Row(
                     children: [
-                      NesCheckBox(
+                      AppCheckBox(
                         value: _randomSoundEnabled,
                         onChange: _soundEnabled
                             ? (value) {
@@ -1640,7 +1616,7 @@ class _SoundsSettingsTabState extends State<SoundsSettingsTab> {
                     children: [
                       // Refresh sounds button
                       Expanded(
-                        child: NesButton.text(
+                        child: AppButton.text(
                           type: NesButtonType.normal,
                           text: localization.tr('refresh_sounds'),
                           onPressed: _soundEnabled ? _refreshSounds : null,
@@ -1649,7 +1625,7 @@ class _SoundsSettingsTabState extends State<SoundsSettingsTab> {
                       const SizedBox(width: 8),
                       // Open folder button
                       Expanded(
-                        child: NesButton.text(
+                        child: AppButton.text(
                           type: NesButtonType.normal,
                           text: localization.tr('open_folder'),
                           onPressed: _openSoundFolder,
@@ -1660,7 +1636,7 @@ class _SoundsSettingsTabState extends State<SoundsSettingsTab> {
                   const SizedBox(height: 8),
 
                   // Test sound button
-                  NesButton.text(
+                  AppButton.text(
                     type: NesButtonType.normal,
                     text: localization.tr('test_sound'),
                     onPressed: _soundEnabled && soundCount > 0
@@ -1680,7 +1656,7 @@ class _SoundsSettingsTabState extends State<SoundsSettingsTab> {
           const SizedBox(height: 16),
 
           // Save button
-          NesButton.text(
+          AppButton.text(
             type: NesButtonType.success,
             text: localization.tr('save'),
             onPressed: _saveSoundSettings,
@@ -1736,7 +1712,7 @@ class _DataSettingsTabState extends State<DataSettingsTab> {
     LogManager.enabled = _loggingEnabled;
 
     if (mounted) {
-      NesSnackbar.show(
+      AppSnackbar.show(
         context,
         text: context.read<LocalizationProvider>().tr('saved'),
         type: NesSnackbarType.success,
@@ -1747,7 +1723,7 @@ class _DataSettingsTabState extends State<DataSettingsTab> {
   Future<void> _resetStatistics(BuildContext context) async {
     final localization = context.read<LocalizationProvider>();
 
-    final confirmed = await NesConfirmDialog.show(
+    final confirmed = await AppConfirmDialog.show(
       context: context,
       message: localization.tr('reset_statistics_confirm'),
       confirmLabel: localization.tr('reset'),
@@ -1758,7 +1734,7 @@ class _DataSettingsTabState extends State<DataSettingsTab> {
       final donationService = context.read<DonationService?>();
       donationService?.clearStatistics();
 
-      NesSnackbar.show(
+      AppSnackbar.show(
         context,
         text: localization.tr('statistics_reset'),
         type: NesSnackbarType.success,
@@ -1769,7 +1745,7 @@ class _DataSettingsTabState extends State<DataSettingsTab> {
   Future<void> _resetAllSettings(BuildContext context) async {
     final localization = context.read<LocalizationProvider>();
 
-    final confirmed = await NesConfirmDialog.show(
+    final confirmed = await AppConfirmDialog.show(
       context: context,
       message: localization.tr('reset_all_confirm'),
       confirmLabel: localization.tr('reset'),
@@ -1789,7 +1765,7 @@ class _DataSettingsTabState extends State<DataSettingsTab> {
       // Reset timer
       timerProvider?.reset();
 
-      NesSnackbar.show(
+      AppSnackbar.show(
         context,
         text: localization.tr('all_reset'),
         type: NesSnackbarType.success,
@@ -1806,7 +1782,7 @@ class _DataSettingsTabState extends State<DataSettingsTab> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Currency Converter settings
-          NesContainer(
+          AppPanel(
             label: localization.tr('currency_converter'),
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -1815,7 +1791,7 @@ class _DataSettingsTabState extends State<DataSettingsTab> {
                 children: [
                   Row(
                     children: [
-                      NesCheckBox(
+                      AppCheckBox(
                         value: _enableCurrencyConversion,
                         onChange: (value) => setState(() => _enableCurrencyConversion = value),
                       ),
@@ -1848,7 +1824,7 @@ class _DataSettingsTabState extends State<DataSettingsTab> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  NesButton.text(
+                  AppButton.text(
                     type: NesButtonType.normal,
                     text: localization.tr('save'),
                     onPressed: _saveDataSettings,
@@ -1860,7 +1836,7 @@ class _DataSettingsTabState extends State<DataSettingsTab> {
           const SizedBox(height: 16),
 
           // Logging settings
-          NesContainer(
+          AppPanel(
             label: localization.tr('logging'),
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -1869,7 +1845,7 @@ class _DataSettingsTabState extends State<DataSettingsTab> {
                 children: [
                   Row(
                     children: [
-                      NesCheckBox(
+                      AppCheckBox(
                         value: _loggingEnabled,
                         onChange: (value) {
                           setState(() => _loggingEnabled = value);
@@ -1886,7 +1862,7 @@ class _DataSettingsTabState extends State<DataSettingsTab> {
                     style: const TextStyle(fontSize: 11, color: Colors.grey),
                   ),
                   const SizedBox(height: 16),
-                  NesButton.text(
+                  AppButton.text(
                     type: NesButtonType.normal,
                     text: localization.tr('save'),
                     onPressed: _saveDataSettings,
@@ -1898,7 +1874,7 @@ class _DataSettingsTabState extends State<DataSettingsTab> {
           const SizedBox(height: 16),
 
           // Statistics reset
-          NesContainer(
+          AppPanel(
             label: localization.tr('statistics'),
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -1910,7 +1886,7 @@ class _DataSettingsTabState extends State<DataSettingsTab> {
                     style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                   const SizedBox(height: 16),
-                  NesButton.text(
+                  AppButton.text(
                     type: NesButtonType.warning,
                     text: localization.tr('reset_statistics'),
                     onPressed: () => _resetStatistics(context),
@@ -1922,7 +1898,7 @@ class _DataSettingsTabState extends State<DataSettingsTab> {
           const SizedBox(height: 16),
 
           // Full reset
-          NesContainer(
+          AppPanel(
             label: localization.tr('danger_zone'),
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -1934,7 +1910,7 @@ class _DataSettingsTabState extends State<DataSettingsTab> {
                     style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                   const SizedBox(height: 16),
-                  NesButton.text(
+                  AppButton.text(
                     type: NesButtonType.error,
                     text: localization.tr('reset_all'),
                     onPressed: () => _resetAllSettings(context),
