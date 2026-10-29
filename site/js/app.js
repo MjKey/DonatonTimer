@@ -2,39 +2,43 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- 1. Tab Navigation (#hash support) ---
   const tabButtons = document.querySelectorAll('.tab-btn');
   const tabPanels = document.querySelectorAll('.tab-panel');
+  const VALID_TABS = ['overview', 'instructions', 'api', 'contributors'];
 
-  function switchTab(tabId) {
+  function switchTab(tabId, preserveHash = false) {
     if (!tabId) tabId = 'overview';
-    tabId = tabId.replace('#', '');
+    const cleanId = tabId.replace('#', '');
 
-    let found = false;
-    tabPanels.forEach(panel => {
-      if (panel.id === tabId) {
-        panel.classList.add('active');
-        found = true;
-      } else {
-        panel.classList.remove('active');
+    // Check if hash targets an in-page element (like #guide-da)
+    if (!VALID_TABS.includes(cleanId)) {
+      const inPageEl = document.getElementById(cleanId);
+      if (inPageEl) {
+        const parentPanel = inPageEl.closest('.tab-panel');
+        if (parentPanel) {
+          switchTab(parentPanel.id, true);
+          setTimeout(() => {
+            inPageEl.scrollIntoView({ behavior: 'smooth' });
+          }, 50);
+          return;
+        }
       }
-    });
-
-    if (!found) {
-      const defaultPanel = document.getElementById('overview');
-      if (defaultPanel) defaultPanel.classList.add('active');
-      tabId = 'overview';
+      // If not a recognized tab or anchor, do not reset to overview
+      return;
     }
 
-    tabButtons.forEach(btn => {
-      if (btn.dataset.tab === tabId) {
-        btn.classList.add('active');
-      } else {
-        btn.classList.remove('active');
-      }
+    tabPanels.forEach(panel => {
+      panel.classList.toggle('active', panel.id === cleanId);
     });
 
-    if (history.pushState) {
-      history.pushState(null, null, '#' + tabId);
-    } else {
-      location.hash = '#' + tabId;
+    tabButtons.forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.tab === cleanId);
+    });
+
+    if (!preserveHash) {
+      if (history.pushState) {
+        history.pushState(null, null, '#' + cleanId);
+      } else {
+        location.hash = '#' + cleanId;
+      }
     }
   }
 
@@ -45,12 +49,41 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Handle direct link with hash on initial page load
   if (window.location.hash) {
     switchTab(window.location.hash);
   }
 
+  // Handle hash changes (back/forward browser buttons or direct anchor clicks)
   window.addEventListener('hashchange', () => {
-    switchTab(window.location.hash);
+    if (window.location.hash) {
+      switchTab(window.location.hash);
+    }
+  });
+
+  // Handle Quick Jump Pills inside Instructions Tab
+  document.querySelectorAll('.service-nav-pill').forEach(pill => {
+    pill.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = pill.getAttribute('href').replace('#', '');
+      const targetEl = document.getElementById(targetId);
+      if (targetEl) {
+        // Ensure instructions tab is active
+        switchTab('instructions', true);
+
+        // Smooth scroll to the target guide
+        targetEl.scrollIntoView({ behavior: 'smooth' });
+
+        // Highlight card briefly with purple glow
+        targetEl.style.transition = 'border-color 0.3s, box-shadow 0.3s';
+        targetEl.style.borderColor = '#8b5cf6';
+        targetEl.style.boxShadow = '0 0 24px rgba(139, 92, 246, 0.45)';
+        setTimeout(() => {
+          targetEl.style.borderColor = '';
+          targetEl.style.boxShadow = '';
+        }, 1600);
+      }
+    });
   });
 
   // --- 2. Copy Code to Clipboard ---
@@ -65,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const originalHtml = btn.innerHTML;
       try {
         await navigator.clipboard.writeText(codeEl.innerText.trim());
-        btn.innerHTML = '<span>✓ Скопировано!</span>';
+        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;"><polyline points="20 6 9 17 4 12"></polyline></svg>Скопировано!';
         btn.style.color = '#34d399';
         setTimeout(() => {
           btn.innerHTML = originalHtml;
@@ -124,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (prevBtn) prevBtn.addEventListener('click', prevSlide);
     if (nextBtn) nextBtn.addEventListener('click', nextSlide);
 
-    // Keyboard support when viewport is focused / hovered
+    // Keyboard navigation when carousel is focused
     const viewport = document.getElementById('carousel-viewport');
     if (viewport) {
       viewport.addEventListener('keydown', (e) => {
@@ -184,8 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (modal && modalImg) {
     document.querySelectorAll('.carousel-slide').forEach(slide => {
-      slide.addEventListener('click', (e) => {
-        // Prevent lightbox if clicked on arrows
+      slide.addEventListener('click', () => {
         const img = slide.querySelector('img');
         if (img) {
           modalImg.src = img.src;
@@ -237,7 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const version = (data.tag_name || '').replace(/^v/, '');
       if (!version) return;
 
-      // Update version texts
+      // Update version badges and text
       document.querySelectorAll('.brand-badge, .version-text').forEach(el => {
         el.textContent = 'v' + version;
       });

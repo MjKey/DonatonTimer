@@ -179,7 +179,11 @@
           <!-- Windows Card -->
           <div class="download-card highlight" id="card-windows">
             <div class="download-card-header">
-              <div class="download-icon">🪟</div>
+              <div class="download-icon win" aria-label="Windows">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.951-1.801"/>
+                </svg>
+              </div>
               <div>
                 <div class="download-title">Версия для Windows</div>
                 <div class="download-sub">Windows 10 / 11 (64-bit)</div>
@@ -200,7 +204,11 @@
           <!-- Linux Card -->
           <div class="download-card" id="card-linux">
             <div class="download-card-header">
-              <div class="download-icon">🐧</div>
+              <div class="download-icon linux" aria-label="Linux">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C9.5 2 8 3.8 8 6.5c0 1.2.3 2.5.5 3.5-1.5.8-3 2.5-3 5 0 2.8 1.5 4.5 3.5 5.2-.2.6-.5 1.1-.9 1.4-.4.3-.8.4-1.1.4H6c-.6 0-1 .4-1 1s.4 1 1 1c1.5 0 2.7-.6 3.5-1.5.8.9 2 1.5 3.5 1.5s2.7-.6 3.5-1.5c.8.9 2 1.5 3.5 1.5.6 0 1-.4 1-1s-.4-1-1-1h-1c-.3 0-.7-.1-1.1-.4-.4-.3-.7-.8-.9-1.4 2-.7 3.5-2.4 3.5-5.2 0-2.5-1.5-4.2-3-5 .2-1 .5-2.3.5-3.5C16 3.8 14.5 2 12 2z"/>
+                </svg>
+              </div>
               <div>
                 <div class="download-title">Версия для Linux</div>
                 <div class="download-sub">x86_64 и ARM64</div>
@@ -249,11 +257,11 @@
           <div class="feature-card">
             <div class="feature-icon-box icon-cyan">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M12 2a7 7 0 0 0-7 7c0 2 2 3 2 4.5A2.5 2.5 0 0 1 4.5 16H4"></path>
-                <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                <circle cx="15.5" cy="8.5" r="1.5"></circle>
-                <circle cx="15.5" cy="15.5" r="1.5"></circle>
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.07 0 1.95-.88 1.95-1.95 0-.5-.2-.95-.53-1.29-.32-.33-.53-.78-.53-1.29 0-1.07.88-1.95 1.95-1.95h2.29c3.24 0 5.87-2.63 5.87-5.87C23 6.13 18.07 2 12 2z"></path>
+                <circle cx="6.5" cy="11.5" r="1.5" fill="currentColor"></circle>
+                <circle cx="9.5" cy="7.5" r="1.5" fill="currentColor"></circle>
+                <circle cx="14.5" cy="7.5" r="1.5" fill="currentColor"></circle>
+                <circle cx="17.5" cy="11.5" r="1.5" fill="currentColor"></circle>
               </svg>
             </div>
             <h3>CSS Генератор стилей</h3>
@@ -527,7 +535,10 @@
 
         <!-- Quick Jump Filter -->
         <div class="service-quick-nav">
-          <a href="#guide-start" class="service-nav-pill">⚡ Быстрый старт</a>
+          <a href="#guide-start" class="service-nav-pill">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            <span>Быстрый старт</span>
+          </a>
           <a href="#guide-da" class="service-nav-pill">DonationAlerts</a>
           <a href="#guide-cloudtips" class="service-nav-pill">CloudTips</a>
           <a href="#guide-donatepay" class="service-nav-pill">DonatePay</a>
@@ -538,7 +549,10 @@
           <a href="#guide-obs" class="service-nav-pill">OBS Оверлей</a>
           <a href="#guide-obs-dock" class="service-nav-pill">OBS Dok-панель</a>
           <a href="#guide-mobile" class="service-nav-pill">Смартфон</a>
-          <a href="#guide-faq" class="service-nav-pill">❓ FAQ</a>
+          <a href="#guide-faq" class="service-nav-pill">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <span>FAQ</span>
+          </a>
         </div>
 
         <!-- Step 1: Quick Start -->
@@ -729,20 +743,22 @@
         <!-- Step 12: FAQ -->
         <div class="guide-step" id="guide-faq">
           <div class="step-header">
-            <div class="step-number">?</div>
+            <div class="step-number">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            </div>
             <div class="step-title">Частые вопросы и диагностика (FAQ)</div>
           </div>
           <ul style="list-style: none; padding-left: 0;">
             <li style="margin-bottom: 16px;">
-              <strong>❓ В OBS горит чёрный экран или ошибка соединения:</strong><br>
+              <strong><span class="faq-badge">FAQ</span>В OBS горит чёрный экран или ошибка соединения:</strong><br>
               Убедитесь, что приложение DonatonTimer запущено. Проверьте в журнале приложения, не был ли занят порт <code>7575</code>. Если порт был занят, приложение автоматически пробует <code>7576</code>.
             </li>
             <li style="margin-bottom: 16px;">
-              <strong>❓ Донаты приходят в DonationAlerts, но таймер не прибавляется:</strong><br>
+              <strong><span class="faq-badge">FAQ</span>Донаты приходят в DonationAlerts, но таймер не прибавляется:</strong><br>
               Проверьте статус подключения во вкладке DonationAlerts. Если статус красный, обновите ссылку виджета оповещений и проверьте, указан ли правильный курс конвертации рублей в минуты.
             </li>
             <li style="margin-bottom: 16px;">
-              <strong>❓ Телефон не открывает панель по QR-коду:</strong><br>
+              <strong><span class="faq-badge">FAQ</span>Телефон не открывает панель по QR-коду:</strong><br>
               Проверьте брандмауэр Windows (Windows Firewall) — при первом запуске разрешите приложению доступ к частным сетям (Private Networks). Телефон и ПК должны находиться в одной локальной подсети.
             </li>
           </ul>
@@ -1059,10 +1075,12 @@ flutter pub get</code></pre>
 
           <div style="margin-top: 24px; display: flex; gap: 12px; flex-wrap: wrap;">
             <a href="https://github.com/MjKey/DonatonTimer/issues" target="_blank" rel="noopener" class="contributor-btn">
-              <span>🐛 Найти задачу в Issues</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              <span>Найти задачу в Issues</span>
             </a>
             <a href="https://github.com/MjKey/DonatonTimer/pulls" target="_blank" rel="noopener" class="contributor-btn">
-              <span>🚀 Открыть Pull Request</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"></circle><circle cx="6" cy="6" r="3"></circle><path d="M13 6h3a2 2 0 0 1 2 2v7"></path><line x1="6" y1="9" x2="6" y2="21"></line></svg>
+              <span>Открыть Pull Request</span>
             </a>
           </div>
         </div>
@@ -1083,7 +1101,7 @@ flutter pub get</code></pre>
   <footer class="site-footer">
     <div class="footer-content">
       <div style="display: flex; align-items: center; gap: 8px;">
-        <span>Разработано с ❤️ автором <strong>MjKey</strong></span>
+        <span>Разработано автором <strong>MjKey</strong></span>
         <img src="images/pepeD.gif" alt="pepeD" style="width: 20px; height: 20px;">
       </div>
       <div class="footer-links">
@@ -1091,7 +1109,7 @@ flutter pub get</code></pre>
         <span>•</span>
         <a href="https://pay.cloudtips.ru/p/cf634f74" target="_blank" rel="noopener">CloudTips</a>
         <span>•</span>
-        <a href="https://dalink.to/mjk3y" target="_blank" rel="noopener">Dalink</a>
+        <a href="https://dalink.to/mjk3y" target="_blank" rel="noopener" class="footer-link-dalink">Dalink</a>
         <span>•</span>
         <a href="https://mjkey.ru" target="_blank" rel="noopener">mjkey.ru</a>
       </div>

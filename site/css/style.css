@@ -345,7 +345,15 @@ main.main-content {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  color: var(--accent-cyan);
+}
+
+.download-icon.win {
+  color: #38bdf8;
+}
+
+.download-icon.linux {
+  color: #facc15;
 }
 
 .download-title {
@@ -804,6 +812,9 @@ table.services-table tr:last-child td {
 }
 
 .service-nav-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 0.85rem;
   font-weight: 600;
   padding: 6px 14px;
@@ -880,6 +891,19 @@ table.services-table tr:last-child td {
 
 .guide-step strong {
   color: var(--text-main);
+}
+
+.faq-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(139, 92, 246, 0.2);
+  color: #c4b5fd;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  margin-right: 8px;
+  vertical-align: middle;
 }
 
 /* CONTRIBUTORS SECTION */
