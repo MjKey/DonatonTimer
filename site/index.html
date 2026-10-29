@@ -28,11 +28,7 @@
     <div class="header-container">
       <a href="#overview" class="logo-group">
         <div class="logo-icon-wrap">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <polyline points="12 6 12 12 16 14"></polyline>
-          </svg>
-          <img src="images/pepeD.gif" alt="pepeD" class="logo-pepe">
+          <img src="images/pepeD.gif" alt="pepeD" class="logo-pepe-img">
         </div>
         <div>
           <span class="brand-name">DonatonTimer</span>
@@ -77,7 +73,7 @@
       <section class="hero-section">
         <div class="hero-pill">
           <span class="hero-pill-dot"></span>
-          <span>DonatonTimer v3.0.8 — Свежий релиз с поддержкой Linux</span>
+          <span class="hero-pill-text">DonatonTimer v3.0.8 — Свежий релиз</span>
         </div>
 
         <h1 class="hero-title">
@@ -103,11 +99,11 @@
               </div>
             </div>
             <div class="download-btn-group">
-              <a href="https://github.com/MjKey/DonatonTimer/releases/download/3.0.8/DonatonTimer_v3.0.8_Setup.exe" class="dl-btn dl-btn-primary">
+              <a href="https://github.com/MjKey/DonatonTimer/releases/download/3.0.8/DonatonTimer_v3.0.8_Setup.exe" id="dl-win-setup" class="dl-btn dl-btn-primary">
                 <span>Скачать установщик (.exe)</span>
                 <span class="dl-btn-badge">Рекомендуется</span>
               </a>
-              <a href="https://github.com/MjKey/DonatonTimer/releases/download/3.0.8/DonatonTimer_v3.0.8_Portable.zip" class="dl-btn dl-btn-secondary">
+              <a href="https://github.com/MjKey/DonatonTimer/releases/download/3.0.8/DonatonTimer_v3.0.8_Portable.zip" id="dl-win-portable" class="dl-btn dl-btn-secondary">
                 <span>Портативная версия (.zip)</span>
                 <span class="dl-btn-badge">Без установки</span>
               </a>
@@ -124,16 +120,16 @@
               </div>
             </div>
             <div class="download-btn-group">
-              <a href="https://github.com/MjKey/DonatonTimer/releases/download/3.0.8/donaton_timer-linux-x86_64.AppImage" class="dl-btn dl-btn-primary">
+              <a href="https://github.com/MjKey/DonatonTimer/releases/download/3.0.8/donaton_timer-linux-x86_64.AppImage" id="dl-linux-appimage" class="dl-btn dl-btn-primary">
                 <span>AppImage (x86_64)</span>
                 <span class="dl-btn-badge">Универсальный</span>
               </a>
             </div>
             <div class="linux-formats-pills">
-              <a href="https://github.com/MjKey/DonatonTimer/releases/download/3.0.8/donaton-timer_3.0.8_amd64.deb" class="linux-pill">.deb (Debian/Ubuntu)</a>
-              <a href="https://github.com/MjKey/DonatonTimer/releases/download/3.0.8/donaton-timer-3.0.8-2.x86_64.rpm" class="linux-pill">.rpm (Fedora/RHEL)</a>
-              <a href="https://github.com/MjKey/DonatonTimer/releases/download/3.0.8/donaton_timer-linux-x86_64.tar.gz" class="linux-pill">.tar.gz</a>
-              <a href="https://github.com/MjKey/DonatonTimer/releases/download/3.0.8/donaton_timer-linux-arm64.AppImage" class="linux-pill">ARM64 AppImage</a>
+              <a href="https://github.com/MjKey/DonatonTimer/releases/download/3.0.8/donaton-timer_3.0.8_amd64.deb" id="dl-linux-deb" class="linux-pill">.deb (Debian/Ubuntu)</a>
+              <a href="https://github.com/MjKey/DonatonTimer/releases/download/3.0.8/donaton-timer-3.0.8-2.x86_64.rpm" id="dl-linux-rpm" class="linux-pill">.rpm (Fedora/RHEL)</a>
+              <a href="https://github.com/MjKey/DonatonTimer/releases/download/3.0.8/donaton_timer-linux-x86_64.tar.gz" id="dl-linux-targz" class="linux-pill">.tar.gz</a>
+              <a href="https://github.com/MjKey/DonatonTimer/releases/download/3.0.8/donaton_timer-linux-arm64.AppImage" id="dl-linux-arm64" class="linux-pill">ARM64 AppImage</a>
             </div>
           </div>
 
@@ -152,37 +148,76 @@
         <div class="features-grid">
           
           <div class="feature-card">
-            <div class="feature-icon-box icon-purple">⚡</div>
+            <div class="feature-icon-box icon-purple">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                <polyline points="2 17 12 22 22 17"></polyline>
+                <polyline points="2 12 12 17 22 12"></polyline>
+              </svg>
+            </div>
             <h3>Мульти-сервисность</h3>
             <p>Одновременное подключение DonationAlerts, CloudTips, DonatePay, Donate.Stream, DonateX и Donatty. Ни один донат не потеряется.</p>
           </div>
 
           <div class="feature-card">
-            <div class="feature-icon-box icon-cyan">🎨</div>
+            <div class="feature-icon-box icon-cyan">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 2a7 7 0 0 0-7 7c0 2 2 3 2 4.5A2.5 2.5 0 0 1 4.5 16H4"></path>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <circle cx="15.5" cy="8.5" r="1.5"></circle>
+                <circle cx="15.5" cy="15.5" r="1.5"></circle>
+              </svg>
+            </div>
             <h3>CSS Генератор стилей</h3>
             <p>14 готовых пресетов (Cyberpunk, Matrix, Kawaii), шрифты Google Fonts, раздельные цвета для HH:MM:SS и эффектные анимации свечения.</p>
           </div>
 
           <div class="feature-card">
-            <div class="feature-icon-box icon-green">📱</div>
+            <div class="feature-icon-box icon-green">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+              </svg>
+            </div>
             <h3>Управление со смартфона</h3>
             <p>Сканируйте QR-код в приложении и меняйте время, ставьте паузу или следите за топом донатеров прямо с экрана телефона.</p>
           </div>
 
           <div class="feature-card">
-            <div class="feature-icon-box icon-pink">📺</div>
+            <div class="feature-icon-box icon-pink">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+              </svg>
+            </div>
             <h3>Dok-панель для OBS</h3>
             <p>Компактная мини-панель управления, встраиваемая прямо в интерфейс OBS Studio. Больше не нужно переключаться между окнами.</p>
           </div>
 
           <div class="feature-card">
-            <div class="feature-icon-box icon-amber">🤖</div>
+            <div class="feature-icon-box icon-amber">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="10" rx="2"></rect>
+                <circle cx="12" cy="5" r="2"></circle>
+                <path d="M12 7v4"></path>
+                <line x1="8" y1="16" x2="8" y2="16"></line>
+                <line x1="16" y1="16" x2="16" y2="16"></line>
+              </svg>
+            </div>
             <h3>Интеграция со Streamer.bot</h3>
             <p>Связывайте подписки Twitch/YouTube, баллы канала и кастомные команды с добавлением времени к таймеру через WebSocket.</p>
           </div>
 
           <div class="feature-card">
-            <div class="feature-icon-box icon-purple">💾</div>
+            <div class="feature-icon-box icon-purple">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+              </svg>
+            </div>
             <h3>Автосохранение</h3>
             <p>Таймер автоматически сохраняет состояние при закрытии. Случайное отключение питания не сорвёт ваш многочасовой марафон.</p>
           </div>
@@ -190,72 +225,121 @@
         </div>
       </section>
 
-      <!-- Screenshots Gallery -->
+      <!-- Screenshots Carousel Section -->
       <section>
         <div class="section-title-wrap">
           <div class="section-tag">Интерфейс</div>
           <h2 class="section-title">Скриншоты приложения</h2>
-          <p class="section-desc">Нажмите на любой скриншот, чтобы открыть его в полном размере.</p>
+          <p class="section-desc">Листайте скриншоты стрелками или точками. Нажмите на любой слайд для полноэкранного просмотра.</p>
         </div>
 
-        <div class="gallery-grid">
-          
-          <div class="gallery-card">
-            <div class="gallery-thumb-wrap">
-              <img src="images/donaton_timer_mainpage.png" alt="Главный экран DonatonTimer" loading="lazy">
-              <div class="gallery-overlay-hint">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
-                <span>Увеличить</span>
+        <div class="carousel-wrap">
+          <div class="carousel-viewport" id="carousel-viewport" tabindex="0">
+            <div class="carousel-track" id="carousel-track">
+              
+              <!-- Slide 1 -->
+              <div class="carousel-slide" data-index="0">
+                <div class="carousel-img-wrap">
+                  <img src="images/donaton_timer_mainpage.png" alt="Главный экран DonatonTimer" loading="lazy">
+                  <div class="gallery-overlay-hint">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                    <span>Нажмите для увеличения</span>
+                  </div>
+                </div>
+                <div class="carousel-caption">
+                  <h4>1. Главный экран</h4>
+                  <p>Управление отсчётом, статистика, последние донаты и статус подключения сервисов.</p>
+                </div>
               </div>
-            </div>
-            <div class="gallery-info">
-              <h4>Главный экран</h4>
-              <p>Управление временем, статистика, последние донаты и статус подключения.</p>
+
+              <!-- Slide 2 -->
+              <div class="carousel-slide" data-index="1">
+                <div class="carousel-img-wrap">
+                  <img src="images/donaton_timer_settings.png" alt="Окно настроек DonatonTimer" loading="lazy">
+                  <div class="gallery-overlay-hint">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                    <span>Нажмите для увеличения</span>
+                  </div>
+                </div>
+                <div class="carousel-caption">
+                  <h4>2. Настройки сервисов</h4>
+                  <p>Подключение платформ донатов, токены, курс валют и параметры оповещений.</p>
+                </div>
+              </div>
+
+              <!-- Slide 3 (New Screenshot) -->
+              <div class="carousel-slide" data-index="2">
+                <div class="carousel-img-wrap">
+                  <img src="images/donaton_timer_timer_settings.png" alt="Настройки таймера и портов" loading="lazy">
+                  <div class="gallery-overlay-hint">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                    <span>Нажмите для увеличения</span>
+                  </div>
+                </div>
+                <div class="carousel-caption">
+                  <h4>3. Параметры таймера и порты</h4>
+                  <p>Минут за сумму, режим фиксированного времени, убавление и порты HTTP/WebSocket.</p>
+                </div>
+              </div>
+
+              <!-- Slide 4 -->
+              <div class="carousel-slide" data-index="3">
+                <div class="carousel-img-wrap">
+                  <img src="images/donaton_timer_csseditor.png" alt="CSS Генератор стилей оверлея" loading="lazy">
+                  <div class="gallery-overlay-hint">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                    <span>Нажмите для увеличения</span>
+                  </div>
+                </div>
+                <div class="carousel-caption">
+                  <h4>4. Генератор стилей оверлея</h4>
+                  <p>Выбор шрифтов Google Fonts, цветов HH:MM:SS, неоновых теней и анимации для OBS.</p>
+                </div>
+              </div>
+
+              <!-- Slide 5 -->
+              <div class="carousel-slide" data-index="4">
+                <div class="carousel-img-wrap">
+                  <img src="images/ui-classic-dark.png" alt="Классический тёмный стиль v2" loading="lazy">
+                  <div class="gallery-overlay-hint">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                    <span>Нажмите для увеличения</span>
+                  </div>
+                </div>
+                <div class="carousel-caption">
+                  <h4>5. Классический стиль v2 (Тёмный)</h4>
+                  <p>Альтернативный строгий дизайн Material Design для любителей минимализма.</p>
+                </div>
+              </div>
+
+              <!-- Slide 6 -->
+              <div class="carousel-slide" data-index="5">
+                <div class="carousel-img-wrap">
+                  <img src="images/ui-appearance-classic.png" alt="Классический светлый стиль v2" loading="lazy">
+                  <div class="gallery-overlay-hint">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                    <span>Нажмите для увеличения</span>
+                  </div>
+                </div>
+                <div class="carousel-caption">
+                  <h4>6. Классический стиль v2 (Светлый)</h4>
+                  <p>Светлая тема оформления для комфортной работы при дневном освещении.</p>
+                </div>
+              </div>
+
             </div>
           </div>
 
-          <div class="gallery-card">
-            <div class="gallery-thumb-wrap">
-              <img src="images/donaton_timer_settings.png" alt="Окно настроек DonatonTimer" loading="lazy">
-              <div class="gallery-overlay-hint">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
-                <span>Увеличить</span>
-              </div>
-            </div>
-            <div class="gallery-info">
-              <h4>Настройки сервисов</h4>
-              <p>Подключение платформ донатов, токены, курс валют и порты.</p>
-            </div>
-          </div>
+          <!-- Controls -->
+          <button class="carousel-nav-btn prev" id="carousel-prev" aria-label="Предыдущий слайд">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+          <button class="carousel-nav-btn next" id="carousel-next" aria-label="Следующий слайд">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
 
-          <div class="gallery-card">
-            <div class="gallery-thumb-wrap">
-              <img src="images/donaton_timer_csseditor.png" alt="CSS Генератор стилей оверлея" loading="lazy">
-              <div class="gallery-overlay-hint">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
-                <span>Увеличить</span>
-              </div>
-            </div>
-            <div class="gallery-info">
-              <h4>Генератор стилей оверлея</h4>
-              <p>Выбор шрифтов, цветов, неоновых теней и анимации для OBS.</p>
-            </div>
-          </div>
-
-          <div class="gallery-card">
-            <div class="gallery-thumb-wrap">
-              <img src="images/ui-classic-dark.png" alt="Классический тёмный стиль" loading="lazy">
-              <div class="gallery-overlay-hint">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
-                <span>Увеличить</span>
-              </div>
-            </div>
-            <div class="gallery-info">
-              <h4>Классический стиль v2 (Тёмный)</h4>
-              <p>Альтернативный строгий дизайн Material Design для ценителей минимализма.</p>
-            </div>
-          </div>
-
+          <!-- Dots -->
+          <div class="carousel-dots" id="carousel-dots"></div>
         </div>
       </section>
 
@@ -331,10 +415,12 @@
         <p>DonatonTimer создаётся и поддерживается бесплатно с открытым исходным кодом. Ваша поддержка помогает выпускать регулярные обновления и добавлять новые функции!</p>
         <div class="support-links">
           <a href="https://pay.cloudtips.ru/p/cf634f74" target="_blank" rel="noopener" class="btn-donate btn-cloudtips">
-            <span>💚 Поддержать через CloudTips</span>
+            <img src="images/cloudtips_icon.ico" class="btn-donate-icon" alt="CloudTips">
+            <span>Поддержать через CloudTips</span>
           </a>
           <a href="https://dalink.to/mjk3y" target="_blank" rel="noopener" class="btn-donate btn-dalink">
-            <span>💙 Поддержать через Dalink</span>
+            <img src="images/dalink_icon.png" class="btn-donate-icon" alt="Dalink">
+            <span>Поддержать через Dalink</span>
           </a>
         </div>
       </section>
@@ -365,7 +451,7 @@
             <li>Нажмите кнопку <strong>Старт</strong> для проверки отсчёта.</li>
           </ol>
           <div class="alert-note">
-            При первом запуске Windows Defender или SmartScreen может показать предупреждение о новом исполняемом файле — нажмите «Подробнее» $\rightarrow$ «Выполнить в любом случае».
+            При первом запуске Windows Defender или SmartScreen может показать предупреждение о новом исполняемом файле — нажмите «Подробнее» → «Выполнить в любом случае».
           </div>
         </div>
 
@@ -415,7 +501,7 @@
           </div>
           <p>Вы можете управлять таймером прямо из окна OBS без необходимости сворачивать игру или стрим:</p>
           <ol>
-            <li>В верхнем меню OBS Studio выберите <strong>Вид</strong> $\rightarrow$ <strong>Dok-панели</strong> $\rightarrow$ <strong>Пользовательские dok-панели браузера</strong>.</li>
+            <li>В верхнем меню OBS Studio выберите <strong>Вид</strong> → <strong>Dok-панели</strong> → <strong>Пользовательские dok-панели браузера</strong>.</li>
             <li>В столбце «Имя» введите, например: <code>Донатон Таймер</code>.</li>
             <li>В столбце «URL-адрес» введите:
               <div class="code-block">
@@ -450,9 +536,9 @@
           </div>
           <p>Привязывайте платные подписки, баллы канала и события чата к прибавлению времени:</p>
           <ol>
-            <li>В программе <strong>Streamer.bot</strong> перейдите в <code>Servers/Clients</code> $\rightarrow$ <code>WebSocket Server</code> и включите <strong>Auto Start</strong> (по умолчанию порт <code>8080</code>).</li>
-            <li>В DonatonTimer откройте <strong>Настройки</strong> $\rightarrow$ <strong>Streamer.bot</strong>, укажите адрес <code>ws://127.0.0.1:8080/</code> и включите сервис.</li>
-            <li>Нажмите <strong>Добавить привязку</strong>: выберите платформу (Twitch/YouTube), тип события (Sub / Gift / Points) и эквивалент в рублях.</li>
+            <li>В программе <strong>Streamer.bot</strong> перейдите в <code>Servers/Clients</code> → <code>WebSocket Server</code> и включите <strong>Auto Start</strong> (по умолчанию порт <code>8080</code>).</li>
+            <li>В DonatonTimer откройте <strong>Настройки</strong> → <strong>Streamer.bot</strong>, укажите адрес <code>ws://127.0.0.1:8080/</code> и включите сервис.</li>
+            <li>Нажмите <strong>Добавить привязку</strong>: выберите платформу (Twitch/YouTube), тип события (Sub / Gift / Points) → эквивалент в рублях.</li>
           </ol>
         </div>
 
