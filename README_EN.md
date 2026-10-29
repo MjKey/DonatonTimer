@@ -180,6 +180,12 @@ Application configuration and local database are stored at:
 
 If you have any questions or encounter bugs, please feel free to open an Issue on [GitHub](https://github.com/MjKey/DonatonTimer/issues).
 
+## Contributors
+
+Special thanks to our contributors:
+- [@Dertosh](https://github.com/Dertosh) — Centrifugo protocol for DonationAlerts, auto token extraction, testing suite, timer widget API and OBS guide.
+- [@amiyadin](https://github.com/amiyadin) — Classic v2 Material UI style, theme switching support, and UI tests.
+
 ## License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
