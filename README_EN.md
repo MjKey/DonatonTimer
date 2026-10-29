@@ -136,6 +136,13 @@
 
 > **Port Migration Notice:** Since version v3.0.6, the app uses port `7575` (HTTP) and `3434` (WS) by default to prevent port conflicts with Streamer.bot (which defaults to 8080). Upon launching, the app will automatically suggest migrating your old config to these ports.
 
+### Custom Timer Widgets
+
+See the [widget API guide (Russian)](docs/WIDGET_API.md) for OBS setup,
+WebSocket messages, and timer commands. The ready-to-use
+[HTML example with reconnection](examples/custom-widget/widget.html) works
+as a local file in an OBS Browser Source.
+
 ### OBS Studio Dock Panel Setup
 In OBS Studio -> Docks -> Custom Browser Docks... -> Add name and paste `http://localhost:7575/mini`.
 
