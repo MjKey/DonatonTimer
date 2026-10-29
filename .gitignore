@@ -23,6 +23,7 @@ app.*.map.json
 
 # Generated Windows Flutter files and Visual Studio local state.
 windows/flutter/ephemeral/
+linux/flutter/ephemeral/
 windows/flutter/generated_plugin_registrant.cc
 windows/flutter/generated_plugin_registrant.h
 windows/flutter/generated_plugins.cmake

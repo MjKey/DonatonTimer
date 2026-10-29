@@ -1,4 +1,4 @@
-name: Build Windows Release
+name: Build Release
 
 on:
   push:
@@ -14,7 +14,8 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  build-windows:
+    name: Build Windows
     runs-on: windows-latest
 
     steps:
@@ -50,17 +51,195 @@ jobs:
           $VERSION = (Get-Content pubspec.yaml | Select-String "^version:").Line.Split(':')[1].Trim().Split('+')[0]
           Compress-Archive -Path "build\windows\x64\runner\Release\*" -DestinationPath "installer\DonatonTimer_v${VERSION}_Portable.zip" -Force
 
-      - name: Upload Artifacts
+      - name: Upload Windows Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: DonatonTimer-Windows-Build
           path: installer/*
 
-      - name: Create Release
-        if: startsWith(github.ref, 'refs/tags/')
+  build-linux:
+    name: Build Linux (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-latest
+            flutter_arch: x64
+            appimage_arch: x86_64
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+            flutter_arch: arm64
+            appimage_arch: aarch64
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev imagemagick alien rpm
+
+      - name: Setup Flutter (x86_64)
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+        if: matrix.arch == 'x86_64'
+
+      - name: Setup Flutter (ARM64)
+        run: |
+          git clone https://github.com/flutter/flutter.git -b stable --depth 1 $HOME/flutter
+          echo "$HOME/flutter/bin" >> $GITHUB_PATH
+        if: matrix.arch == 'arm64'
+
+      - name: Enable Linux platform
+        run: flutter config --enable-linux-desktop
+
+      - name: Install Flutter dependencies
+        run: flutter pub get
+
+      - name: Build Linux app
+        run: flutter build linux --release
+
+      - name: Package Linux bundle (tar.gz)
+        run: |
+          mkdir -p dist
+          tar -czf dist/donaton_timer-linux-${{ matrix.arch }}.tar.gz -C build/linux/${{ matrix.flutter_arch }}/release/bundle .
+
+      - name: Package AppImage
+        run: |
+          # 1. Download appimagetool matching the runner's architecture
+          wget https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-${{ matrix.appimage_arch }}.AppImage -O appimagetool.AppImage
+          chmod +x appimagetool.AppImage
+          ./appimagetool.AppImage --appimage-extract
+
+          # 2. Extract application icon from ICO file
+          convert windows/runner/resources/app_icon.ico[0] donaton_timer.png
+
+          # 3. Create AppDir directory structure
+          mkdir -p AppDir/usr/bin
+
+          # 4. Copy build bundle files
+          cp -r build/linux/${{ matrix.flutter_arch }}/release/bundle/* AppDir/usr/bin/
+
+          # 5. Place icon and configure metadata
+          cp donaton_timer.png AppDir/
+
+          # 6. Create AppRun launcher script
+          cat << 'EOF' > AppDir/AppRun
+          #!/bin/sh
+          SELF=$(readlink -f "$0")
+          HERE=$(dirname "$SELF")
+          exec "$HERE/usr/bin/donaton_timer" "$@"
+          EOF
+          chmod +x AppDir/AppRun
+
+          # 7. Create desktop configuration file
+          cat << 'EOF' > AppDir/donaton_timer.desktop
+          [Desktop Entry]
+          Name=DonatonTimer
+          Exec=donaton_timer
+          Icon=donaton_timer
+          Type=Application
+          Categories=Utility;
+          EOF
+
+          # 8. Build the AppImage
+          ARCH=${{ matrix.appimage_arch }} ./squashfs-root/AppRun AppDir dist/donaton_timer-linux-${{ matrix.arch }}.AppImage
+
+      - name: Package DEB and RPM
+        run: |
+          # 1. Extract version from pubspec.yaml
+          VERSION=$(grep 'version: ' pubspec.yaml | sed 's/version: //' | cut -d'+' -f1)
+          
+          # 2. Determine Debian arch
+          DEB_ARCH="${{ matrix.flutter_arch }}"
+          if [ "$DEB_ARCH" = "x64" ]; then
+            DEB_ARCH="amd64"
+          fi
+          
+          # 3. Create directory structure
+          DEB_DIR="donaton-timer_${VERSION}_${DEB_ARCH}"
+          mkdir -p $DEB_DIR/DEBIAN
+          mkdir -p $DEB_DIR/usr/bin
+          mkdir -p $DEB_DIR/usr/share/donaton-timer
+          mkdir -p $DEB_DIR/usr/share/applications
+          mkdir -p $DEB_DIR/usr/share/pixmaps
+          
+          # 4. Copy files
+          cp -r build/linux/${{ matrix.flutter_arch }}/release/bundle/* $DEB_DIR/usr/share/donaton-timer/
+          cp donaton_timer.png $DEB_DIR/usr/share/pixmaps/donaton-timer.png
+          
+          # 5. Create launcher script
+          cat << 'EOF' > $DEB_DIR/usr/bin/donaton-timer
+          #!/bin/sh
+          exec /usr/share/donaton-timer/donaton_timer "$@"
+          EOF
+          chmod +x $DEB_DIR/usr/bin/donaton-timer
+          
+          # 6. Create desktop file
+          cat << 'EOF' > $DEB_DIR/usr/share/applications/donaton-timer.desktop
+          [Desktop Entry]
+          Name=DonatonTimer
+          Exec=donaton-timer
+          Icon=donaton-timer
+          Type=Application
+          Categories=Utility;
+          Terminal=false
+          EOF
+          
+          # 7. Create DEBIAN/control with auto-dependencies
+          cat << EOF > $DEB_DIR/DEBIAN/control
+          Package: donaton-timer
+          Version: ${VERSION}
+          Architecture: ${DEB_ARCH}
+          Maintainer: MjKey <go@mjkey.ru>
+          Depends: libgtk-3-0 | libgtk-3-0t64, libgstreamer1.0-0 | libgstreamer1.0-0t64, gstreamer1.0-plugins-base, gstreamer1.0-plugins-good, gstreamer1.0-plugins-bad, libgles2
+          Description: DonatonTimer - A powerful and customizable timer application for donation marathons on live streams.
+          EOF
+          
+          # 8. Build DEB
+          dpkg-deb --build $DEB_DIR
+          mv $DEB_DIR.deb dist/
+          
+          # 9. Convert to RPM using alien
+          sudo alien -r dist/$DEB_DIR.deb
+          sudo chown -R $USER:$USER dist *.rpm
+          mv *.rpm dist/
+
+      - name: Upload Linux Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: DonatonTimer-Linux-${{ matrix.arch }}-Build
+          path: |
+            dist/donaton_timer-linux-${{ matrix.arch }}.tar.gz
+            dist/donaton_timer-linux-${{ matrix.arch }}.AppImage
+            dist/*.deb
+            dist/*.rpm
+
+  release:
+    name: Publish Release
+    needs: [build-windows, build-linux]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+          merge-multiple: true
+
+      - name: List release artifacts
+        run: ls -lh release-artifacts
+
+      - name: Publish Release
         uses: softprops/action-gh-release@v2
         with:
           draft: false
-          files: installer/*
+          files: release-artifacts/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
