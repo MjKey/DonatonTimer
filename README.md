@@ -13,10 +13,11 @@
 
 ---
 
-## Инструкция в Wiki
+## Инструкция
 
 ✦ [RU Wiki](https://github.com/MjKey/DonatonTimer/wiki/Настройка-и-использование-%5BRU%5D)
 ✦ [EN Wiki](https://github.com/MjKey/DonatonTimer/wiki/Setting-and-using-%5BEN%5D)
+✦ [RU Site](https://timer.mjkey.ru/#instructions)
 
 ---
 
