@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nes_ui/nes_ui.dart';
@@ -130,8 +131,13 @@ class _MainScreenState extends State<MainScreen> with WindowListener {
     super.dispose();
   }
 
+  bool _isClosing = false;
+
   @override
   void onWindowClose() async {
+    if (_isClosing) return;
+    _isClosing = true;
+
     final storageService = context.read<StorageService?>();
     final donationService = context.read<DonationService?>();
 
@@ -145,24 +151,30 @@ class _MainScreenState extends State<MainScreen> with WindowListener {
 
       if (!neverShow && isFourDaysPassed && sessionDonations >= 1000) {
         final localization = context.read<LocalizationProvider>();
-        final shouldClose = await _showSupportExitDialog(localization, storageService);
-        if (shouldClose == true) {
-          await windowManager.destroy();
-        }
+        await _showSupportExitDialog(localization, storageService);
+        await _closeApp();
         return;
       }
     }
 
-    await windowManager.destroy();
+    await _closeApp();
   }
 
-  Future<bool?> _showSupportExitDialog(
+  Future<void> _closeApp() async {
+    try {
+      await windowManager.setPreventClose(false);
+      await windowManager.close();
+    } catch (_) {}
+    exit(0);
+  }
+
+  Future<void> _showSupportExitDialog(
     LocalizationProvider localization,
     StorageService storageService,
   ) async {
     bool dontShowAgain = false;
 
-    final result = await showDialog<bool>(
+    await showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) => StatefulBuilder(
@@ -252,7 +264,7 @@ class _MainScreenState extends State<MainScreen> with WindowListener {
                       type: NesButtonType.warning,
                       text: localization.tr('close_timer'),
                       onPressed: () {
-                        Navigator.of(dialogContext).pop(true);
+                        Navigator.of(dialogContext).pop();
                       },
                     ),
                   ],
@@ -264,12 +276,12 @@ class _MainScreenState extends State<MainScreen> with WindowListener {
       ),
     );
 
-    await storageService.saveLastSupportPromptDate(DateTime.now());
-    if (dontShowAgain) {
-      await storageService.saveNeverShowSupportPrompt(true);
-    }
-
-    return result ?? true;
+    try {
+      await storageService.saveLastSupportPromptDate(DateTime.now());
+      if (dontShowAgain) {
+        await storageService.saveNeverShowSupportPrompt(true);
+      }
+    } catch (_) {}
   }
 
   @override
