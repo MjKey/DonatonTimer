@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../models/timer_style.dart';
 import '../providers/localization_provider.dart';
 import '../services/style_generator_service.dart';
+import '../widgets/app_widgets.dart';
 
 /// Экран генератора CSS стилей для OBS оверлея таймера.
 class StyleGeneratorScreen extends StatefulWidget {
@@ -63,7 +64,7 @@ class _StyleGeneratorScreenState extends State<StyleGeneratorScreen> {
   Widget _buildHeader(LocalizationProvider localization) {
     return Row(
       children: [
-        NesButton.icon(
+        AppButton.icon(
           type: NesButtonType.normal,
           icon: NesIcons.leftArrowIndicator,
           onPressed: () => Navigator.of(context).pop(),
@@ -119,7 +120,7 @@ class _StyleGeneratorScreenState extends State<StyleGeneratorScreen> {
   }
 
   Widget _buildPaddingSection(LocalizationProvider localization) {
-    return NesContainer(
+    return AppPanel(
       label: localization.tr('spacing'),
       child: Padding(
         padding: const EdgeInsets.all(8),
@@ -191,7 +192,7 @@ class _StyleGeneratorScreenState extends State<StyleGeneratorScreen> {
   }
 
   Widget _buildAnimationSection(LocalizationProvider localization) {
-    return NesContainer(
+    return AppPanel(
       label: localization.tr('animation'),
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -313,7 +314,7 @@ class _StyleGeneratorScreenState extends State<StyleGeneratorScreen> {
   Widget _buildPresetsSection(LocalizationProvider localization) {
     final presets = StyleGeneratorService.presetStyles;
 
-    return NesContainer(
+    return AppPanel(
       label: localization.tr('timer_styles'),
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -324,7 +325,7 @@ class _StyleGeneratorScreenState extends State<StyleGeneratorScreen> {
             final preset = presets[index];
             final isSelected = _selectedPresetIndex == index;
 
-            return NesButton.text(
+            return AppButton.text(
               type: isSelected ? NesButtonType.primary : NesButtonType.normal,
               text: preset.name,
               onPressed: () {
@@ -341,7 +342,7 @@ class _StyleGeneratorScreenState extends State<StyleGeneratorScreen> {
   }
 
   Widget _buildFontSection(LocalizationProvider localization) {
-    return NesContainer(
+    return AppPanel(
       label: localization.tr('font_family'),
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -471,7 +472,7 @@ class _StyleGeneratorScreenState extends State<StyleGeneratorScreen> {
   }
 
   Widget _buildSizeSection(LocalizationProvider localization) {
-    return NesContainer(
+    return AppPanel(
       label: '${localization.tr('width')} / ${localization.tr('height')}',
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -516,7 +517,7 @@ class _StyleGeneratorScreenState extends State<StyleGeneratorScreen> {
 
 
   Widget _buildBackgroundSection(LocalizationProvider localization) {
-    return NesContainer(
+    return AppPanel(
       label: localization.tr('background'),
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -526,7 +527,7 @@ class _StyleGeneratorScreenState extends State<StyleGeneratorScreen> {
             // Show background checkbox
             Row(
               children: [
-                NesCheckBox(
+                AppCheckBox(
                   value: _currentStyle.showBackground,
                   onChange: (value) {
                     setState(() {
@@ -559,7 +560,7 @@ class _StyleGeneratorScreenState extends State<StyleGeneratorScreen> {
   }
 
   Widget _buildTextShadowSection(LocalizationProvider localization) {
-    return NesContainer(
+    return AppPanel(
       label: localization.tr('text_shadow'),
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -569,7 +570,7 @@ class _StyleGeneratorScreenState extends State<StyleGeneratorScreen> {
             // Show text shadow checkbox
             Row(
               children: [
-                NesCheckBox(
+                AppCheckBox(
                   value: _currentStyle.showTextShadow,
                   onChange: (value) {
                     setState(() {
@@ -648,7 +649,7 @@ class _StyleGeneratorScreenState extends State<StyleGeneratorScreen> {
   }
 
   Widget _buildBorderSection(LocalizationProvider localization) {
-    return NesContainer(
+    return AppPanel(
       label: localization.tr('border'),
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -658,7 +659,7 @@ class _StyleGeneratorScreenState extends State<StyleGeneratorScreen> {
             // Show border checkbox
             Row(
               children: [
-                NesCheckBox(
+                AppCheckBox(
                   value: _currentStyle.showBorder,
                   onChange: (value) {
                     setState(() {
@@ -729,7 +730,7 @@ class _StyleGeneratorScreenState extends State<StyleGeneratorScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // Preview
-        NesContainer(
+        AppPanel(
           label: 'Preview',
           child: Container(
             height: 200,
@@ -743,7 +744,7 @@ class _StyleGeneratorScreenState extends State<StyleGeneratorScreen> {
 
         // CSS output
         Expanded(
-          child: NesContainer(
+          child: AppPanel(
             label: 'CSS',
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -762,7 +763,7 @@ class _StyleGeneratorScreenState extends State<StyleGeneratorScreen> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(12),
-                  child: NesButton.text(
+                  child: AppButton.text(
                     type: NesButtonType.success,
                     text: localization.tr('copy_css'),
                     onPressed: () => _copyCSS(css, localization),
@@ -919,7 +920,7 @@ class _StyleGeneratorScreenState extends State<StyleGeneratorScreen> {
 
   void _copyCSS(String css, LocalizationProvider localization) {
     Clipboard.setData(ClipboardData(text: css));
-    NesSnackbar.show(
+    AppSnackbar.show(
       context,
       text: localization.tr('css_copied'),
       type: NesSnackbarType.success,
@@ -961,7 +962,7 @@ class _ColorPickerDialogState extends State<_ColorPickerDialog> {
     final localization = context.watch<LocalizationProvider>();
 
     return Dialog(
-      child: NesContainer(
+      child: AppPanel(
         label: localization.tr('pick_color'),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -1015,13 +1016,13 @@ class _ColorPickerDialogState extends State<_ColorPickerDialog> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  NesButton.text(
+                  AppButton.text(
                     type: NesButtonType.normal,
                     text: localization.tr('cancel'),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                   const SizedBox(width: 8),
-                  NesButton.text(
+                  AppButton.text(
                     type: NesButtonType.primary,
                     text: localization.tr('select'),
                     onPressed: () {

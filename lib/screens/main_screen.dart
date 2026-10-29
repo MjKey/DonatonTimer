@@ -10,6 +10,7 @@ import '../providers/theme_provider.dart';
 import '../services/donation_service.dart';
 import '../services/web_server_service.dart';
 import '../models/donation_record.dart';
+import '../widgets/app_widgets.dart';
 import 'settings_screen.dart';
 import 'style_generator_screen.dart';
 
@@ -44,14 +45,14 @@ class _MainScreenState extends State<MainScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => Dialog(
-        child: NesContainer(
+        child: AppPanel(
           label: 'Внимание!',
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                NesIcon(iconData: NesIcons.exclamationMarkBlock, size: const Size(48, 48)),
+                AppIcon(iconData: NesIcons.exclamationMarkBlock, size: const Size(48, 48)),
                 const SizedBox(height: 16),
                 const Text(
                   'Обнаружены старые настройки портов (8080/4040).\n\n'
@@ -61,7 +62,7 @@ class _MainScreenState extends State<MainScreen> {
                   style: TextStyle(fontSize: 14),
                 ),
                 const SizedBox(height: 24),
-                NesButton.text(
+                AppButton.text(
                   type: NesButtonType.success,
                   text: 'Исправить порты',
                   onPressed: () {
@@ -80,7 +81,7 @@ class _MainScreenState extends State<MainScreen> {
                     }
                     Navigator.of(context).pop();
                     
-                    NesSnackbar.show(
+                    AppSnackbar.show(
                       context,
                       text: 'Порты успешно обновлены!',
                       type: NesSnackbarType.success,
@@ -88,7 +89,7 @@ class _MainScreenState extends State<MainScreen> {
                   },
                 ),
                 const SizedBox(height: 8),
-                NesButton.text(
+                AppButton.text(
                   type: NesButtonType.normal,
                   text: 'Игнорировать',
                   onPressed: () {
@@ -107,9 +108,6 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  /// Shows navigation menu dialog with NesSelectionList.
-
-  /// Handles navigation menu selection.
 
   @override
   void dispose() {
@@ -128,14 +126,16 @@ class _MainScreenState extends State<MainScreen> {
     final donationService = context.watch<DonationService?>();
 
     return Scaffold(
+      appBar: theme.isClassic ? _buildClassicAppBar(localization, theme) : null,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Header with title and theme toggle
-            _buildHeader(localization, theme),
-            const SizedBox(height: 16),
+            if (!theme.isClassic) ...[
+              _buildHeader(localization, theme),
+              const SizedBox(height: 16),
+            ],
 
             // Timer display
             _buildTimerDisplay(timer),
@@ -164,6 +164,9 @@ class _MainScreenState extends State<MainScreen> {
 
   /// Builds a styled tooltip wrapping the given child.
   Widget _buildTooltip({required String message, required Widget child}) {
+    if (context.watch<ThemeProvider>().isClassic) {
+      return Tooltip(message: message, child: child);
+    }
     return Tooltip(
       message: message,
       waitDuration: Duration.zero,
@@ -191,6 +194,56 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
+  /// Restores the standard Material toolbar used by the v2 interface.
+  PreferredSizeWidget _buildClassicAppBar(
+    LocalizationProvider localization,
+    ThemeProvider theme,
+  ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return AppBar(
+      leading: IconButton(
+        tooltip: localization.tr('tooltip_theme'),
+        icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
+        onPressed: () => theme.setThemeMode(
+          isDark ? ThemeMode.light : ThemeMode.dark,
+        ),
+      ),
+      title: Text(localization.tr('app_title')),
+      actions: [
+        IconButton(
+          tooltip: localization.tr('tooltip_copy_obs'),
+          icon: const Icon(Icons.live_tv),
+          onPressed: () => _copyObsUrl(localization),
+        ),
+        IconButton(
+          tooltip: localization.tr('tooltip_qr_code'),
+          icon: const Icon(Icons.qr_code),
+          onPressed: () => _showQrCodeDialog(localization),
+        ),
+        IconButton(
+          tooltip: localization.tr('tooltip_style_generator'),
+          icon: const Icon(Icons.palette_outlined),
+          onPressed: _openStyleGenerator,
+        ),
+        IconButton(
+          tooltip: localization.tr('tooltip_language'),
+          icon: const Icon(Icons.language),
+          onPressed: () => localization.toggleLanguage(),
+        ),
+        IconButton(
+          tooltip: localization.tr('tooltip_settings'),
+          icon: const Icon(Icons.settings_outlined),
+          onPressed: _openSettings,
+        ),
+        IconButton(
+          tooltip: localization.tr('tooltip_about'),
+          icon: const Icon(Icons.info_outline),
+          onPressed: () => _showAboutDialog(localization),
+        ),
+      ],
+    );
+  }
+
   /// Builds the header with app title and theme toggle.
   Widget _buildHeader(LocalizationProvider localization, ThemeProvider theme) {
     return Wrap(
@@ -210,7 +263,7 @@ class _MainScreenState extends State<MainScreen> {
             // Copy OBS overlay URL button
             _buildTooltip(
               message: localization.tr('tooltip_copy_obs'),
-              child: NesButton.icon(
+              child: AppButton.icon(
                 type: NesButtonType.normal,
                 icon: NesIcons.tv,
                 onPressed: () => _copyObsUrl(localization),
@@ -219,7 +272,7 @@ class _MainScreenState extends State<MainScreen> {
             // About button
             _buildTooltip(
               message: localization.tr('tooltip_about'),
-              child: NesButton.icon(
+              child: AppButton.icon(
                 type: NesButtonType.normal,
                 icon: NesIcons.questionMark,
                 onPressed: () => _showAboutDialog(localization),
@@ -228,7 +281,7 @@ class _MainScreenState extends State<MainScreen> {
             // QR Code button for mobile control
             _buildTooltip(
               message: localization.tr('tooltip_qr_code'),
-              child: NesButton.icon(
+              child: AppButton.icon(
                 type: NesButtonType.normal,
                 icon: NesIcons.camera,
                 onPressed: () => _showQrCodeDialog(localization),
@@ -237,7 +290,7 @@ class _MainScreenState extends State<MainScreen> {
             // CSS Generator button
             _buildTooltip(
               message: localization.tr('tooltip_style_generator'),
-              child: NesButton.icon(
+              child: AppButton.icon(
                 type: NesButtonType.normal,
                 icon: NesIcons.edit,
                 onPressed: () => _openStyleGenerator(),
@@ -246,7 +299,7 @@ class _MainScreenState extends State<MainScreen> {
             // Settings button
             _buildTooltip(
               message: localization.tr('tooltip_settings'),
-              child: NesButton.icon(
+              child: AppButton.icon(
                 type: NesButtonType.normal,
                 icon: NesIcons.wrench,
                 onPressed: () => _openSettings(),
@@ -255,7 +308,7 @@ class _MainScreenState extends State<MainScreen> {
             // Language toggle
             _buildTooltip(
               message: localization.tr('tooltip_language'),
-              child: NesButton.icon(
+              child: AppButton.icon(
                 type: NesButtonType.normal,
                 icon: NesIcons.rename,
                 onPressed: () => localization.toggleLanguage(),
@@ -264,7 +317,7 @@ class _MainScreenState extends State<MainScreen> {
             // Theme toggle
             _buildTooltip(
               message: localization.tr('tooltip_theme'),
-              child: NesButton.icon(
+              child: AppButton.icon(
                 type: NesButtonType.normal,
                 icon: theme.isDarkMode ? NesIcons.sun : NesIcons.moon,
                 onPressed: () => theme.toggleTheme(),
@@ -282,7 +335,7 @@ class _MainScreenState extends State<MainScreen> {
       context: context,
       builder: (context) => Dialog(
         child: SingleChildScrollView(
-          child: NesContainer(
+          child: AppPanel(
             label: localization.tr('about_title'),
             child: Padding(
               padding: const EdgeInsets.all(24),
@@ -291,7 +344,7 @@ class _MainScreenState extends State<MainScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // App icon/logo
-                  NesIcon(iconData: NesIcons.gamepad, size: const Size(64, 64)),
+                  AppIcon(iconData: NesIcons.gamepad, size: const Size(64, 64)),
                   const SizedBox(height: 16),
 
                   // App name and version
@@ -313,7 +366,7 @@ class _MainScreenState extends State<MainScreen> {
                   const SizedBox(height: 24),
 
                   // Features section
-                  NesContainer(
+                  AppPanel(
                     label: localization.tr('features'),
                     child: Padding(
                       padding: const EdgeInsets.all(12),
@@ -356,7 +409,7 @@ class _MainScreenState extends State<MainScreen> {
                   const SizedBox(height: 16),
 
                   // Changelog section
-                  NesContainer(
+                  AppPanel(
                     label: localization.tr('changelog'),
                     child: Padding(
                       padding: const EdgeInsets.all(12),
@@ -384,7 +437,7 @@ class _MainScreenState extends State<MainScreen> {
                   const SizedBox(height: 24),
 
                   // Close button
-                  NesButton.text(
+                  AppButton.text(
                     type: NesButtonType.primary,
                     text: localization.tr('ok_understood'),
                     onPressed: () => Navigator.of(context).pop(),
@@ -402,7 +455,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget _buildFeatureItem(NesIconData icon, String text) {
     return Row(
       children: [
-        NesIcon(iconData: icon, size: const Size(16, 16)),
+        AppIcon(iconData: icon, size: const Size(16, 16)),
         const SizedBox(width: 8),
         Expanded(child: Text(text, style: const TextStyle(fontSize: 12))),
       ],
@@ -413,7 +466,7 @@ class _MainScreenState extends State<MainScreen> {
   void _copyObsUrl(LocalizationProvider localization) {
     final webServer = context.read<WebServerService?>();
     if (webServer == null) {
-      NesSnackbar.show(
+      AppSnackbar.show(
         context,
         text: localization.tr('error'),
         type: NesSnackbarType.error,
@@ -424,7 +477,7 @@ class _MainScreenState extends State<MainScreen> {
     final obsUrl = webServer.getTimerUrl();
     Clipboard.setData(ClipboardData(text: obsUrl));
 
-    NesSnackbar.show(
+    AppSnackbar.show(
       context,
       text: localization.tr('link_copied'),
       type: NesSnackbarType.success,
@@ -449,7 +502,7 @@ class _MainScreenState extends State<MainScreen> {
   void _showQrCodeDialog(LocalizationProvider localization) {
     final webServer = context.read<WebServerService?>();
     if (webServer == null) {
-      NesSnackbar.show(
+      AppSnackbar.show(
         context,
         text: localization.tr('error'),
         type: NesSnackbarType.error,
@@ -462,7 +515,7 @@ class _MainScreenState extends State<MainScreen> {
     showDialog(
       context: context,
       builder: (context) => Dialog(
-        child: NesContainer(
+        child: AppPanel(
           label: localization.tr('qr_code_title'),
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -507,7 +560,7 @@ class _MainScreenState extends State<MainScreen> {
                 const SizedBox(height: 16),
 
                 // URL display
-                NesContainer(
+                AppPanel(
                   label: localization.tr('dashboard_url'),
                   child: Padding(
                     padding: const EdgeInsets.all(8),
@@ -526,14 +579,14 @@ class _MainScreenState extends State<MainScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    NesButton.text(
+                    AppButton.text(
                       type: NesButtonType.primary,
                       text: localization
                           .tr('link_copied')
                           .replaceAll(' copied', ''),
                       onPressed: () {
                         Clipboard.setData(ClipboardData(text: dashboardUrl));
-                        NesSnackbar.show(
+                        AppSnackbar.show(
                           context,
                           text: localization.tr('link_copied'),
                           type: NesSnackbarType.success,
@@ -541,7 +594,7 @@ class _MainScreenState extends State<MainScreen> {
                       },
                     ),
                     const SizedBox(width: 16),
-                    NesButton.text(
+                    AppButton.text(
                       type: NesButtonType.normal,
                       text: localization.tr('close'),
                       onPressed: () => Navigator.of(context).pop(),
@@ -558,22 +611,25 @@ class _MainScreenState extends State<MainScreen> {
 
   /// Builds the main timer display.
   Widget _buildTimerDisplay(TimerProvider timer) {
-    return NesContainer(
-      label: 'Timer',
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 24),
-          child: Text(
-            timer.formatDuration(),
-            style: const TextStyle(
-              fontSize: 64,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'monospace',
-              letterSpacing: 4,
-            ),
+    final classic = context.watch<ThemeProvider>().isClassic;
+    final display = Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Text(
+          timer.formatDuration(),
+          style: TextStyle(
+            fontSize: 64,
+            fontWeight: FontWeight.bold,
+            fontFamily: classic ? null : 'monospace',
+            letterSpacing: classic ? 0 : 4,
           ),
         ),
       ),
+    );
+    if (classic) return display;
+    return AppPanel(
+      label: context.read<LocalizationProvider>().tr('timer'),
+      child: display,
     );
   }
 
@@ -582,7 +638,7 @@ class _MainScreenState extends State<MainScreen> {
     TimerProvider timer,
     LocalizationProvider localization,
   ) {
-    return NesContainer(
+    return AppPanel(
       label: localization.tr('controls'),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -590,7 +646,7 @@ class _MainScreenState extends State<MainScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // -1 minute button
-            NesButton.text(
+            AppButton.text(
               type: NesButtonType.warning,
               text: '-1 ${localization.tr('min')}',
               onPressed: timer.subtractMinute,
@@ -598,7 +654,7 @@ class _MainScreenState extends State<MainScreen> {
             const SizedBox(width: 16),
 
             // Start/Pause button
-            NesButton.text(
+            AppButton.text(
               type: timer.isRunning
                   ? NesButtonType.warning
                   : NesButtonType.success,
@@ -610,7 +666,7 @@ class _MainScreenState extends State<MainScreen> {
             const SizedBox(width: 16),
 
             // +1 minute button
-            NesButton.text(
+            AppButton.text(
               type: NesButtonType.primary,
               text: '+1 ${localization.tr('min')}',
               onPressed: timer.addMinute,
@@ -626,7 +682,7 @@ class _MainScreenState extends State<MainScreen> {
     TimerProvider timer,
     LocalizationProvider localization,
   ) {
-    return NesContainer(
+    return AppPanel(
       label: localization.tr('quick_time'),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -635,27 +691,27 @@ class _MainScreenState extends State<MainScreen> {
           runSpacing: 8,
           alignment: WrapAlignment.center,
           children: [
-            NesButton.text(
+            AppButton.text(
               type: NesButtonType.normal,
               text: '+5 ${localization.tr('min')}',
               onPressed: () => timer.addMinutes(5),
             ),
-            NesButton.text(
+            AppButton.text(
               type: NesButtonType.normal,
               text: '+10 ${localization.tr('min')}',
               onPressed: () => timer.addMinutes(10),
             ),
-            NesButton.text(
+            AppButton.text(
               type: NesButtonType.normal,
               text: '+30 ${localization.tr('min')}',
               onPressed: () => timer.addMinutes(30),
             ),
-            NesButton.text(
+            AppButton.text(
               type: NesButtonType.normal,
               text: '+1 ${localization.tr('hour')}',
               onPressed: () => timer.addMinutes(60),
             ),
-            NesButton.text(
+            AppButton.text(
               type: NesButtonType.error,
               text: localization.tr('reset'),
               onPressed: () => _confirmReset(timer, localization),
@@ -671,7 +727,7 @@ class _MainScreenState extends State<MainScreen> {
     TimerProvider timer,
     LocalizationProvider localization,
   ) {
-    return NesContainer(
+    return AppPanel(
       label: localization.tr('set_time'),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -705,7 +761,7 @@ class _MainScreenState extends State<MainScreen> {
               ],
             ),
             const SizedBox(height: 16),
-            NesButton.text(
+            AppButton.text(
               type: NesButtonType.primary,
               text: localization.tr('set_timer'),
               onPressed: () => _setTimerFromInputs(timer),
@@ -732,13 +788,13 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                NesButton.text(
+                AppButton.text(
                   type: NesButtonType.success,
                   text: '+${localization.tr('add')}',
                   onPressed: () => _addMinutesFromInput(timer),
                 ),
                 const SizedBox(width: 8),
-                NesButton.text(
+                AppButton.text(
                   type: NesButtonType.warning,
                   text: '-${localization.tr('subtract')}',
                   onPressed: () => _subtractMinutesFromInput(timer),
@@ -794,7 +850,7 @@ class _MainScreenState extends State<MainScreen> {
     _minutesController.clear();
     _secondsController.clear();
 
-    NesSnackbar.show(
+    AppSnackbar.show(
       context,
       text: 'Timer set!',
       type: NesSnackbarType.success,
@@ -807,7 +863,7 @@ class _MainScreenState extends State<MainScreen> {
     if (minutes > 0) {
       timer.addMinutes(minutes);
       _addMinutesController.clear();
-      NesSnackbar.show(
+      AppSnackbar.show(
         context,
         text: '+$minutes min',
         type: NesSnackbarType.success,
@@ -821,7 +877,7 @@ class _MainScreenState extends State<MainScreen> {
     if (minutes > 0) {
       timer.addMinutes(-minutes);
       _addMinutesController.clear();
-      NesSnackbar.show(
+      AppSnackbar.show(
         context,
         text: '-$minutes min',
         type: NesSnackbarType.warning,
@@ -834,14 +890,16 @@ class _MainScreenState extends State<MainScreen> {
     TimerProvider timer,
     LocalizationProvider localization,
   ) async {
-    final result = await NesConfirmDialog.show(
+    final result = await AppConfirmDialog.show(
       context: context,
       message: localization.tr('reset_confirm'),
+      confirmLabel: localization.tr('reset'),
+      cancelLabel: localization.tr('cancel'),
     );
 
     if (result == true && mounted) {
       timer.reset();
-      NesSnackbar.show(
+      AppSnackbar.show(
         context,
         text: localization.tr('timer_reset'),
         type: NesSnackbarType.normal,
@@ -861,7 +919,7 @@ class _MainScreenState extends State<MainScreen> {
       children: [
         // Recent donations
         Expanded(
-          child: NesContainer(
+          child: AppPanel(
             label: localization.tr('recent_donations'),
             child: SizedBox(
               height: 200,
@@ -888,7 +946,7 @@ class _MainScreenState extends State<MainScreen> {
         const SizedBox(width: 16),
         // Top donators
         Expanded(
-          child: NesContainer(
+          child: AppPanel(
             label: localization.tr('top_donators'),
             child: SizedBox(
               height: 200,

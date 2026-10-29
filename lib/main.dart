@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:nes_ui/nes_ui.dart';
+import 'theme/app_theme.dart';
 
 import 'providers/localization_provider.dart';
 import 'providers/timer_provider.dart';
@@ -201,17 +201,9 @@ class DonatonTimerApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      // Use nes_ui theme for retro 8-bit style
-      theme: flutterNesTheme(
-        brightness: Brightness.light,
-        nesTheme: const NesTheme(pixelSize: 4),
-        primaryColor: const Color(0xffb4b6f6),
-      ),
-      darkTheme: flutterNesTheme(
-        brightness: Brightness.dark,
-        nesTheme: const NesTheme(pixelSize: 4),
-        primaryColor: const Color(0xff8b8dca),
-      ),
+      theme: buildAppTheme(themeProvider.uiStyle, Brightness.light),
+      darkTheme: buildAppTheme(themeProvider.uiStyle, Brightness.dark),
+      themeAnimationDuration: Duration.zero,
       themeMode: themeProvider.themeMode,
       home: const MainScreen(),
     );
