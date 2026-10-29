@@ -32,6 +32,9 @@ class DonationService extends ChangeNotifier {
   /// Application settings.
   AppSettings _settings = const AppSettings();
   
+  /// Total amount of donations in RUB received during the current session.
+  double _sessionTotalRub = 0.0;
+
   /// Rate for calculating time (amount per 60 minutes).
   double _rate = 600.0;
   
@@ -53,6 +56,12 @@ class DonationService extends ChangeNotifier {
   /// Gets the current statistics.
   Statistics get statistics => _statistics;
   
+  /// Gets the total amount of donations in RUB received during the current session.
+  double get sessionTotalRub => _sessionTotalRub;
+
+  /// Gets the storage service reference.
+  StorageService get storageService => _storageService;
+
   /// Gets the current rate.
   double get rate => _rate;
 
@@ -226,6 +235,9 @@ class DonationService extends ChangeNotifier {
       effectiveAmount = converted;
     }
     
+    // Учитываем сумму доната в текущей сессии
+    _sessionTotalRub += effectiveAmount;
+
     // Рассчитываем время для добавления
     int secondsToAdd;
     if (_settings.isFixedTimeMode) {
@@ -344,6 +356,7 @@ class DonationService extends ChangeNotifier {
   /// Clears the statistics.
   void clearStatistics() {
     _statistics = const Statistics();
+    _sessionTotalRub = 0.0;
     _saveStatistics();
     notifyListeners();
   }

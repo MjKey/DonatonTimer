@@ -191,7 +191,7 @@
   "sb_ws_url_label": "WebSocket URL",
   "sb_ws_url_hint": "ws://127.0.0.1:8080/",
   "sb_ws_ensure_running": "Make sure Streamer.bot WebSocket Server is running.",
-  "sb_event_mappings": "Event Mappings (Event \u2192 Amount)",
+  "sb_event_mappings": "Event Mappings (Event → Amount)",
   "sb_new_event": "New Event",
   "sb_cancel": "Cancel",
   "sb_add_event": "+ Add Event",
@@ -215,5 +215,10 @@
   "app_theme_system": "System",
   "app_theme_light": "Light",
   "app_theme_dark": "Dark",
-  "appearance_saved_hint": "Changes apply immediately and are saved automatically."
+  "appearance_saved_hint": "Changes apply immediately and are saved automatically.",
+  "support_project_banner": "Support the project",
+  "stream_success_title": "Whoa, awesome stream! 🎉",
+  "stream_success_desc": "Donations exceeded 1000 ₽ — pepeD approves! If DonatonTimer helped you run a great stream, the author would appreciate a cup of coffee for future updates ☕❤️",
+  "dont_show_again": "Don't show again",
+  "close_timer": "Close timer"
 }

@@ -26,7 +26,7 @@ void main() async {
 
   // Initialize logging
   await LogManager.init();
-  LogManager.info('Запуск приложения DonatonTimer v3.0.7 by MjKey');
+  LogManager.info('Запуск приложения DonatonTimer v3.0.8 by MjKey');
 
   // Initialize window manager for desktop
   await windowManager.ensureInitialized();
@@ -39,7 +39,7 @@ void main() async {
     backgroundColor: Colors.transparent,
     skipTaskbar: false,
     titleBarStyle: TitleBarStyle.normal,
-    title: 'DonatonTimer v3.0.7 by MjKey',
+    title: 'DonatonTimer v3.0.8 by MjKey',
   );
 
   windowManager.waitUntilReadyToShow(windowOptions, () async {
@@ -172,6 +172,7 @@ void main() async {
         ChangeNotifierProvider.value(value: localizationProvider),
         ChangeNotifierProvider.value(value: themeProvider),
         ChangeNotifierProvider.value(value: timerProvider),
+        Provider<StorageService>.value(value: storageService),
         ChangeNotifierProvider<DonationService>.value(value: donationService),
         ChangeNotifierProvider<WebServerService>.value(value: webServerService),
         ChangeNotifierProvider<SoundService>.value(value: soundService),

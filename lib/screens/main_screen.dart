@@ -3,11 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:nes_ui/nes_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:window_manager/window_manager.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../providers/timer_provider.dart';
 import '../providers/localization_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/donation_service.dart';
+import '../services/storage_service.dart';
 import '../services/web_server_service.dart';
 import '../models/donation_record.dart';
 import '../widgets/app_widgets.dart';
@@ -22,7 +25,7 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends State<MainScreen> with WindowListener {
   final TextEditingController _hoursController = TextEditingController();
   final TextEditingController _minutesController = TextEditingController();
   final TextEditingController _secondsController = TextEditingController();
@@ -31,13 +34,21 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
-    
+    windowManager.addListener(this);
+    _initWindowCloseHandler();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final webServer = context.read<WebServerService?>();
       if (webServer != null && webServer.hasOldPortsWarning) {
         _showOldPortsWarning();
       }
     });
+  }
+
+  Future<void> _initWindowCloseHandler() async {
+    try {
+      await windowManager.setPreventClose(true);
+    } catch (_) {}
   }
 
   void _showOldPortsWarning() {
@@ -111,11 +122,154 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   void dispose() {
+    windowManager.removeListener(this);
     _hoursController.dispose();
     _minutesController.dispose();
     _secondsController.dispose();
     _addMinutesController.dispose();
     super.dispose();
+  }
+
+  @override
+  void onWindowClose() async {
+    final storageService = context.read<StorageService?>();
+    final donationService = context.read<DonationService?>();
+
+    if (storageService != null && donationService != null) {
+      final neverShow = storageService.loadNeverShowSupportPrompt();
+      final lastPrompt = storageService.loadLastSupportPromptDate();
+      final sessionDonations = donationService.sessionTotalRub;
+
+      final isFourDaysPassed = lastPrompt == null ||
+          DateTime.now().difference(lastPrompt).inDays >= 4;
+
+      if (!neverShow && isFourDaysPassed && sessionDonations >= 1000) {
+        final localization = context.read<LocalizationProvider>();
+        final shouldClose = await _showSupportExitDialog(localization, storageService);
+        if (shouldClose == true) {
+          await windowManager.destroy();
+        }
+        return;
+      }
+    }
+
+    await windowManager.destroy();
+  }
+
+  Future<bool?> _showSupportExitDialog(
+    LocalizationProvider localization,
+    StorageService storageService,
+  ) async {
+    bool dontShowAgain = false;
+
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => Dialog(
+          child: AppPanel(
+            label: localization.tr('stream_success_title'),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 440),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(
+                      'assets/pepeD.gif',
+                      width: 72,
+                      height: 72,
+                      fit: BoxFit.contain,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      localization.tr('stream_success_desc'),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 13, height: 1.4),
+                    ),
+                    const SizedBox(height: 18),
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 8,
+                      alignment: WrapAlignment.center,
+                      children: [
+                        AppButton.text(
+                          type: NesButtonType.primary,
+                          text: 'CloudTips',
+                          onPressed: () => launchUrl(
+                            Uri.parse('https://pay.cloudtips.ru/p/cf634f74'),
+                            mode: LaunchMode.externalApplication,
+                          ),
+                        ),
+                        AppButton.text(
+                          type: NesButtonType.normal,
+                          text: 'Dalink',
+                          onPressed: () => launchUrl(
+                            Uri.parse('https://dalink.to/mjk3y'),
+                            mode: LaunchMode.externalApplication,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: () {
+                          setDialogState(() => dontShowAgain = !dontShowAgain);
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: Checkbox(
+                                value: dontShowAgain,
+                                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                onChanged: (val) {
+                                  setDialogState(() => dontShowAgain = val ?? false);
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              localization.tr('dont_show_again'),
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.grey.shade400
+                                    : Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    AppButton.text(
+                      type: NesButtonType.warning,
+                      text: localization.tr('close_timer'),
+                      onPressed: () {
+                        Navigator.of(dialogContext).pop(true);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await storageService.saveLastSupportPromptDate(DateTime.now());
+    if (dontShowAgain) {
+      await storageService.saveNeverShowSupportPrompt(true);
+    }
+
+    return result ?? true;
   }
 
   @override

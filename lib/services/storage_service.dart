@@ -150,6 +150,34 @@ class StorageService {
     await _saveData();
   }
 
+  /// Сохраняет дату последнего показа диалога поддержки.
+  Future<void> saveLastSupportPromptDate(DateTime date) async {
+    _ensureInitialized();
+    _data['last_support_prompt_date'] = date.toIso8601String();
+    await _saveData();
+  }
+
+  /// Загружает дату последнего показа диалога поддержки.
+  DateTime? loadLastSupportPromptDate() {
+    _ensureInitialized();
+    final dateStr = _data['last_support_prompt_date'] as String?;
+    if (dateStr == null) return null;
+    return DateTime.tryParse(dateStr);
+  }
+
+  /// Сохраняет флаг "больше не показывать диалог поддержки".
+  Future<void> saveNeverShowSupportPrompt(bool neverShow) async {
+    _ensureInitialized();
+    _data['never_show_support_prompt'] = neverShow;
+    await _saveData();
+  }
+
+  /// Загружает флаг "больше не показывать диалог поддержки".
+  bool loadNeverShowSupportPrompt() {
+    _ensureInitialized();
+    return _data['never_show_support_prompt'] as bool? ?? false;
+  }
+
   /// Возвращает путь к директории хранения.
   Future<String> getStoragePath() async {
     final dir = await _getAppDataDir();

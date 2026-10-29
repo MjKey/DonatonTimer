@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 
 import '../providers/localization_provider.dart';
 import '../providers/timer_provider.dart';
+import '../providers/theme_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../services/donation_service.dart';
 import '../services/donation_service_adapter.dart';
 import '../services/sound_service.dart';
@@ -62,9 +64,90 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             // Tab content
             Expanded(child: _buildTabContent(localization)),
+            const SizedBox(height: 12),
+
+            // Bottom support banner
+            _buildSupportBanner(localization),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSupportBanner(LocalizationProvider localization) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = context.watch<ThemeProvider>();
+
+    final content = Wrap(
+      alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 8,
+      runSpacing: 4,
+      children: [
+        Text(
+          '❤️ ${localization.tr('support_project_banner')}:',
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+        ),
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: () => launchUrl(
+              Uri.parse('https://pay.cloudtips.ru/p/cf634f74'),
+              mode: LaunchMode.externalApplication,
+            ),
+            child: const Text(
+              'CloudTips',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.blueAccent,
+                decoration: TextDecoration.underline,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+        const Text('•', style: TextStyle(fontSize: 12, color: Colors.grey)),
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: () => launchUrl(
+              Uri.parse('https://dalink.to/mjk3y'),
+              mode: LaunchMode.externalApplication,
+            ),
+            child: const Text(
+              'Dalink',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.blueAccent,
+                decoration: TextDecoration.underline,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+
+    if (theme.isClassic) {
+      return Container(
+        height: 38,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.04),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.08),
+          ),
+        ),
+        alignment: Alignment.center,
+        child: content,
+      );
+    }
+
+    return NesContainer(
+      height: 42,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Center(child: content),
     );
   }
 
