@@ -68,7 +68,7 @@
 - **Sound Alerts** — sound notifications for incoming donations
 - **Auto-save** — timer state is automatically saved upon closing
 - **Retro UI** — stylish 8-bit aesthetic (nes_ui)
-- **Socket Selection** — manual socket configuration for DonationAlerts (socket/socket1-5)
+- **DonationAlerts via Centrifugo** — automatic donation subscriptions using a widget token or URL
 - **URL Parsing** — extract widget tokens automatically by pasting widget URLs
 - **Streamer.bot** — WebSocket integration with flexible mapping of events to donation equivalents
 - **Currency Conversion** — automatic conversion of USD, EUR, KZT, etc. into RUB using current Central Bank exchange rates
@@ -197,6 +197,16 @@ flutter run -d windows
 # 4. Build release bundle
 flutter build windows
 ```
+
+### Testing Changes
+
+```powershell
+flutter test --tags unit
+flutter test
+```
+
+See the [testing guide (Russian)](docs/TESTING.md) for test architecture,
+individual scenarios, coverage, and CI.
 
 ### Building Installer (Inno Setup)
 ```bash
