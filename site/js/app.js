@@ -65,14 +65,19 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.service-nav-pill').forEach(pill => {
     pill.addEventListener('click', (e) => {
       e.preventDefault();
-      const targetId = pill.getAttribute('href').replace('#', '');
+      e.stopPropagation();
+      const rawHref = pill.getAttribute('href') || pill.dataset.target || '';
+      const targetId = rawHref.replace('#', '');
       const targetEl = document.getElementById(targetId);
       if (targetEl) {
         // Ensure instructions tab is active
         switchTab('instructions', true);
+        if (history.replaceState) {
+          history.replaceState(null, null, '#' + targetId);
+        }
 
         // Smooth scroll to the target guide
-        targetEl.scrollIntoView({ behavior: 'smooth' });
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
         // Highlight card briefly with purple glow
         targetEl.style.transition = 'border-color 0.3s, box-shadow 0.3s';
