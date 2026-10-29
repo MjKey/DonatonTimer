@@ -3,16 +3,99 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DonatonTimer — Таймер для донатона на стриме | MjKey</title>
-  <meta name="description" content="DonatonTimer — удобный и функциональный таймер для донатона на стримах с поддержкой DonationAlerts, CloudTips, DonatePay, кастомизацией стилей и OBS оверлеем.">
+  
+  <!-- Primary Meta Tags -->
+  <title>DonatonTimer — Таймер для донатона на стриме | Скачать для OBS Studio (Windows, Linux)</title>
+  <meta name="title" content="DonatonTimer — Таймер для донатона на стриме | Скачать для OBS Studio (Windows, Linux)">
+  <meta name="description" content="Бесплатный и функциональный таймер для донатона на стриме. Поддержка DonationAlerts (Centrifugo v2), CloudTips, DonatePay, настраиваемый оверлей для OBS Studio, управление со смартфона, CSS-генератор стилей. Скачать для Windows и Linux.">
+  <meta name="keywords" content="таймер для донатона, донатон таймер, donatontimer, таймер для стрима, obs оверлей таймер, donationalerts таймер, таймер со сбором донатов, виджет таймера obs, cloudtips таймер, donatepay таймер, стрим таймер, обратный отсчет донатон, timer obs">
+  <meta name="author" content="MjKey">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://timer.mjkey.ru/">
   <link rel="icon" type="image/x-icon" href="images/app_icon.ico">
   
-  <!-- Open Graph -->
-  <meta property="og:title" content="DonatonTimer — Таймер для донатона на стриме">
-  <meta property="og:description" content="Управляй временем стрима через донаты с оверлеем для OBS, поддержкой DonationAlerts, CloudTips, мобильным управлением и кастомным API.">
-  <meta property="og:image" content="https://timer.mjkey.ru/images/donaton_timer_mainpage.png">
-  <meta property="og:url" content="https://timer.mjkey.ru/">
+  <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://timer.mjkey.ru/">
+  <meta property="og:site_name" content="DonatonTimer">
+  <meta property="og:title" content="DonatonTimer — Таймер для донатона на стриме">
+  <meta property="og:description" content="Управляй временем стрима через донаты с оверлеем для OBS, поддержкой DonationAlerts, CloudTips, мобильным управлением по QR-коду и кастомным API.">
+  <meta property="og:image" content="https://timer.mjkey.ru/images/donaton_timer_mainpage.png">
+  <meta property="og:image:width" content="1280">
+  <meta property="og:image:height" content="720">
+  <meta property="og:locale" content="ru_RU">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://timer.mjkey.ru/">
+  <meta name="twitter:title" content="DonatonTimer — Таймер для донатона на стриме">
+  <meta name="twitter:description" content="Бесплатный таймер для донатонов на стриме: DonationAlerts, CloudTips, OBS оверлей, управление с телефона.">
+  <meta name="twitter:image" content="https://timer.mjkey.ru/images/donaton_timer_mainpage.png">
+
+  <!-- Schema.org Microdata: SoftwareApplication & FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "DonatonTimer",
+        "operatingSystem": "Windows 10, Windows 11, Linux",
+        "applicationCategory": "MultimediaApplication",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "RUB"
+        },
+        "description": "Бесплатное приложение для управления таймером донатона на стриме с интеграцией DonationAlerts, CloudTips, DonatePay, оверлеем для OBS Studio и управлением со смартфона.",
+        "downloadUrl": "https://github.com/MjKey/DonatonTimer/releases/latest",
+        "softwareVersion": "3.0.8",
+        "author": {
+          "@type": "Person",
+          "name": "MjKey",
+          "url": "https://mjkey.ru"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Как подключить оверлей таймера в OBS Studio?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "В OBS Studio добавьте источник «Браузер» (Browser Source) и в поле URL вставьте http://127.0.0.1:7575/timer с размерами 600x180. Таймер автоматически отобразится на прозрачном фоне."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Какие платформы донатов поддерживает DonatonTimer?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Поддерживаются DonationAlerts (актуальный протокол Centrifugo v2), CloudTips, DonatePay, Donate.Stream, Donatty, DonateX и Streamer.bot одновременно."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Можно ли управлять таймером со смартфона?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Да, нажмите кнопку QR-код на панели приложения, отсканируйте камерой смартфона в той же Wi-Fi сети и откройте мобильную панель управления без необходимости сворачивать игру."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Бесплатен ли DonatonTimer?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Да, DonatonTimer полностью бесплатен и имеет открытый исходный код под лицензией MIT."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
 
   <!-- Google Fonts: Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,7 +109,7 @@
   <!-- Site Header -->
   <header class="site-header">
     <div class="header-container">
-      <a href="#overview" class="logo-group">
+      <a href="#overview" class="logo-group" aria-label="DonatonTimer Главная">
         <div class="logo-icon-wrap">
           <img src="images/pepeD.gif" alt="pepeD" class="logo-pepe-img">
         </div>
@@ -37,23 +120,27 @@
       </a>
 
       <!-- Navigation Tabs -->
-      <nav class="nav-tabs" aria-label="Вкладки">
+      <nav class="nav-tabs" aria-label="Навигация по разделам">
         <button class="tab-btn active" data-tab="overview">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
           <span>Обзор</span>
         </button>
         <button class="tab-btn" data-tab="instructions">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-          <span>Инструкция</span>
+          <span>Инструкции</span>
         </button>
         <button class="tab-btn" data-tab="api">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
           <span>API таймера</span>
         </button>
+        <button class="tab-btn" data-tab="contributors">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          <span>Контрибьюторам</span>
+        </button>
       </nav>
 
       <div class="header-actions">
-        <a href="https://github.com/MjKey/DonatonTimer" target="_blank" rel="noopener" class="btn-github" title="Репозиторий на GitHub">
+        <a href="https://github.com/MjKey/DonatonTimer" target="_blank" rel="noopener" class="btn-github" title="Открыть репозиторий проекта на GitHub">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
             <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path>
           </svg>
@@ -83,10 +170,10 @@
         </h1>
 
         <p class="hero-description">
-          Мощное приложение для стримеров: автоматическое добавление времени от донатов с DonationAlerts, CloudTips, DonatePay, настраиваемый оверлей для OBS Studio, управление со смартфона и гибкое API.
+          Мощное бесплатное приложение для стримеров: автоматическое продление времени от донатов с DonationAlerts, CloudTips, DonatePay, кастомизируемый оверлей для OBS Studio, удобное управление со смартфона и локальное API.
         </p>
 
-        <!-- Download Cards -->
+        <!-- Download Cards Grid -->
         <div class="download-grid">
           
           <!-- Windows Card -->
@@ -156,7 +243,7 @@
               </svg>
             </div>
             <h3>Мульти-сервисность</h3>
-            <p>Одновременное подключение DonationAlerts, CloudTips, DonatePay, Donate.Stream, DonateX и Donatty. Ни один донат не потеряется.</p>
+            <p>Одновременное подключение DonationAlerts, CloudTips, DonatePay, Donate.Stream, DonateX и Donatty. Ни один донат не потеряется во время стрима.</p>
           </div>
 
           <div class="feature-card">
@@ -170,7 +257,7 @@
               </svg>
             </div>
             <h3>CSS Генератор стилей</h3>
-            <p>14 готовых пресетов (Cyberpunk, Matrix, Kawaii), шрифты Google Fonts, раздельные цвета для HH:MM:SS и эффектные анимации свечения.</p>
+            <p>14 готовых пресетов (Cyberpunk, Matrix, Kawaii), шрифты Google Fonts, раздельные цвета для HH:MM:SS и эффектные анимации неонового свечения.</p>
           </div>
 
           <div class="feature-card">
@@ -181,7 +268,7 @@
               </svg>
             </div>
             <h3>Управление со смартфона</h3>
-            <p>Сканируйте QR-код в приложении и меняйте время, ставьте паузу или следите за топом донатеров прямо с экрана телефона.</p>
+            <p>Сканируйте QR-код в приложении и меняйте время, ставьте паузу или следите за топом донатеров прямо с экрана мобильного телефона.</p>
           </div>
 
           <div class="feature-card">
@@ -193,7 +280,7 @@
               </svg>
             </div>
             <h3>Dok-панель для OBS</h3>
-            <p>Компактная мини-панель управления, встраиваемая прямо в интерфейс OBS Studio. Больше не нужно переключаться между окнами.</p>
+            <p>Компактная мини-панель управления, встраиваемая прямо в интерфейс OBS Studio. Больше не нужно переключаться между окнами во время игры.</p>
           </div>
 
           <div class="feature-card">
@@ -207,7 +294,7 @@
               </svg>
             </div>
             <h3>Интеграция со Streamer.bot</h3>
-            <p>Связывайте подписки Twitch/YouTube, баллы канала и кастомные команды с добавлением времени к таймеру через WebSocket.</p>
+            <p>Связывайте подписки Twitch/YouTube, баллы канала и кастомные команды с автоматическим добавлением времени к таймеру через WebSocket.</p>
           </div>
 
           <div class="feature-card">
@@ -240,7 +327,7 @@
               <!-- Slide 1 -->
               <div class="carousel-slide" data-index="0">
                 <div class="carousel-img-wrap">
-                  <img src="images/donaton_timer_mainpage.png" alt="Главный экран DonatonTimer" loading="lazy">
+                  <img src="images/donaton_timer_mainpage.png" alt="Главный экран таймера DonatonTimer для стрима" loading="lazy">
                   <div class="gallery-overlay-hint">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
                     <span>Нажмите для увеличения</span>
@@ -255,7 +342,7 @@
               <!-- Slide 2 -->
               <div class="carousel-slide" data-index="1">
                 <div class="carousel-img-wrap">
-                  <img src="images/donaton_timer_settings.png" alt="Окно настроек DonatonTimer" loading="lazy">
+                  <img src="images/donaton_timer_settings.png" alt="Окно настроек сервисов донатов" loading="lazy">
                   <div class="gallery-overlay-hint">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
                     <span>Нажмите для увеличения</span>
@@ -267,10 +354,10 @@
                 </div>
               </div>
 
-              <!-- Slide 3 (New Screenshot) -->
+              <!-- Slide 3 -->
               <div class="carousel-slide" data-index="2">
                 <div class="carousel-img-wrap">
-                  <img src="images/donaton_timer_timer_settings.png" alt="Настройки таймера и портов" loading="lazy">
+                  <img src="images/donaton_timer_timer_settings.png" alt="Параметры таймера и настройка портов" loading="lazy">
                   <div class="gallery-overlay-hint">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
                     <span>Нажмите для увеличения</span>
@@ -285,7 +372,7 @@
               <!-- Slide 4 -->
               <div class="carousel-slide" data-index="3">
                 <div class="carousel-img-wrap">
-                  <img src="images/donaton_timer_csseditor.png" alt="CSS Генератор стилей оверлея" loading="lazy">
+                  <img src="images/donaton_timer_csseditor.png" alt="CSS Генератор стилей таймера для OBS" loading="lazy">
                   <div class="gallery-overlay-hint">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
                     <span>Нажмите для увеличения</span>
@@ -300,7 +387,7 @@
               <!-- Slide 5 -->
               <div class="carousel-slide" data-index="4">
                 <div class="carousel-img-wrap">
-                  <img src="images/ui-classic-dark.png" alt="Классический тёмный стиль v2" loading="lazy">
+                  <img src="images/ui-classic-dark.png" alt="Классический тёмный стиль v2 Material Design" loading="lazy">
                   <div class="gallery-overlay-hint">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
                     <span>Нажмите для увеличения</span>
@@ -315,7 +402,7 @@
               <!-- Slide 6 -->
               <div class="carousel-slide" data-index="5">
                 <div class="carousel-img-wrap">
-                  <img src="images/ui-appearance-classic.png" alt="Классический светлый стиль v2" loading="lazy">
+                  <img src="images/ui-appearance-classic.png" alt="Классический светлый стиль оформления интерфейса" loading="lazy">
                   <div class="gallery-overlay-hint">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
                     <span>Нажмите для увеличения</span>
@@ -434,12 +521,28 @@
         
         <div class="section-title-wrap" style="margin-top: 10px;">
           <div class="section-tag">Руководство</div>
-          <h2 class="section-title">Инструкция по настройке</h2>
-          <p class="section-desc">Пошаговое руководство по быстрому запуску, интеграции с донатами и выводу таймера в OBS.</p>
+          <h2 class="section-title">Инструкции по настройке</h2>
+          <p class="section-desc">Подробные инструкции по подключению всех донат-сервисов, выводу оверлея в OBS и управлению с телефона.</p>
         </div>
 
-        <!-- Step 1 -->
-        <div class="guide-step">
+        <!-- Quick Jump Filter -->
+        <div class="service-quick-nav">
+          <a href="#guide-start" class="service-nav-pill">⚡ Быстрый старт</a>
+          <a href="#guide-da" class="service-nav-pill">DonationAlerts</a>
+          <a href="#guide-cloudtips" class="service-nav-pill">CloudTips</a>
+          <a href="#guide-donatepay" class="service-nav-pill">DonatePay</a>
+          <a href="#guide-donatestream" class="service-nav-pill">Donate.Stream</a>
+          <a href="#guide-donatty" class="service-nav-pill">Donatty</a>
+          <a href="#guide-donatex" class="service-nav-pill">DonateX</a>
+          <a href="#guide-streamerbot" class="service-nav-pill">Streamer.bot</a>
+          <a href="#guide-obs" class="service-nav-pill">OBS Оверлей</a>
+          <a href="#guide-obs-dock" class="service-nav-pill">OBS Dok-панель</a>
+          <a href="#guide-mobile" class="service-nav-pill">Смартфон</a>
+          <a href="#guide-faq" class="service-nav-pill">❓ FAQ</a>
+        </div>
+
+        <!-- Step 1: Quick Start -->
+        <div class="guide-step" id="guide-start">
           <div class="step-header">
             <div class="step-number">1</div>
             <div class="step-title">Установка и первый запуск</div>
@@ -451,31 +554,127 @@
             <li>Нажмите кнопку <strong>Старт</strong> для проверки отсчёта.</li>
           </ol>
           <div class="alert-note">
-            При первом запуске Windows Defender или SmartScreen может показать предупреждение о новом исполняемом файле — нажмите «Подробнее» → «Выполнить в любом случае».
+            При первом запуске Windows Defender или SmartScreen может показать предупреждение о новом файле — нажмите «Подробнее» → «Выполнить в любом случае».
           </div>
         </div>
 
-        <!-- Step 2 -->
-        <div class="guide-step">
+        <!-- Step 2: DonationAlerts -->
+        <div class="guide-step" id="guide-da">
           <div class="step-header">
             <div class="step-number">2</div>
-            <div class="step-title">Подключение DonationAlerts (Centrifugo v2)</div>
+            <div class="step-title">Настройка DonationAlerts (Centrifugo v2)</div>
           </div>
-          <p>В DonatonTimer v3.0.8 используется современный протокол Centrifugo с автообновлением авторизационных токенов.</p>
+          <p>В DonatonTimer v3.0.8 подключение к DonationAlerts работает через актуальный протокол Centrifugo с автообновлением токена доступа.</p>
           <ol>
-            <li>Откройте <strong>Настройки</strong> (иконка шестерёнки вверху).</li>
-            <li>Перейдите во вкладку <strong>DonationAlerts</strong>.</li>
-            <li>Вставьте <strong>Ссылку на виджет оповещений</strong> из личного кабинета DonationAlerts (или ваш токен виджета).</li>
-            <li>Укажите курс доната: например, <code>100 руб. = 10 мин.</code> или <code>1000 руб. = 1 час</code>.</li>
-            <li>Включите тумблер <strong>Включить DonationAlerts</strong> и нажмите <strong>Сохранить</strong>.</li>
-            <li>Статус подключения на главном экране изменится на зелёный.</li>
+            <li>Войдите в личный кабинет <strong>DonationAlerts</strong>.</li>
+            <li>Перейдите в меню слева: <strong>Оповещения</strong> → группа <strong>Виджеты</strong> → найдите вашу вариацию оповещений.</li>
+            <li>Нажмите <strong>«Показать ссылку для встраивания»</strong> и скопируйте её (или скопируйте токен виджета из конца ссылки).</li>
+            <li>В приложении DonatonTimer откройте <strong>Настройки</strong> (шестерёнка) → вкладка <strong>DonationAlerts</strong>.</li>
+            <li>Вставьте скопированную ссылку в поле «Токен или ссылка на виджет».</li>
+            <li>Выберите домен сервиса: <code>donationalerts.com</code> или <code>donationalerts.ru</code>.</li>
+            <li>Укажите курс начисления времени: например, <code>600 RUB = 60 мин</code> (или 100 RUB = 10 мин).</li>
+            <li>Включите тумблер <strong>«Включить DonationAlerts»</strong> и нажмите <strong>Сохранить</strong>. Индикатор статуса станет зелёным.</li>
           </ol>
         </div>
 
-        <!-- Step 3 -->
-        <div class="guide-step">
+        <!-- Step 3: CloudTips -->
+        <div class="guide-step" id="guide-cloudtips">
           <div class="step-header">
             <div class="step-number">3</div>
+            <div class="step-title">Настройка CloudTips</div>
+          </div>
+          <p>Сервис безналичных чаевых и донатов CloudTips подключается через ссылку потока оповещений:</p>
+          <ol>
+            <li>Войдите в кабинет <strong>CloudTips</strong>.</li>
+            <li>Перейдите в раздел <strong>«Стримерам»</strong> → подраздел <strong>«Оповещения»</strong>.</li>
+            <li>Скопируйте ссылку на поток оповещений вида: <code>https://stream.cloudtips.ru/n/YOUR_CHANNEL_ID</code>.</li>
+            <li>В DonatonTimer откройте <strong>Настройки</strong> → вкладка <strong>CloudTips</strong>.</li>
+            <li>Вставьте скопированную ссылку в поле «Ссылка на оповещения».</li>
+            <li>Включите тумблер и нажмите <strong>Сохранить</strong>. Донаты с банковских карт и СБП будут автоматически продлевать таймер!</li>
+          </ol>
+        </div>
+
+        <!-- Step 4: DonatePay -->
+        <div class="guide-step" id="guide-donatepay">
+          <div class="step-header">
+            <div class="step-number">4</div>
+            <div class="step-title">Настройка DonatePay</div>
+          </div>
+          <p>DonatePay подключается через персональный API-ключ пользователя:</p>
+          <ol>
+            <li>Войдите в аккаунт на сайте <strong>DonatePay.ru</strong>.</li>
+            <li>Перейдите в <strong>Настройки</strong> → вкладка <strong>API</strong> (или откройте <code>https://donatepay.ru/page/api</code>).</li>
+            <li>Скопируйте ваш <strong>API-ключ</strong>.</li>
+            <li>В DonatonTimer откройте <strong>Настройки</strong> → вкладка <strong>DonatePay</strong>.</li>
+            <li>Вставьте ключ в поле ввода, активируйте сервис и нажмите <strong>Сохранить</strong>.</li>
+          </ol>
+        </div>
+
+        <!-- Step 5: Donate.Stream -->
+        <div class="guide-step" id="guide-donatestream">
+          <div class="step-header">
+            <div class="step-number">5</div>
+            <div class="step-title">Настройка Donate.Stream</div>
+          </div>
+          <p>Интеграция с сервисом Donate.Stream:</p>
+          <ol>
+            <li>Войдите в личный кабинет <strong>Donate.Stream</strong>.</li>
+            <li>Перейдите в раздел <strong>Виджеты</strong> → <strong>Оповещения о донатах</strong>.</li>
+            <li>Скопируйте ключ или полную ссылку на виджет оповещений.</li>
+            <li>В DonatonTimer откройте <strong>Настройки</strong> → вкладка <strong>Donate.Stream</strong>.</li>
+            <li>Вставьте ключ в соответствующее поле, включите тумблер и нажмите <strong>Сохранить</strong>.</li>
+          </ol>
+        </div>
+
+        <!-- Step 6: Donatty -->
+        <div class="guide-step" id="guide-donatty">
+          <div class="step-header">
+            <div class="step-number">6</div>
+            <div class="step-title">Настройка Donatty</div>
+          </div>
+          <p>Подключение виджета Donatty:</p>
+          <ol>
+            <li>Войдите в личный кабинет <strong>Donatty</strong>.</li>
+            <li>В разделе виджетов скопируйте ссылку на виджет оповещений (она содержит параметры <code>ref=...&token=...</code>).</li>
+            <li>В DonatonTimer перейдите в <strong>Настройки</strong> → вкладка <strong>Donatty</strong>.</li>
+            <li>Вставьте ссылку (программа автоматически извлечёт токен) или вставьте сам токен.</li>
+            <li>Выберите назначенный API-сервер (по умолчанию <code>api-014.donatty.com</code>) и нажмите <strong>Сохранить</strong>.</li>
+          </ol>
+        </div>
+
+        <!-- Step 7: DonateX -->
+        <div class="guide-step" id="guide-donatex">
+          <div class="step-header">
+            <div class="step-number">7</div>
+            <div class="step-title">Настройка DonateX</div>
+          </div>
+          <p>DonateX использует ссылки на недавние сообщения и цель сбора средств:</p>
+          <ol>
+            <li>В панели <strong>DonateX</strong> откройте виджеты.</li>
+            <li>Скопируйте ссылку на недавние сообщения (Recent URL) и сбор средств (Group URL).</li>
+            <li>В DonatonTimer откройте <strong>Настройки</strong> → вкладка <strong>DonateX</strong>.</li>
+            <li>Вставьте ссылки в соответствующие поля и нажмите <strong>Сохранить</strong>.</li>
+          </ol>
+        </div>
+
+        <!-- Step 8: Streamer.bot -->
+        <div class="guide-step" id="guide-streamerbot">
+          <div class="step-header">
+            <div class="step-number">8</div>
+            <div class="step-title">Интеграция со Streamer.bot</div>
+          </div>
+          <p>Привязывайте платные подписки, фолловы, баллы канала Twitch и YouTube к прибавлению времени:</p>
+          <ol>
+            <li>В программе <strong>Streamer.bot</strong> перейдите в <code>Servers/Clients</code> → <code>WebSocket Server</code> и включите <strong>Auto Start</strong> (по умолчанию порт <code>8080</code>).</li>
+            <li>В DonatonTimer откройте <strong>Настройки</strong> → вкладка <strong>Streamer.bot</strong>, укажите адрес <code>ws://127.0.0.1:8080/</code> и включите сервис.</li>
+            <li>Нажмите <strong>«Добавить привязку»</strong>: выберите платформу (Twitch / YouTube), тип события (Sub, Gift Sub, Cheer, Channel Points) → задайте эквивалентную сумму в рублях.</li>
+          </ol>
+        </div>
+
+        <!-- Step 9: OBS Overlay -->
+        <div class="guide-step" id="guide-obs">
+          <div class="step-header">
+            <div class="step-number">9</div>
             <div class="step-title">Вывод оверлея в OBS Studio</div>
           </div>
           <p>DonatonTimer поднимает локальный веб-сервер, который отдаёт готовый прозрачный оверлей:</p>
@@ -487,19 +686,18 @@
                 <pre><code>http://127.0.0.1:7575/timer</code></pre>
               </div>
             </li>
-            <li>Укажите желаемую ширину и высоту (например, <strong>600 × 180</strong>).</li>
-            <li>Поставьте галочки «Обновлять браузер, когда сцена становится активной» и «Управлять звуком через OBS» (при необходимости).</li>
-            <li>Оверлей сразу отобразит красивый таймер на прозрачном фоне!</li>
+            <li>Укажите ширину и высоту (рекомендуется <strong>600 × 180</strong>).</li>
+            <li>Оверлей сразу отобразит красивый таймер со стилями, настроенными в CSS генераторе!</li>
           </ol>
         </div>
 
-        <!-- Step 4 -->
-        <div class="guide-step">
+        <!-- Step 10: OBS Dock Panel -->
+        <div class="guide-step" id="guide-obs-dock">
           <div class="step-header">
-            <div class="step-number">4</div>
-            <div class="step-title">Управление через Dok-панель OBS</div>
+            <div class="step-number">10</div>
+            <div class="step-title">Управление через Dok-панель OBS Studio</div>
           </div>
-          <p>Вы можете управлять таймером прямо из окна OBS без необходимости сворачивать игру или стрим:</p>
+          <p>Управляйте таймером прямо из окна OBS без необходимости сворачивать игру или стрим:</p>
           <ol>
             <li>В верхнем меню OBS Studio выберите <strong>Вид</strong> → <strong>Dok-панели</strong> → <strong>Пользовательские dok-панели браузера</strong>.</li>
             <li>В столбце «Имя» введите, например: <code>Донатон Таймер</code>.</li>
@@ -509,41 +707,27 @@
                 <pre><code>http://127.0.0.1:7575/mini</code></pre>
               </div>
             </li>
-            <li>Нажмите <strong>Применить</strong>. Появится компактная панель, которую можно прикрепить к любой стороне окна OBS.</li>
+            <li>Нажмите <strong>Применить</strong>. Появится компактная панель, которую можно закрепить в любом месте окна OBS.</li>
           </ol>
         </div>
 
-        <!-- Step 5 -->
-        <div class="guide-step">
+        <!-- Step 11: Mobile Control -->
+        <div class="guide-step" id="guide-mobile">
           <div class="step-header">
-            <div class="step-number">5</div>
+            <div class="step-number">11</div>
             <div class="step-title">Управление со смартфона по QR-коду</div>
           </div>
-          <p>Очень удобно контролировать таймер, лежа на диване или отойдя от компьютера:</p>
+          <p>Контролируйте таймер, отойдя от компьютера или прямо с дивана:</p>
           <ol>
             <li>Убедитесь, что смартфон и компьютер подключены к <strong>одной Wi-Fi сети</strong>.</li>
             <li>В DonatonTimer нажмите кнопку <strong>QR-код</strong> на панели управления.</li>
-            <li>Наведите камеру смартфона на QR-код и откройте появившуюся ссылку.</li>
-            <li>В браузере телефона откроется мобильная веб-панель со всеми кнопками управления и статистикой донатов в реальном времени.</li>
+            <li>Наведите камеру смартфона на QR-код и откройте ссылку.</li>
+            <li>В браузере откроется мобильная веб-панель со всеми кнопками управления и топом донатеров в реальном времени.</li>
           </ol>
         </div>
 
-        <!-- Step 6 -->
-        <div class="guide-step">
-          <div class="step-header">
-            <div class="step-number">6</div>
-            <div class="step-title">Интеграция со Streamer.bot</div>
-          </div>
-          <p>Привязывайте платные подписки, баллы канала и события чата к прибавлению времени:</p>
-          <ol>
-            <li>В программе <strong>Streamer.bot</strong> перейдите в <code>Servers/Clients</code> → <code>WebSocket Server</code> и включите <strong>Auto Start</strong> (по умолчанию порт <code>8080</code>).</li>
-            <li>В DonatonTimer откройте <strong>Настройки</strong> → <strong>Streamer.bot</strong>, укажите адрес <code>ws://127.0.0.1:8080/</code> и включите сервис.</li>
-            <li>Нажмите <strong>Добавить привязку</strong>: выберите платформу (Twitch/YouTube), тип события (Sub / Gift / Points) → эквивалент в рублях.</li>
-          </ol>
-        </div>
-
-        <!-- Step 7: FAQ -->
-        <div class="guide-step">
+        <!-- Step 12: FAQ -->
+        <div class="guide-step" id="guide-faq">
           <div class="step-header">
             <div class="step-number">?</div>
             <div class="step-title">Частые вопросы и диагностика (FAQ)</div>
@@ -797,12 +981,102 @@ socket.onopen = () => {
 
     </div>
 
+    <!-- TAB 4: CONTRIBUTORS -->
+    <div id="contributors" class="tab-panel">
+      
+      <div class="guide-container">
+        
+        <div class="section-title-wrap" style="margin-top: 10px;">
+          <div class="section-tag">Open Source</div>
+          <h2 class="section-title">Контрибьюторы проекта</h2>
+          <p class="section-desc">DonatonTimer создаётся и развивается благодаря сообществу. Огромная благодарность всем, кто вносит свой вклад!</p>
+        </div>
+
+        <!-- Hall of Fame Grid -->
+        <div class="contributors-grid">
+          
+          <!-- MjKey -->
+          <div class="contributor-card">
+            <img src="images/avatar_mjkey.png" alt="MjKey" class="contributor-avatar" loading="lazy">
+            <h3 class="contributor-name">MjKey</h3>
+            <span class="contributor-role">Создатель проекта</span>
+            <p class="contributor-desc">
+              Архитектура приложения на Flutter, адаптеры сервисов донатов, локальный веб-сервер, генератор CSS-стилей, инсталлятор Inno Setup и CI/CD релизов для Windows и Linux.
+            </p>
+            <a href="https://github.com/MjKey" target="_blank" rel="noopener" class="contributor-btn">
+              <span>@MjKey на GitHub</span>
+            </a>
+          </div>
+
+          <!-- Dertosh -->
+          <div class="contributor-card">
+            <img src="images/avatar_dertosh.png" alt="Dertosh" class="contributor-avatar" loading="lazy">
+            <h3 class="contributor-name">Dertosh</h3>
+            <span class="contributor-role">Core Contributor</span>
+            <p class="contributor-desc">
+              Реализация протокола Centrifugo v2 для DonationAlerts с автополучением токенов, автоматические тесты, документация по локальному API таймера и эталонный виджет для OBS.
+            </p>
+            <a href="https://github.com/Dertosh" target="_blank" rel="noopener" class="contributor-btn">
+              <span>@Dertosh на GitHub</span>
+            </a>
+          </div>
+
+          <!-- amiyadin -->
+          <div class="contributor-card">
+            <img src="images/avatar_amiyadin.png" alt="amiyadin" class="contributor-avatar" loading="lazy">
+            <h3 class="contributor-name">amiyadin</h3>
+            <span class="contributor-role">Core Contributor</span>
+            <p class="contributor-desc">
+              Разработка классического стиля интерфейса v2 (Material Design), полноценная поддержка тем оформления (Dark/Light) и компонентные тесты интерфейса.
+            </p>
+            <a href="https://github.com/amiyadin" target="_blank" rel="noopener" class="contributor-btn">
+              <span>@amiyadin на GitHub</span>
+            </a>
+          </div>
+
+        </div>
+
+        <!-- How to Contribute Section -->
+        <div class="how-to-contribute">
+          <h3>Как внести свой вклад?</h3>
+          <p style="color: var(--text-muted); margin-bottom: 18px;">
+            Мы всегда рады новым идеям, исправлению ошибок и улучшению таймера! Любой желающий может принять участие в разработке:
+          </p>
+          <ol style="padding-left: 20px; color: var(--text-muted); line-height: 1.8;">
+            <li>Сделайте <strong>Fork</strong> репозитория <a href="https://github.com/MjKey/DonatonTimer" target="_blank" rel="noopener" style="color: var(--accent-cyan);">MjKey/DonatonTimer</a> на GitHub.</li>
+            <li>Клонируйте проект и установите зависимости:
+              <div class="code-block" style="margin: 8px 0 14px;">
+                <div class="code-header"><span>Bash</span><button class="btn-copy">Копировать</button></div>
+                <pre><code>git clone https://github.com/ВАШ_НИК/DonatonTimer.git
+cd DonatonTimer
+flutter pub get</code></pre>
+              </div>
+            </li>
+            <li>Создайте отдельную ветку для ваших изменений: <code>git checkout -b feature/awesome-feature</code>.</li>
+            <li>Проверьте, что тесты проходят: <code>flutter test</code>.</li>
+            <li>Отправьте изменения и создайте <strong>Pull Request</strong> в ветку <code>main</code>!</li>
+          </ol>
+
+          <div style="margin-top: 24px; display: flex; gap: 12px; flex-wrap: wrap;">
+            <a href="https://github.com/MjKey/DonatonTimer/issues" target="_blank" rel="noopener" class="contributor-btn">
+              <span>🐛 Найти задачу в Issues</span>
+            </a>
+            <a href="https://github.com/MjKey/DonatonTimer/pulls" target="_blank" rel="noopener" class="contributor-btn">
+              <span>🚀 Открыть Pull Request</span>
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
   </main>
 
   <!-- Lightbox Modal -->
   <div id="lightbox-modal" class="lightbox-modal" role="dialog" aria-hidden="true">
     <button id="lightbox-close" class="lightbox-close" aria-label="Закрыть">&times;</button>
-    <img id="lightbox-img" class="lightbox-content" src="" alt="Скриншот">
+    <img id="lightbox-img" class="lightbox-content" src="" alt="Скриншот в полном размере">
   </div>
 
   <!-- Footer -->
@@ -821,7 +1095,7 @@ socket.onopen = () => {
         <span>•</span>
         <a href="https://mjkey.ru" target="_blank" rel="noopener">mjkey.ru</a>
       </div>
-      <div>Лицензия MIT &copy; 2026 DonatonTimer</div>
+      <div>Лицензия MIT &copy; 2026 DonatonTimer • Открытый исходный код</div>
     </div>
   </footer>
 

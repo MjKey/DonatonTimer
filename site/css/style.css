@@ -75,7 +75,7 @@ header.site-header {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(11, 13, 20, 0.85);
+  background: rgba(11, 13, 20, 0.88);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-color);
 }
@@ -150,6 +150,8 @@ nav.nav-tabs {
   padding: 4px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
+  flex-wrap: wrap;
+  gap: 2px;
 }
 
 .tab-btn {
@@ -157,9 +159,9 @@ nav.nav-tabs {
   border: none;
   color: var(--text-muted);
   font-family: inherit;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   font-weight: 500;
-  padding: 8px 18px;
+  padding: 8px 16px;
   border-radius: 10px;
   cursor: pointer;
   transition: var(--transition);
@@ -784,8 +786,39 @@ table.services-table tr:last-child td {
 
 /* INSTRUCTIONS & API TABS STYLING */
 .guide-container {
-  max-width: 900px;
+  max-width: 920px;
   margin: 0 auto;
+}
+
+/* Service Nav Quick Filter */
+.service-quick-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 30px;
+  padding: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+.service-nav-pill {
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: var(--bg-card-alt);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: var(--transition);
+  border: 1px solid transparent;
+}
+
+.service-nav-pill:hover {
+  color: #fff;
+  border-color: var(--accent-purple);
+  background: rgba(139, 92, 246, 0.15);
 }
 
 .guide-step {
@@ -794,6 +827,12 @@ table.services-table tr:last-child td {
   border-radius: var(--radius-lg);
   padding: 28px;
   margin-bottom: 24px;
+  scroll-margin-top: 90px;
+}
+
+.guide-step:target {
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 20px var(--accent-purple-glow);
 }
 
 .step-header {
@@ -841,6 +880,104 @@ table.services-table tr:last-child td {
 
 .guide-step strong {
   color: var(--text-main);
+}
+
+/* CONTRIBUTORS SECTION */
+.contributors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.contributor-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  text-align: center;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.contributor-card:hover {
+  border-color: var(--accent-purple);
+  background: var(--bg-card-hover);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.contributor-avatar {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--accent-purple);
+  box-shadow: 0 4px 16px var(--accent-purple-glow);
+  margin-bottom: 16px;
+}
+
+.contributor-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.contributor-role {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  color: #c4b5fd;
+  margin-bottom: 14px;
+}
+
+.contributor-desc {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 20px;
+  flex: 1;
+}
+
+.contributor-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--bg-card-alt);
+  border: 1px solid var(--border-color);
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.contributor-btn:hover {
+  background: var(--accent-purple);
+  border-color: var(--accent-purple);
+}
+
+/* How to Contribute Section */
+.how-to-contribute {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  margin-top: 40px;
+}
+
+.how-to-contribute h3 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 14px;
 }
 
 /* Code Snippet Box */
