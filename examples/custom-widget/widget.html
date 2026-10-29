@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>DonatonTimer — свой виджет</title>
+  <style>
+    html, body { margin: 0; background: transparent; }
+    body { font-family: "Segoe UI", Arial, sans-serif; color: #eee; }
+    #timer {
+      display: inline-block;
+      padding: 12px 20px;
+      border-radius: 12px;
+      background: rgba(20, 20, 20, .82);
+      font-size: 72px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+    #status { margin: 8px 20px; font-size: 14px; color: #bdbdbd; }
+    html[data-connected="false"] #timer { opacity: .5; }
+  </style>
+</head>
+<body>
+  <div id="timer" role="timer" aria-label="Оставшееся время">--:--:--</div>
+  <div id="status" role="status">Подключение…</div>
+  <script>
+    // Use the actual WebSocket port configured in DonatonTimer.
+    const WS_URL = 'ws://127.0.0.1:3434/';
+    const timer = document.getElementById('timer');
+    const status = document.getElementById('status');
+    let socket;
+    let retry;
+    let disposed = false;
+
+    function formatTime(total) {
+      const hours = Math.floor(total / 3600);
+      const minutes = Math.floor(total / 60) % 60;
+      const seconds = total % 60;
+      return [hours, minutes, seconds]
+        .map(value => String(value).padStart(2, '0'))
+        .join(':');
+    }
+
+    function connect() {
+      socket = new WebSocket(WS_URL);
+      socket.onopen = () => {
+        document.documentElement.dataset.connected = 'true';
+        status.textContent = 'Ожидание данных…';
+      };
+      socket.onmessage = event => {
+        let message;
+        try { message = JSON.parse(event.data); }
+        catch { return; }
+        if (!message || message.action !== 'update_timer') return;
+        if (!Number.isSafeInteger(message.duration) || message.duration < 0) return;
+        timer.textContent = formatTime(message.duration);
+        status.textContent = '';
+      };
+      socket.onerror = () => socket.close();
+      socket.onclose = () => {
+        document.documentElement.dataset.connected = 'false';
+        status.textContent = 'Нет связи — повторное подключение…';
+        if (!disposed) retry = setTimeout(connect, 1500);
+      };
+    }
+
+    window.addEventListener('beforeunload', () => {
+      disposed = true;
+      clearTimeout(retry);
+      socket?.close();
+    });
+    connect();
+  </script>
+</body>
+</html>
